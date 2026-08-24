@@ -15,10 +15,11 @@
     />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://calbluefc.com/" />
-    <meta property="og:image" content="https://calbluefc.com/assets/calblue-logo-web.jpg" />
+    <meta property="og:image" content="https://calbluefc.com/assets/hero/match-penalty.jpg" />
     <link rel="canonical" href="https://calbluefc.com/" />
     <title>CalBlue Soccer Club</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" as="image" href="assets/hero/match-penalty.jpg" fetchpriority="high" />
     <link rel="stylesheet" href="styles.css" />
     <script defer src="script.js"></script>
     <script type="application/ld+json">
@@ -69,6 +70,12 @@
 
     <main id="main">
       <section class="hero" id="top">
+        <div class="hero-slides" data-hero-slides aria-hidden="true">
+          <img class="hero-slide hero-slide-penalty is-active" src="assets/hero/match-penalty.jpg" alt="" fetchpriority="high" />
+          <img class="hero-slide hero-slide-huddle" src="assets/hero/match-huddle.jpg" alt="" loading="lazy" />
+          <img class="hero-slide hero-slide-ballwork" src="assets/hero/match-ballwork.jpg" alt="" loading="lazy" />
+          <img class="hero-slide hero-slide-champions" src="assets/hero/champions.jpg" alt="" loading="lazy" />
+        </div>
         <div class="hero-art" aria-hidden="true">
           <div class="floodlight floodlight-left"></div>
           <div class="floodlight floodlight-right"></div>
