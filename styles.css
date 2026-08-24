@@ -105,6 +105,11 @@ h2 { font-size: clamp(52px, 6.8vw, 88px); line-height: .9; letter-spacing: -.025
 .team-card-copy h3 { font-size: clamp(38px, 4vw, 57px); line-height: .95; }
 .team-card-copy span { display: block; margin-top: 12px; color: rgba(255,255,255,.65); font-size: 13px; }
 .team-card > a { position: absolute; right: 30px; bottom: 30px; display: grid; place-items: center; width: 46px; height: 46px; border: 1px solid rgba(255,255,255,.45); border-radius: 50%; }
+.league-banner { display: grid; grid-template-columns: .5fr 1.5fr auto; align-items: center; gap: 30px; margin-top: 18px; padding: 28px 34px; color: var(--navy); background: var(--cyan); transition: transform .2s, background .2s; }
+.league-banner:hover { transform: translateY(-3px); background: white; }
+.league-kicker { font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.league-banner strong { font: 700 clamp(27px, 3vw, 40px)/1 var(--display); text-transform: uppercase; }
+.league-action { font-size: 12px; font-weight: 700; }
 
 .schedule { background: white; }
 .schedule-heading { display: flex; align-items: end; justify-content: space-between; gap: 30px; margin-bottom: 50px; }
@@ -152,6 +157,22 @@ footer { padding: 72px 0 24px; color: white; background: #04112a; }
 .footer-links a:hover { color: var(--cyan); }
 .footer-bottom { display: flex; justify-content: space-between; padding-top: 23px; border-top: 1px solid rgba(255,255,255,.13); color: rgba(255,255,255,.38); font-size: 11px; }
 
+.subpage-hero { position: relative; overflow: hidden; padding: 180px 0 100px; color: white; background: radial-gradient(circle at 78% 20%, rgba(18,104,232,.75), transparent 28%), var(--navy); }
+.subpage-hero::after { content: ''; position: absolute; width: 580px; height: 580px; right: -180px; bottom: -390px; border: 1px solid rgba(255,197,27,.3); border-radius: 50%; box-shadow: 0 0 0 70px rgba(255,197,27,.03), 0 0 0 140px rgba(255,197,27,.02); }
+.subpage-hero h1 { font-size: clamp(76px, 11vw, 140px); }
+.subpage-hero p:last-child { max-width: 570px; margin: 30px 0 0; color: rgba(255,255,255,.7); font-size: 17px; line-height: 1.7; }
+.roster-section { background: #eef1f5; }
+.roster-heading { display: flex; align-items: end; justify-content: space-between; gap: 30px; margin-bottom: 48px; }
+.roster-heading > p { max-width: 430px; margin: 0 0 7px; color: var(--muted); line-height: 1.65; }
+.roster-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.player-card { position: relative; min-width: 0; overflow: hidden; background: var(--navy); }
+.player-card::after { content: ''; position: absolute; inset: 45% 0 0; background: linear-gradient(transparent, rgba(3,14,35,.94)); pointer-events: none; }
+.player-card img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; object-position: center top; transition: transform .35s ease; }
+.player-card:hover img { transform: scale(1.035); }
+.player-card h2 { position: absolute; z-index: 2; left: 20px; right: 20px; bottom: 20px; color: white; font-size: clamp(25px, 2.5vw, 35px); line-height: .95; }
+.roster-source { display: flex; align-items: center; justify-content: space-between; gap: 25px; margin-top: 46px; padding-top: 25px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+.roster-source a { color: var(--blue); font-weight: 700; }
+
 .reveal { opacity: 0; transform: translateY(18px); animation: reveal .7s ease forwards; }
 .reveal:nth-child(2) { animation-delay: .1s; }
 .reveal:nth-child(3) { animation-delay: .2s; }
@@ -170,6 +191,7 @@ footer { padding: 72px 0 24px; color: white; background: #04112a; }
   .number-grid { grid-template-columns: repeat(2, 1fr); }
   .number-grid div:nth-child(3) { border-left: 1px solid var(--line); }
   .team-cards { grid-template-columns: 1fr; }
+  .league-banner { grid-template-columns: 1fr; gap: 10px; }
   .match-card { grid-template-columns: 1fr; text-align: center; }
   .match-meta { align-items: center; padding: 0 0 25px; border-right: 0; border-bottom: 1px solid #dce2ea; }
   .match-card .button { justify-self: center; }
@@ -199,9 +221,16 @@ footer { padding: 72px 0 24px; color: white; background: #04112a; }
   .club-side img { width: 62px; height: 62px; }
   .crest-placeholder { width: 58px; height: 58px; }
   .team-card { min-height: 330px; padding: 25px; }
+  .roster-heading, .roster-source { align-items: flex-start; flex-direction: column; }
+  .roster-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .player-card h2 { left: 14px; right: 14px; bottom: 14px; font-size: 27px; }
   .values-grid, .join-inner { gap: 50px; }
   .footer-top, .footer-bottom { flex-direction: column; gap: 38px; }
   .footer-links { grid-template-columns: repeat(2, 1fr); width: 100%; }
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+  .roster-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {
