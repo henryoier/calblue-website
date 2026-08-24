@@ -35,7 +35,7 @@ Never share a single password among maintainers. Invite each person by their own
 
 ## Domain and DNS
 
-Shortlist a name such as `calbluefc.org`, `calblue.team`, or another club-approved domain, then check availability and possible trademark conflicts before purchase.
+The registered production domain is `calbluefc.com`.
 
 After registration:
 
@@ -82,7 +82,7 @@ Store public schedules and announcements as reviewed static content. Introduce a
 
 ## Contact form
 
-The initial mail link has no backend and no stored personal data. Before launch, replace the placeholder address with an approved club mailbox.
+The initial mail link has no backend and no stored personal data. Confirm that `calblue1996@gmail.com` should receive public inquiries before launch.
 
 If a web form is required later, use a managed form endpoint or a small serverless function with spam protection. Publish a privacy notice that explains what is collected, why, who receives it, and how long it is retained.
 

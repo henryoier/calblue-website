@@ -25,11 +25,11 @@ python3 scripts/check_site.py
 
 ## Content to confirm before launch
 
-- Replace `hello@calblue.team` with the official public contact address.
+- Confirm that `calblue1996@gmail.com` is the approved public contact address.
 - Add confirmed league, team, training, and fixture information.
 - Add official social profile URLs.
 - Confirm the club's preferred legal name and approve the 1996 founding language.
-- Add a custom domain once it has been purchased or assigned.
+- Confirm the `calbluefc.com` DNS configuration and enable HTTPS.
 
 ## Recommended publishing path
 
