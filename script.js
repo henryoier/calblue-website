@@ -21,16 +21,6 @@ nav.addEventListener('click', (event) => {
 
 document.querySelector('[data-year]').textContent = new Date().getFullYear();
 
-const heroSlides = [...document.querySelectorAll('[data-hero-slides] .hero-slide')];
-if (heroSlides.length > 1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  let activeSlide = 0;
-  window.setInterval(() => {
-    heroSlides[activeSlide].classList.remove('is-active');
-    activeSlide = (activeSlide + 1) % heroSlides.length;
-    heroSlides[activeSlide].classList.add('is-active');
-  }, 6500);
-}
-
 const lightbox = document.querySelector('[data-lightbox]');
 if (lightbox) {
   const lightboxImage = lightbox.querySelector('img');
