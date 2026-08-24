@@ -7,7 +7,7 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parent.parent
-PAGES = (ROOT / "index.html", ROOT / "roster.html", ROOT / "404.html")
+PAGES = (ROOT / "index.html", ROOT / "roster.html", ROOT / "gallery.html", ROOT / "404.html")
 
 
 class PageParser(HTMLParser):

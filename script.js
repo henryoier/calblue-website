@@ -20,3 +20,23 @@ nav.addEventListener('click', (event) => {
 });
 
 document.querySelector('[data-year]').textContent = new Date().getFullYear();
+
+const lightbox = document.querySelector('[data-lightbox]');
+if (lightbox) {
+  const lightboxImage = lightbox.querySelector('img');
+  const lightboxCaption = lightbox.querySelector('[data-lightbox-caption]');
+
+  document.querySelectorAll('[data-gallery-item]').forEach((item) => {
+    item.addEventListener('click', () => {
+      lightboxImage.src = item.dataset.gallerySrc;
+      lightboxImage.alt = item.dataset.galleryAlt;
+      lightboxCaption.textContent = item.dataset.galleryCaption;
+      lightbox.showModal();
+    });
+  });
+
+  lightbox.querySelector('[data-lightbox-close]').addEventListener('click', () => lightbox.close());
+  lightbox.addEventListener('click', (event) => {
+    if (event.target === lightbox) lightbox.close();
+  });
+}
