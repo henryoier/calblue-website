@@ -63,7 +63,6 @@ python3 scripts/check_site.py
 index.html               Main one-page site
 styles.css               Responsive visual system
 script.js                Navigation and small UI behavior
-assets/calblue-mark-official.svg  Web wrapper for the official crest
 assets/calblue-logo-web.jpg  Web-optimized official crest sourced from the shared Drive
 assets/favicon.svg       Browser icon
 404.html                 Branded error page

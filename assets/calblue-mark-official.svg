@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-labelledby="title">
-  <title id="title">CalBlue 1996 crest</title>
-  <defs>
-    <clipPath id="circle"><circle cx="50" cy="50" r="49"/></clipPath>
-  </defs>
-  <circle cx="50" cy="50" r="50" fill="#fff"/>
-  <image href="calblue-logo-web.jpg" x="-14" y="-14" width="128" height="130" preserveAspectRatio="xMidYMid meet" clip-path="url(#circle)"/>
-  <circle cx="50" cy="50" r="48.5" fill="none" stroke="#ffc51b" stroke-width="3"/>
-</svg>

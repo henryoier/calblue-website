@@ -30,7 +30,7 @@ img { display: block; max-width: 100%; }
 .header-inner { height: 100%; display: flex; align-items: center; justify-content: space-between; }
 .brand { display: inline-flex; align-items: center; gap: 11px; font: 800 25px/1 var(--display); letter-spacing: .045em; }
 .brand > span > span { color: var(--cyan); }
-.brand img { border-radius: 50%; transition: transform .25s; }
+.brand img { border: 2px solid rgba(255,255,255,.8); border-radius: 50%; object-fit: cover; transition: transform .25s; }
 .brand:hover img { transform: rotate(-5deg); }
 .site-nav { display: flex; align-items: center; gap: 34px; font-size: 14px; font-weight: 600; }
 .site-nav > a:not(.button) { position: relative; }
@@ -117,6 +117,7 @@ h2 { font-size: clamp(52px, 6.8vw, 88px); line-height: .9; letter-spacing: -.025
 .match-meta small { color: var(--muted); }
 .matchup { display: flex; align-items: center; justify-content: center; gap: clamp(25px, 5vw, 65px); }
 .club-side { display: flex; align-items: center; gap: 14px; font: 700 21px/1 var(--display); text-transform: uppercase; }
+.club-side img { border-radius: 50%; object-fit: cover; }
 .crest-placeholder { display: grid; place-items: center; width: 68px; height: 68px; color: #9ba4b2; background: #edf0f4; border-radius: 50%; font: 700 25px/1 var(--display); }
 .opponent { color: #7d8795; }
 .versus { display: flex; flex-direction: column; align-items: center; gap: 7px; }
