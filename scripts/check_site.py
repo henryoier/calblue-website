@@ -48,7 +48,7 @@ def check_page(path: Path) -> list[str]:
             continue
         if reference == "./":
             continue
-        local_reference = reference.split("#", 1)[0]
+        local_reference = reference.split("#", 1)[0].split("?", 1)[0]
         local_path = (path.parent / local_reference).resolve()
         if not local_path.exists():
             errors.append(f"{path.name}: missing local file {reference}")
