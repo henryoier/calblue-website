@@ -62,10 +62,12 @@ python3 scripts/check_site.py
 ```text
 index.html               Main one-page site
 roster.html              Public Kylin Cup roster
+gallery.html             2026 NCCSF Tournament photo gallery
 styles.css               Responsive visual system
 script.js                Navigation and small UI behavior
 assets/calblue-logo-web.jpg  Web-optimized official crest sourced from the shared Drive
 assets/roster/           Public face photos sourced from the roster sheet
+assets/gallery/          Selected and optimized tournament photographs
 assets/favicon.svg       Browser icon
 404.html                 Branded error page
 netlify.toml             Optional Netlify config

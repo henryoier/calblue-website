@@ -7,7 +7,8 @@ import sys
 
 
 ROOT = Path(__file__).resolve().parent.parent
-PAGES = (ROOT / "index.html", ROOT / "roster.html", ROOT / "404.html")
+PAGES = tuple(ROOT.glob("*.html"))
+ALBUMS = {"tiger": 135, "nbh": 58, "sfu": 24, "hehe": 66}
 
 
 class PageParser(HTMLParser):
@@ -57,6 +58,12 @@ def check_page(path: Path) -> list[str]:
 
 def main() -> int:
     errors = [error for page in PAGES for error in check_page(page)]
+    for album, expected_count in ALBUMS.items():
+        album_dir = ROOT / "assets" / "gallery" / album
+        photos = sorted(album_dir.glob("*.jpg")) if album_dir.exists() else []
+        expected_names = [f"{index:03d}.jpg" for index in range(1, expected_count + 1)]
+        if [photo.name for photo in photos] != expected_names:
+            errors.append(f"{album}: expected {expected_count} sequential photos, found {len(photos)}")
     if errors:
         print("\n".join(errors), file=sys.stderr)
         return 1
