@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="CalBlue is a Bay Area soccer club built around competitive play, community, and a shared love of the game."
+    />
+    <meta name="theme-color" content="#071b3f" />
+    <meta property="og:title" content="CalBlue Soccer Club" />
+    <meta
+      property="og:description"
+      content="One club. One color. A Bay Area soccer community."
+    />
+    <meta property="og:type" content="website" />
+    <title>CalBlue Soccer Club</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+    <script defer src="script.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header" data-header>
+      <div class="header-inner shell">
+        <a class="brand" href="#top" aria-label="CalBlue home">
+          <img src="assets/calblue-mark-official.svg" alt="" width="52" height="52" />
+          <span>CAL<span>BLUE</span></span>
+        </a>
+
+        <button
+          class="menu-toggle"
+          type="button"
+          aria-label="Open navigation"
+          aria-expanded="false"
+          aria-controls="site-nav"
+          data-menu-toggle
+        >
+          <span></span><span></span><span></span>
+        </button>
+
+        <nav class="site-nav" id="site-nav" data-nav aria-label="Main navigation">
+          <a href="#club">Club</a>
+          <a href="#teams">Teams</a>
+          <a href="#schedule">Schedule</a>
+          <a href="#contact">Contact</a>
+          <a class="button button-small" href="#join">Join CalBlue</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top">
+        <div class="hero-art" aria-hidden="true">
+          <div class="floodlight floodlight-left"></div>
+          <div class="floodlight floodlight-right"></div>
+          <div class="pitch-line pitch-circle"></div>
+          <div class="pitch-line pitch-arc"></div>
+          <div class="ball"><span></span></div>
+        </div>
+        <div class="shell hero-content">
+          <p class="eyebrow reveal">Bay Area football • Established 1996</p>
+          <h1 class="reveal">Built in the Bay.<br /><em>United by the game.</em></h1>
+          <p class="hero-copy reveal">
+              Three decades of competition, friendship, and community—one
+              team carrying the blue and gold across the Bay Area.
+          </p>
+          <div class="hero-actions reveal">
+            <a class="button" href="#join">Play with us <span aria-hidden="true">↗</span></a>
+            <a class="text-link" href="#schedule">View schedule <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+        <div class="hero-ticker" aria-label="Club values">
+          <div>
+            <span>COMPETE WITH PURPOSE</span><b>◆</b><span>PLAY AS ONE</span><b>◆</b>
+            <span>REPRESENT THE BAY</span><b>◆</b><span>COMPETE WITH PURPOSE</span><b>◆</b>
+            <span>PLAY AS ONE</span><b>◆</b><span>REPRESENT THE BAY</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="intro section" id="club">
+        <div class="shell intro-grid">
+          <div>
+            <p class="section-tag">Our club</p>
+            <h2>More than ninety minutes.</h2>
+          </div>
+          <div class="intro-body">
+            <p>
+              Founded in 1996, CalBlue brings together players from across the
+              Bay Area through serious competition and a lasting sense of
+              belonging. The best teams are built through trust, consistency,
+              and joy.
+            </p>
+            <a class="text-link dark" href="#values">What drives us <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="numbers section-tight" aria-label="CalBlue at a glance">
+        <div class="shell number-grid">
+          <div><strong>1996</strong><span>Where the story began</span></div>
+          <div><strong data-count="11">11</strong><span>Players, one side</span></div>
+          <div><strong>30</strong><span>Years of CalBlue</span></div>
+          <div><strong>∞</strong><span>Love for football</span></div>
+        </div>
+      </section>
+
+      <section class="teams section" id="teams">
+        <div class="shell">
+          <div class="section-heading">
+            <div>
+              <p class="section-tag light">The squad</p>
+              <h2>Find your place<br />on the pitch.</h2>
+            </div>
+            <p>
+              We welcome committed players who value good football, good
+              teammates, and a competitive weekend.
+            </p>
+          </div>
+
+          <div class="team-cards">
+            <article class="team-card team-card-featured">
+              <div class="card-number">01</div>
+              <div class="team-card-copy">
+              <p>11v11 football</p>
+                <h3>League & Cup Squad</h3>
+                <span>Bay Area competition through the year</span>
+              </div>
+              <a href="#join" aria-label="Ask about the CalBlue first team">↗</a>
+            </article>
+            <article class="team-card">
+              <div class="card-number">02</div>
+              <div class="team-card-copy">
+                <p>Small-sided football</p>
+                <h3>CalBlue Tri-Valley</h3>
+                <span>Local league and community play</span>
+              </div>
+              <a href="#join" aria-label="Ask about CalBlue training and pick-up">↗</a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="schedule section" id="schedule">
+        <div class="shell">
+          <div class="schedule-heading">
+            <div>
+              <p class="section-tag">Match center</p>
+              <h2>Next up.</h2>
+            </div>
+            <p class="status-pill"><span></span> Schedule updates coming soon</p>
+          </div>
+
+          <div class="match-card">
+            <div class="match-meta">
+              <span>Next fixture</span>
+              <strong>To be announced</strong>
+              <small>Bay Area, California</small>
+            </div>
+            <div class="matchup">
+              <div class="club-side">
+                <img src="assets/calblue-mark-official.svg" alt="CalBlue crest" width="90" height="90" />
+                <strong>CalBlue</strong>
+              </div>
+              <div class="versus"><span>VS</span><small>— : —</small></div>
+              <div class="club-side opponent">
+                <div class="crest-placeholder" aria-hidden="true">?</div>
+                <strong>Opponent</strong>
+              </div>
+            </div>
+            <a class="button button-dark" href="#contact">Get match updates</a>
+          </div>
+
+          <div class="competition-links" aria-label="CalBlue competition links">
+            <span>Competition archives:</span>
+            <a href="https://www.nccsf.org/" target="_blank" rel="noopener">NCCSF ↗</a>
+            <a href="https://www.gsffc.org/en/seasons/23q1/calblue/" target="_blank" rel="noopener">GSF Football Club ↗</a>
+            <a href="https://twin-creeks-sports.ezleagues.ezfacility.com/teams/2789876/Calblue-Trivalley.aspx?l=en-US-US" target="_blank" rel="noopener">Twin Creeks ↗</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="values section" id="values">
+        <div class="shell values-grid">
+          <div class="values-title">
+            <p class="section-tag light">The CalBlue way</p>
+            <h2>Our badge means something.</h2>
+          </div>
+          <div class="value-list">
+            <article>
+              <span>01</span>
+              <div><h3>Compete</h3><p>Bring intensity, preparation, and respect to every match.</p></div>
+            </article>
+            <article>
+              <span>02</span>
+              <div><h3>Connect</h3><p>Build friendships that extend beyond the final whistle.</p></div>
+            </article>
+            <article>
+              <span>03</span>
+              <div><h3>Represent</h3><p>Carry the club and the Bay Area with pride.</p></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="join section" id="join">
+        <div class="shell join-inner">
+          <div>
+            <p class="section-tag">Join the club</p>
+            <h2>Your next team<br />could be this one.</h2>
+          </div>
+          <div class="join-copy">
+            <p>
+              Interested in playing, arranging a friendly, or supporting the
+              club? Send us a note and tell us how you’d like to get involved.
+            </p>
+            <a class="button button-dark" href="mailto:hello@calblue.team?subject=CalBlue%20website%20inquiry">
+              Contact CalBlue <span aria-hidden="true">↗</span>
+            </a>
+            <small>Replace this launch email with the club’s official address.</small>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer id="contact">
+      <div class="shell footer-top">
+        <a class="brand brand-footer" href="#top" aria-label="CalBlue home">
+          <img src="assets/calblue-mark-official.svg" alt="" width="62" height="62" />
+          <span>CAL<span>BLUE</span></span>
+        </a>
+        <div class="footer-links">
+          <div><span>Navigate</span><a href="#club">Club</a><a href="#teams">Teams</a><a href="#schedule">Schedule</a></div>
+          <div><span>Connect</span><a href="mailto:hello@calblue.team">Email</a><a href="#join">Join the team</a></div>
+        </div>
+      </div>
+      <div class="shell footer-bottom">
+        <p>© <span data-year></span> CalBlue Soccer Club</p>
+        <p>Made for the Bay Area football community.</p>
+      </div>
+    </footer>
+  </body>
+</html>
