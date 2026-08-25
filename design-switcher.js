@@ -25,13 +25,22 @@
     }
   };
   const requestedDesign = new URLSearchParams(window.location.search).get('design');
+  const storedDesign = readStoredDesign();
   const initialDesign = validDesign(requestedDesign)
     ? requestedDesign
-    : validDesign(readStoredDesign())
-      ? readStoredDesign()
+    : validDesign(storedDesign)
+      ? storedDesign
       : DEFAULT_DESIGN;
 
   document.documentElement.dataset.design = initialDesign;
+
+  if (validDesign(requestedDesign)) {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, requestedDesign);
+    } catch (error) {
+      // Query-string previews still work when storage is unavailable.
+    }
+  }
 
   const setThemeColor = (designId) => {
     const themeColor = designs.find((design) => design.id === designId)?.themeColor;
@@ -50,6 +59,9 @@
         // The selected design still works when storage is unavailable.
       }
     }
+    const url = new URL(window.location.href);
+    url.searchParams.set('design', designId);
+    window.history.replaceState(null, '', url);
     document.dispatchEvent(new CustomEvent('calblue:designchange', { detail: { designId } }));
   };
 
@@ -65,9 +77,9 @@
     const switcher = document.createElement('div');
     switcher.className = 'design-switcher';
     switcher.innerHTML = `
-      <button class="design-switcher-toggle" type="button" aria-expanded="false" aria-controls="design-switcher-panel">
+      <button class="design-switcher-toggle" type="button" aria-label="Choose website design" aria-expanded="false" aria-controls="design-switcher-panel" aria-haspopup="true">
         <span class="design-switcher-icon" aria-hidden="true"><i></i><i></i></span>
-        <span><small>Website design</small><strong data-design-current></strong></span>
+        <span><small>Website design</small><strong data-design-current aria-live="polite"></strong></span>
       </button>
       <div class="design-switcher-panel" id="design-switcher-panel" hidden>
         <div class="design-switcher-heading"><span>Design lab</span><small>Choose your view</small></div>
@@ -97,9 +109,11 @@
       });
     };
 
-    const closePanel = () => {
+    const closePanel = (restoreFocus = false) => {
+      const wasOpen = !panel.hidden;
       panel.hidden = true;
       toggle.setAttribute('aria-expanded', 'false');
+      if (restoreFocus && wasOpen) toggle.focus();
     };
 
     toggle.addEventListener('click', () => {
@@ -112,7 +126,7 @@
       button.addEventListener('click', () => {
         applyDesign(button.dataset.designOption);
         updateControls();
-        closePanel();
+        closePanel(true);
       });
     });
 
@@ -120,7 +134,10 @@
       if (!switcher.contains(event.target)) closePanel();
     });
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') closePanel();
+      if (event.key === 'Escape') closePanel(true);
+    });
+    document.addEventListener('calblue:navigation', (event) => {
+      if (event.detail?.open) closePanel();
     });
     document.addEventListener('calblue:designchange', updateControls);
     updateControls();
