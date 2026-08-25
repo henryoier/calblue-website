@@ -154,11 +154,16 @@ h2 { font-size: clamp(52px, 6.8vw, 88px); line-height: .9; letter-spacing: -.025
 footer { padding: 72px 0 24px; color: white; background: #04112a; }
 .footer-top { display: flex; align-items: start; justify-content: space-between; padding-bottom: 65px; }
 .brand-footer { font-size: 30px; }
-.footer-links { display: grid; grid-template-columns: repeat(2, 160px); gap: 45px; }
-.footer-links div { display: flex; flex-direction: column; gap: 12px; }
+.footer-links { display: grid; grid-template-columns: repeat(3, minmax(120px, 160px)); gap: clamp(24px, 4vw, 45px); }
+.footer-links > div { display: flex; flex-direction: column; gap: 12px; }
 .footer-links span { margin-bottom: 5px; color: rgba(255,255,255,.42); font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
 .footer-links a { color: rgba(255,255,255,.75); font-size: 13px; }
 .footer-links a:hover { color: var(--cyan); }
+.social-links { display: flex; gap: 10px; }
+.social-links a { display: grid; width: 42px; height: 42px; border: 1px solid rgba(255,255,255,.24); border-radius: 50%; place-items: center; transition: color .2s, border-color .2s, transform .2s; }
+.social-links a:hover { color: var(--cyan); border-color: var(--cyan); transform: translateY(-2px); }
+.social-links svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.social-links .social-icon-dot, .social-links .social-icon-fill { fill: currentColor; stroke: none; }
 .footer-bottom { display: flex; justify-content: space-between; padding-top: 23px; border-top: 1px solid rgba(255,255,255,.13); color: rgba(255,255,255,.38); font-size: 11px; }
 
 .subpage-hero { position: relative; overflow: hidden; padding: 180px 0 100px; color: white; background: radial-gradient(circle at 78% 20%, rgba(18,104,232,.75), transparent 28%), var(--navy); }
@@ -259,6 +264,8 @@ footer { padding: 72px 0 24px; color: white; background: #04112a; }
   .match-card { grid-template-columns: 1fr; text-align: center; }
   .match-meta { align-items: center; padding: 0 0 25px; border-right: 0; border-bottom: 1px solid #dce2ea; }
   .match-card .button { justify-self: center; }
+  .footer-top { flex-wrap: wrap; gap: 38px; }
+  .footer-links { grid-template-columns: repeat(3, 1fr); width: 100%; }
 }
 
 @media (max-width: 600px) {
@@ -312,6 +319,7 @@ footer { padding: 72px 0 24px; color: white; background: #04112a; }
   .values-grid, .join-inner { gap: 50px; }
   .footer-top, .footer-bottom { flex-direction: column; gap: 38px; }
   .footer-links { grid-template-columns: repeat(2, 1fr); width: 100%; }
+  .footer-social { grid-column: 1 / -1; }
 }
 
 @media (min-width: 601px) and (max-width: 900px) {
