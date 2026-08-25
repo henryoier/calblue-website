@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Small dependency-free validation for the CalBlue static site."""
 
+from __future__ import annotations
+
 from html.parser import HTMLParser
 from pathlib import Path
 import sys
