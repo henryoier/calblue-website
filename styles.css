@@ -228,6 +228,8 @@ footer { padding: 72px 0 24px; color: white; background: #04112a; }
 .album-hero-nbh { background-image: url('assets/gallery/nbh-team-talk.jpg'); }
 .album-hero-sfu { background-image: url('assets/gallery/sfu-team-talk.jpg'); }
 .album-hero-hehe { background-image: url('assets/gallery/hehe-penalty.jpg'); }
+.album-hero-btg { background-image: url('assets/gallery/btg/028.jpg'); background-position: center 48%; }
+.album-hero-btg h1 { font-size: clamp(58px, 8vw, 112px); }
 .album-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 22px; margin-top: 30px; }
 .album-actions .text-link { color: white; }
 .album-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
