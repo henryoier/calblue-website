@@ -2,10 +2,11 @@ const albumPage = document.querySelector('[data-album-page]');
 
 if (albumPage) {
   const albums = {
-    tiger: { opponent: 'Tiger', date: 'May 24, 2026', count: 135 },
-    nbh: { opponent: 'NBH', date: 'May 23, 2026', count: 58 },
-    sfu: { opponent: 'SFU', date: 'May 16, 2026', count: 24 },
-    hehe: { opponent: 'Hehe', date: 'May 17, 2026', count: 66 },
+    tiger: { opponent: 'Tiger', date: 'May 24, 2026', count: 135, competition: '2026 NCCSF' },
+    nbh: { opponent: 'NBH', date: 'May 23, 2026', count: 58, competition: '2026 NCCSF' },
+    sfu: { opponent: 'SFU', date: 'May 16, 2026', count: 24, competition: '2026 NCCSF' },
+    hehe: { opponent: 'Hehe', date: 'May 17, 2026', count: 66, competition: '2026 NCCSF' },
+    btg: { opponent: 'Real Santa Clara', date: 'June 28, 2026', count: 28, competition: 'Beyond the Game' },
   };
   const slug = albumPage.dataset.albumPage;
   const album = albums[slug];
@@ -17,7 +18,7 @@ if (albumPage) {
     for (let index = 1; index <= album.count; index += 1) {
       const number = String(index).padStart(3, '0');
       const source = `assets/gallery/${slug}/${number}.jpg`;
-      const alt = `CalBlue vs ${album.opponent}, tournament photo ${index} of ${album.count}`;
+      const alt = `CalBlue vs ${album.opponent}, ${album.competition} photo ${index} of ${album.count}`;
       const caption = `CalBlue vs ${album.opponent} • ${album.date} • Photo ${index} of ${album.count}`;
       const button = document.createElement('button');
       const image = document.createElement('img');

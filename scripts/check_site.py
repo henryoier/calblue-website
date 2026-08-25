@@ -10,7 +10,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parent.parent
 PAGES = tuple(ROOT.glob("*.html"))
-ALBUMS = {"tiger": 135, "nbh": 58, "sfu": 24, "hehe": 66}
+ALBUMS = {"tiger": 135, "nbh": 58, "sfu": 24, "hehe": 66, "btg": 28}
 
 
 class PageParser(HTMLParser):
