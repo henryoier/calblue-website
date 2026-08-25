@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from html.parser import HTMLParser
 from pathlib import Path
+import re
 import sys
 
 
@@ -60,16 +61,32 @@ def check_page(path: Path) -> list[str]:
 
 def main() -> int:
     errors = [error for page in PAGES for error in check_page(page)]
+
+    media_config = (ROOT / "media-config.js").read_text(encoding="utf-8")
+    if not re.search(r"baseUrl:\s*'https://[^']+'", media_config):
+        errors.append("media-config.js: missing HTTPS R2 base URL")
+
+    album_script = (ROOT / "album.js").read_text(encoding="utf-8")
+    configured_albums = {
+        match.group("slug"): int(match.group("count"))
+        for match in re.finditer(r"(?P<slug>\w+):\s*\{[^}]*count:\s*(?P<count>\d+)", album_script)
+    }
     for album, expected_count in ALBUMS.items():
-        album_dir = ROOT / "assets" / "gallery" / album
-        photos = sorted(album_dir.glob("*.jpg")) if album_dir.exists() else []
-        expected_names = [f"{index:03d}.jpg" for index in range(1, expected_count + 1)]
-        if [photo.name for photo in photos] != expected_names:
-            errors.append(f"{album}: expected {expected_count} sequential photos, found {len(photos)}")
+        if configured_albums.get(album) != expected_count:
+            errors.append(f"album.js: {album} should contain {expected_count} photos")
+
+    if (ROOT / "assets" / "gallery").exists():
+        errors.append("assets/gallery: local gallery copies should not be committed")
+
+    for pattern in ("*.html", "*.css", "*.js"):
+        for source_path in ROOT.glob(pattern):
+            if "assets/gallery" in source_path.read_text(encoding="utf-8"):
+                errors.append(f"{source_path.name}: contains a removed local gallery reference")
+
     if errors:
         print("\n".join(errors), file=sys.stderr)
         return 1
-    print(f"Validated {len(PAGES)} pages and all local references.")
+    print(f"Validated {len(PAGES)} pages, local references, and R2 gallery configuration.")
     return 0
 
 
