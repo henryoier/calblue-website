@@ -1,67 +1,7 @@
 /*
- * CalBlue "Codex Pro" design
- * Loaded after the classic stylesheet and scoped to the root design attribute.
+ * CalBlue "Codex Pro" design.
+ * Loaded after the classic stylesheet and scoped to the active design.
  */
-
-.design-switcher {
-  position: fixed;
-  right: 18px;
-  bottom: max(18px, env(safe-area-inset-bottom));
-  z-index: 90;
-  display: flex;
-  align-items: flex-end;
-  flex-direction: column-reverse;
-  width: min(310px, calc(100vw - 30px));
-  color: #fff;
-  font-family: 'DM Sans', Arial, sans-serif;
-  pointer-events: none;
-  transition: opacity .2s, transform .2s;
-}
-.design-switcher-toggle {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  min-width: 184px;
-  margin-left: auto;
-  padding: 10px 14px 10px 11px;
-  color: inherit;
-  background: rgba(3, 14, 24, .96);
-  border: 1px solid rgba(255, 255, 255, .18);
-  border-radius: 2px;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, .26);
-  cursor: pointer;
-  pointer-events: auto;
-  text-align: left;
-  backdrop-filter: blur(14px);
-}
-.design-switcher-toggle > span:last-child { display: grid; gap: 2px; }
-.design-switcher-toggle small { color: rgba(255, 255, 255, .52); font-size: 8px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
-.design-switcher-toggle strong { font: 700 15px/1 'Barlow Condensed', 'Arial Narrow', sans-serif; letter-spacing: .04em; text-transform: uppercase; }
-.design-switcher-icon { position: relative; display: grid; width: 31px; height: 31px; overflow: hidden; background: #1268e8; place-items: center; }
-.design-switcher-icon::after { content: ''; position: absolute; width: 34px; height: 8px; background: #ffc51b; transform: rotate(-42deg); }
-.design-switcher-icon i { position: absolute; width: 18px; height: 1px; background: white; }
-.design-switcher-icon i:first-child { transform: translateY(-5px); }
-.design-switcher-icon i:last-child { transform: translateY(5px); }
-.design-switcher-panel { width: 100%; margin-bottom: 8px; padding: 12px; background: #061724; border: 1px solid rgba(255, 255, 255, .16); box-shadow: 0 22px 60px rgba(0, 0, 0, .34); pointer-events: auto; }
-.design-switcher-panel[hidden] { display: none; }
-.design-switcher-heading { display: flex; align-items: baseline; justify-content: space-between; padding: 4px 4px 11px; }
-.design-switcher-heading span { font: 700 16px/1 'Barlow Condensed', 'Arial Narrow', sans-serif; letter-spacing: .08em; text-transform: uppercase; }
-.design-switcher-heading small { color: rgba(255, 255, 255, .48); font-size: 9px; }
-.design-switcher-options { display: grid; gap: 6px; }
-.design-switcher-options button { display: grid; grid-template-columns: 42px 1fr 18px; align-items: center; gap: 10px; width: 100%; padding: 9px; color: white; background: rgba(255, 255, 255, .045); border: 1px solid transparent; cursor: pointer; text-align: left; }
-.design-switcher-options button:hover { background: rgba(255, 255, 255, .08); }
-.design-switcher-options button[aria-pressed="true"] { border-color: #ffc51b; }
-.design-switcher-options button > span:nth-child(2) { display: grid; gap: 3px; }
-.design-switcher-options strong { font-size: 12px; }
-.design-switcher-options small { color: rgba(255, 255, 255, .46); font-size: 9px; }
-.design-switcher-options b { visibility: hidden; color: #ffc51b; }
-.design-switcher-options button[aria-pressed="true"] b { visibility: visible; }
-.design-option-swatch { position: relative; display: block; width: 42px; height: 30px; overflow: hidden; background: #071b3f; }
-.design-option-swatch-codex-pro { background: linear-gradient(135deg, #061724 0 48%, #1268e8 48% 76%, #ffc51b 76%); }
-.design-option-swatch-classic { background: linear-gradient(135deg, #071b3f 0 65%, #ffc51b 65%); }
-.design-switcher button:focus-visible { outline: 3px solid #ffc51b; outline-offset: 3px; }
-body.nav-open .design-switcher,
-body:has(.lightbox[open]) .design-switcher { visibility: hidden; opacity: 0; transform: translateY(8px); }
 
 html[data-design="codex-pro"] {
   --navy: #061724;
@@ -287,7 +227,6 @@ html[data-design="codex-pro"] .footer-bottom { color: rgba(255, 255, 255, .58); 
 }
 
 @media (max-width: 900px) {
-  body.nav-open { overflow: hidden; }
   html[data-design="codex-pro"] .shell { width: min(100% - 40px, 1320px); }
   html[data-design="codex-pro"] .section { padding: 96px 0; }
   html[data-design="codex-pro"] .site-header,
@@ -312,11 +251,6 @@ html[data-design="codex-pro"] .footer-bottom { color: rgba(255, 255, 255, .58); 
 }
 
 @media (max-width: 600px) {
-  .design-switcher { right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); }
-  .design-switcher-toggle { min-width: 0; padding: 7px; }
-  .design-switcher-toggle > span:last-child { display: none; }
-  .design-switcher-icon { width: 28px; height: 28px; }
-  .design-switcher-panel { max-height: min(420px, calc(100svh - 76px)); overflow-y: auto; }
   html[data-design="codex-pro"] .shell { width: min(100% - 28px, 1320px); }
   html[data-design="codex-pro"] .section { padding: 78px 0; }
   html[data-design="codex-pro"] .brand { font-size: 23px; }
@@ -378,6 +312,5 @@ html[data-design="codex-pro"] .footer-bottom { color: rgba(255, 255, 255, .58); 
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .design-switcher *,
   html[data-design="codex-pro"] * { scroll-behavior: auto; }
 }
