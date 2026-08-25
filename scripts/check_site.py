@@ -12,6 +12,7 @@ import sys
 ROOT = Path(__file__).resolve().parent.parent
 PAGES = tuple(ROOT.glob("*.html"))
 ALBUMS = {"tiger": 135, "nbh": 58, "sfu": 24, "hehe": 66, "btg": 28}
+DESIGN_PAGES = tuple(page for page in PAGES if page.name != "design-preview.html")
 
 
 class PageParser(HTMLParser):
@@ -61,6 +62,13 @@ def check_page(path: Path) -> list[str]:
 
 def main() -> int:
     errors = [error for page in PAGES for error in check_page(page)]
+
+    for page in DESIGN_PAGES:
+        source = page.read_text(encoding="utf-8")
+        if "design-switcher.js" not in source:
+            errors.append(f"{page.name}: missing design switcher")
+        if "designs/codex-pro.css" not in source:
+            errors.append(f"{page.name}: missing Codex Pro stylesheet")
 
     media_config = (ROOT / "media-config.js").read_text(encoding="utf-8")
     if not re.search(r"baseUrl:\s*'https://[^']+'", media_config):

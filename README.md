@@ -5,11 +5,13 @@ A standalone, dependency-free public site for CalBlue Soccer Club. It is deliber
 ## Preview locally
 
 ```bash
-cd /home/shengqin/calblue-website
+cd /Users/shengqin/calblue-website
 python3 -m http.server 8080
 ```
 
 Open `http://localhost:8080`.
+
+For simultaneous desktop and mobile review, open `http://localhost:8080/design-preview.html`. The on-site design picker and the preview page switch between **Codex Pro** and the preserved **Classic** design. You can also link directly to a design with `?design=codex-pro` or `?design=classic`.
 
 Or run the included helper:
 
@@ -65,6 +67,9 @@ roster.html              Public Kylin Cup roster
 gallery.html             2026 NCCSF Tournament photo gallery
 gallery-*.html           Individual match albums backed by Cloudflare R2
 styles.css               Responsive visual system
+designs/codex-pro.css    Scoped professional soccer design
+design-switcher.js       Persistent multi-design picker
+design-preview.html      Side-by-side desktop/mobile review page
 script.js                Navigation and small UI behavior
 media-config.js          Public R2 media base URL
 assets/calblue-logo-web.jpg  Web-optimized official crest sourced from the shared Drive
