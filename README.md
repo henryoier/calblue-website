@@ -63,16 +63,19 @@ python3 scripts/check_site.py
 index.html               Main one-page site
 roster.html              Public Kylin Cup roster
 gallery.html             2026 NCCSF Tournament photo gallery
+gallery-*.html           Individual match albums backed by Cloudflare R2
 styles.css               Responsive visual system
 script.js                Navigation and small UI behavior
+media-config.js          Public R2 media base URL
 assets/calblue-logo-web.jpg  Web-optimized official crest sourced from the shared Drive
 assets/roster/           Public face photos sourced from the roster sheet
-assets/gallery/          Selected and optimized tournament photographs
 assets/favicon.svg       Browser icon
 404.html                 Branded error page
 netlify.toml             Optional Netlify config
 scripts/check_site.py    Dependency-free pre-deployment checks
 serve.sh                 Local preview helper
 ```
+
+Gallery images are stored in Cloudflare R2 rather than in the Git repository. See [R2_MEDIA.md](R2_MEDIA.md) for the media build and upload workflow.
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for ownership, access, DNS, publishing, maintenance, and future CMS/database guidance.

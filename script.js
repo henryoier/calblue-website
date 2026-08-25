@@ -28,12 +28,40 @@ if (lightbox) {
   const galleryItems = [...document.querySelectorAll('[data-gallery-item]')];
   const previousButton = lightbox.querySelector('[data-lightbox-prev]');
   const nextButton = lightbox.querySelector('[data-lightbox-next]');
+  const media = window.CALBLUE_MEDIA || {};
+  const mediaBaseUrl = (media.baseUrl || '').replace(/\/$/, '');
   let activeIndex = 0;
+
+  if (mediaBaseUrl) {
+    galleryItems.forEach((item) => {
+      const image = item.querySelector('img');
+      const fallbackSource = item.dataset.gallerySrc;
+
+      if (!image || !fallbackSource || !item.dataset.galleryAlbum || !item.dataset.galleryPhoto) return;
+
+      image.addEventListener('error', () => {
+        image.src = fallbackSource;
+      }, { once: true });
+      image.src = `${mediaBaseUrl}/gallery/${item.dataset.galleryAlbum}/thumb/${item.dataset.galleryPhoto}.jpg`;
+    });
+  }
 
   const showImage = (index) => {
     activeIndex = (index + galleryItems.length) % galleryItems.length;
     const item = galleryItems[activeIndex];
-    lightboxImage.src = item.dataset.gallerySrc;
+    const fallbackSource = item.dataset.gallerySrc;
+    const remoteSource = mediaBaseUrl && item.dataset.galleryAlbum && item.dataset.galleryPhoto
+      ? `${mediaBaseUrl}/gallery/${item.dataset.galleryAlbum}/full/${item.dataset.galleryPhoto}.jpg`
+      : fallbackSource;
+
+    lightboxImage.onerror = null;
+    if (remoteSource !== fallbackSource) {
+      lightboxImage.onerror = () => {
+        lightboxImage.onerror = null;
+        lightboxImage.src = fallbackSource;
+      };
+    }
+    lightboxImage.src = remoteSource;
     lightboxImage.alt = item.dataset.galleryAlt;
     lightboxCaption.textContent = item.dataset.galleryCaption;
   };
