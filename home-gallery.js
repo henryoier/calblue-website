@@ -19,8 +19,10 @@ if (homeGallery) {
     return {
       competition: competition.competition,
       dateLabel: album.dateLabel,
+      href: album.href,
       imageSrc: `${album.thumbnailBase}/${number}.jpg`,
       imageAlt: `${album.title}, ${competition.competition}, photo ${photoNumber} of ${album.photoCount}`,
+      title: album.title,
     };
   };
 
@@ -39,14 +41,16 @@ if (homeGallery) {
               const image = card.querySelector('img');
               const dateLabel = card.querySelector('.album-card-copy > span')?.textContent.trim();
               const title = card.querySelector('.album-card-copy h3')?.textContent.trim();
+              const href = card.getAttribute('href');
               const photoCountLabel = card.querySelector('.album-card-meta > span')?.textContent.trim();
               const photoCount = Number.parseInt(photoCountLabel || '', 10);
               const thumbnailBase = image?.getAttribute('src')?.replace(/\/\d{3}\.jpg(?:\?.*)?$/, '');
 
-              if (!dateLabel || !title || !thumbnailBase || Number.isNaN(photoCount)) return null;
+              if (!dateLabel || !href || !title || !thumbnailBase || Number.isNaN(photoCount)) return null;
 
               return {
                 dateLabel,
+                href,
                 photoCount,
                 thumbnailBase,
                 title,
@@ -78,9 +82,12 @@ if (homeGallery) {
 
       competitionHighlights.forEach((highlight, index) => {
         const slot = slots[index];
+        const link = slot.querySelector('.photo-feature-link');
         const image = slot.querySelector('img');
         const caption = slot.querySelector('figcaption');
 
+        link.href = highlight.href;
+        link.setAttribute('aria-label', `Open the ${highlight.title.replace(/^CalBlue vs\s+/, '')} match album`);
         image.src = highlight.imageSrc;
         image.alt = highlight.imageAlt;
         caption.replaceChildren(document.createTextNode(highlight.competition));
