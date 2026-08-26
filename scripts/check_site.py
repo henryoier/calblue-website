@@ -11,7 +11,16 @@ import sys
 
 ROOT = Path(__file__).resolve().parent.parent
 PAGES = tuple(ROOT.glob("*.html"))
-ALBUMS = {"tiger": 135, "nbh": 58, "sfu": 24, "hehe": 66, "btg": 28}
+ALBUMS = {
+    "tiger": 135,
+    "nbh": 58,
+    "sfu": 24,
+    "hehe": 66,
+    "btg": 28,
+    "upsl-athletico": 34,
+    "upsl-bay-area": 32,
+    "upsl-san-ramon": 51,
+}
 DESIGN_PAGES = tuple(page for page in PAGES if page.name != "design-preview.html")
 THEME_ASSETS = {
     "classic": "styles.css",
@@ -94,8 +103,11 @@ def main() -> int:
 
     album_script = (ROOT / "album.js").read_text(encoding="utf-8")
     configured_albums = {
-        match.group("slug"): int(match.group("count"))
-        for match in re.finditer(r"(?P<slug>\w+):\s*\{[^}]*count:\s*(?P<count>\d+)", album_script)
+        (match.group("quoted_slug") or match.group("slug")): int(match.group("count"))
+        for match in re.finditer(
+            r"(?:'(?P<quoted_slug>[\w-]+)'|(?P<slug>\w+)):\s*\{[^}]*count:\s*(?P<count>\d+)",
+            album_script,
+        )
     }
     for album, expected_count in ALBUMS.items():
         if configured_albums.get(album) != expected_count:

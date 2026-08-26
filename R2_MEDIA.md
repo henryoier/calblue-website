@@ -29,7 +29,9 @@ The builder numbers images by filename, corrects orientation, creates 1200px thu
   --expected 135
 ```
 
-Repeat with `sfu`, `hehe`, and `nbh`, using expected counts of 24, 66, and 58. The website currently contains the first 28 still photos from the BTG source folder, so build that album with both `--limit 28` and `--expected 28`. Generated files are placed under `.media-build/gallery/<slug>/{thumb,full}/` and excluded from Git.
+Repeat with `sfu`, `hehe`, and `nbh`, using expected counts of 24, 66, and 58. The website currently contains the first 28 still photos from the BTG source folder, so build that album with both `--limit 28` and `--expected 28`.
+
+The 2026 UPSL California Cup albums use `upsl-athletico`, `upsl-bay-area`, and `upsl-san-ramon`, with expected counts of 34, 32, and 51 unique photos. The San Ramon Drive folder contains duplicate `(1)` copies, so remove exact duplicates from the build input before generating that album. Generated files are placed under `.media-build/gallery/<slug>/{thumb,full}/` and excluded from Git.
 
 ## Configure R2 credentials locally
 
