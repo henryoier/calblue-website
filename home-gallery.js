@@ -12,19 +12,14 @@ if (homeGallery) {
 
     return shuffled;
   };
-  const choosePhoto = (competition, album) => {
-    const photoNumber = Math.floor(Math.random() * album.photoCount) + 1;
-    const number = String(photoNumber).padStart(3, '0');
-
-    return {
-      competition: competition.competition,
-      dateLabel: album.dateLabel,
-      href: album.href,
-      imageSrc: `${album.thumbnailBase}/${number}.jpg`,
-      imageAlt: `${album.title}, ${competition.competition}, photo ${photoNumber} of ${album.photoCount}`,
-      title: album.title,
-    };
-  };
+  const chooseHighlight = (competition, album) => ({
+    competition: competition.competition,
+    dateLabel: album.dateLabel,
+    href: album.href,
+    imageSrc: album.imageSrc,
+    imageAlt: album.imageAlt,
+    title: album.title,
+  });
 
   fetch('gallery.html')
     .then((response) => {
@@ -42,17 +37,16 @@ if (homeGallery) {
               const dateLabel = card.querySelector('.album-card-copy > span')?.textContent.trim();
               const title = card.querySelector('.album-card-copy h3')?.textContent.trim();
               const href = card.getAttribute('href');
-              const photoCountLabel = card.querySelector('.album-card-meta > span')?.textContent.trim();
-              const photoCount = Number.parseInt(photoCountLabel || '', 10);
-              const thumbnailBase = image?.getAttribute('src')?.replace(/\/\d{3}\.jpg(?:\?.*)?$/, '');
+              const imageSrc = image?.getAttribute('src');
+              const imageAlt = image?.getAttribute('alt');
 
-              if (!dateLabel || !href || !title || !thumbnailBase || Number.isNaN(photoCount)) return null;
+              if (!dateLabel || !href || !imageSrc || !title) return null;
 
               return {
                 dateLabel,
                 href,
-                photoCount,
-                thumbnailBase,
+                imageAlt: imageAlt || 'CalBlue match-day photograph',
+                imageSrc,
                 title,
               };
             })
@@ -68,13 +62,13 @@ if (homeGallery) {
         .filter(Boolean);
 
       const competitionHighlights = shuffle(competitions)
-        .map((competition) => choosePhoto(competition, shuffle(competition.albums)[0]))
+        .map((competition) => chooseHighlight(competition, shuffle(competition.albums)[0]))
         .slice(0, slots.length);
 
       if (competitionHighlights.length < slots.length) {
         const selectedImages = new Set(competitionHighlights.map((highlight) => highlight.imageSrc));
         const remainingHighlights = shuffle(
-          competitions.flatMap((competition) => competition.albums.map((album) => choosePhoto(competition, album))),
+          competitions.flatMap((competition) => competition.albums.map((album) => chooseHighlight(competition, album))),
         ).filter((highlight) => !selectedImages.has(highlight.imageSrc));
 
         competitionHighlights.push(...remainingHighlights.slice(0, slots.length - competitionHighlights.length));
