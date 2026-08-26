@@ -34,7 +34,7 @@ window.CALBLUE_DESIGNS = Object.freeze({
     }),
     Object.freeze({
       id: 'floodlight',
-      name: 'Floodlight',
+      name: 'Claude — Floodlight',
       agent: 'Claude',
       tagline: 'Broadcast matchday styling with electric blue and italic display type.',
       stylesheets: ['designs/floodlight/theme.css?v=20260826a'],
