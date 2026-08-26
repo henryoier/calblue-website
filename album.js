@@ -9,6 +9,9 @@ if (albumPage) {
     sfu: { opponent: 'SFU', date: 'May 16, 2026', count: 24, competition: '2026 NCCSF' },
     hehe: { opponent: 'Hehe', date: 'May 17, 2026', count: 66, competition: '2026 NCCSF' },
     btg: { opponent: 'Real Santa Clara', date: 'June 28, 2026', count: 28, competition: 'Beyond the Game' },
+    'upsl-athletico': { opponent: 'Athletico San Jose', date: 'January 18, 2026', count: 34, competition: '2026 UPSL California Cup' },
+    'upsl-bay-area': { opponent: 'Bay Area United', date: 'January 24, 2026', count: 32, competition: '2026 UPSL California Cup' },
+    'upsl-san-ramon': { opponent: 'San Ramon FC', date: 'January 31, 2026', count: 51, competition: '2026 UPSL California Cup' },
   };
   const slug = albumPage.dataset.albumPage;
   const album = albums[slug];

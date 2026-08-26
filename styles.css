@@ -248,7 +248,13 @@ footer { padding: 72px 0 24px; color: white; background: #04112a; }
 .album-hero-sfu { background-image: url('https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/sfu/full/011.jpg'); }
 .album-hero-hehe { background-image: url('https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/hehe/full/042.jpg'); }
 .album-hero-btg { background-image: url('https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/btg/full/028.jpg'); background-position: center 48%; }
+.album-hero-upsl-athletico { background-image: url('https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/upsl-athletico/full/029.jpg'); background-position: center 42%; }
+.album-hero-upsl-bay-area { background-image: url('https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/upsl-bay-area/full/019.jpg'); background-position: center 44%; }
+.album-hero-upsl-san-ramon { background-image: url('https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/upsl-san-ramon/full/049.jpg'); background-position: center 42%; }
 .album-hero-btg h1 { font-size: clamp(58px, 8vw, 112px); }
+.album-hero-upsl-athletico h1,
+.album-hero-upsl-bay-area h1,
+.album-hero-upsl-san-ramon h1 { font-size: clamp(50px, 7vw, 100px); }
 .album-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 22px; margin-top: 30px; }
 .album-actions .text-link { color: white; }
 .album-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
