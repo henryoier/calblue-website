@@ -5,11 +5,15 @@ A standalone, dependency-free public site for CalBlue Soccer Club. It is deliber
 ## Preview locally
 
 ```bash
-cd /home/shengqin/calblue-website
+cd /Users/shengqin/calblue-website
 python3 -m http.server 8080
 ```
 
 Open `http://localhost:8080`.
+
+For simultaneous desktop and mobile review, open `http://localhost:8080/design-preview.html`. The preview can switch pages and compare the preserved **Classic** site with all three redesigns: **Codex Stadium**, **Muse Pro Stadium**, and **Claude — Floodlight**.
+
+The on-site design picker remembers a visitor's choice. You can also link directly to a design with `?design=classic`, `?design=codex-pro`, `?design=musecode-pro`, or `?design=floodlight`.
 
 Or run the included helper:
 
@@ -64,7 +68,15 @@ index.html               Main one-page site
 roster.html              Public Kylin Cup roster
 gallery.html             2026 NCCSF Tournament photo gallery
 gallery-*.html           Individual match albums backed by Cloudflare R2
-styles.css               Responsive visual system
+styles.css                         Classic responsive visual system
+designs/codex-pro.css              Codex Stadium design layer
+designs/musecode-pro/theme.css     Muse Pro Stadium design
+designs/floodlight/theme.css       Floodlight design
+designs/floodlight/theme.js        Floodlight motion enhancements
+designs/registry.js                Shared design registry
+designs/switcher.js                Persistent multi-design loader and picker
+designs/switcher.css               Theme-neutral picker styling
+design-preview.html                Multi-page desktop/mobile review tool
 script.js                Navigation and small UI behavior
 media-config.js          Public R2 media base URL
 assets/calblue-logo-web.jpg  Web-optimized official crest sourced from the shared Drive

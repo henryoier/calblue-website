@@ -12,6 +12,13 @@ import sys
 ROOT = Path(__file__).resolve().parent.parent
 PAGES = tuple(ROOT.glob("*.html"))
 ALBUMS = {"tiger": 135, "nbh": 58, "sfu": 24, "hehe": 66, "btg": 28}
+DESIGN_PAGES = tuple(page for page in PAGES if page.name != "design-preview.html")
+THEME_ASSETS = {
+    "classic": "styles.css",
+    "codex-pro": "designs/codex-pro.css",
+    "musecode-pro": "designs/musecode-pro/theme.css",
+    "floodlight": "designs/floodlight/theme.css",
+}
 
 
 class PageParser(HTMLParser):
@@ -61,6 +68,25 @@ def check_page(path: Path) -> list[str]:
 
 def main() -> int:
     errors = [error for page in PAGES for error in check_page(page)]
+
+    for page in DESIGN_PAGES:
+        source = page.read_text(encoding="utf-8")
+        if "data-site-stylesheet" not in source:
+            errors.append(f"{page.name}: missing fallback site stylesheet")
+        for asset in ("designs/registry.js", "designs/switcher.js", "designs/switcher.css"):
+            if asset not in source:
+                errors.append(f"{page.name}: missing {asset}")
+
+    registry = (ROOT / "designs" / "registry.js").read_text(encoding="utf-8")
+    for design_id, asset in THEME_ASSETS.items():
+        if f"id: '{design_id}'" not in registry:
+            errors.append(f"designs/registry.js: missing {design_id} design")
+        if not (ROOT / asset).exists():
+            errors.append(f"designs/registry.js: missing theme asset {asset}")
+
+    preview = (ROOT / "design-preview.html").read_text(encoding="utf-8")
+    if "designs/registry.js" not in preview or "switcher=off" not in preview:
+        errors.append("design-preview.html: missing registry-driven embedded previews")
 
     media_config = (ROOT / "media-config.js").read_text(encoding="utf-8")
     if not re.search(r"baseUrl:\s*'https://[^']+'", media_config):

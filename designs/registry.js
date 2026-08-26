@@ -1,0 +1,46 @@
+/* Shared registry for the original site and all three redesign proposals. */
+window.CALBLUE_DESIGNS = Object.freeze({
+  storageKey: 'calblue.design',
+  legacyStorageKeys: ['calblue-site-design', 'calblue-theme'],
+  defaultId: 'classic',
+  designs: Object.freeze([
+    Object.freeze({
+      id: 'classic',
+      name: 'Classic Blue',
+      agent: 'Original CalBlue',
+      tagline: 'The existing navy-and-gold editorial design.',
+      stylesheets: ['styles.css?v=20260825b'],
+      themeColor: '#071b3f',
+      swatch: ['#071b3f', '#ffc51b'],
+    }),
+    Object.freeze({
+      id: 'codex-pro',
+      name: 'Codex Stadium',
+      agent: 'Codex',
+      tagline: 'Bold stadium editorial with oversized type and sharp match graphics.',
+      stylesheets: ['styles.css?v=20260825b', 'designs/codex-pro.css?v=20260826a'],
+      themeColor: '#061724',
+      swatch: ['#061724', '#1268e8', '#ffc51b'],
+    }),
+    Object.freeze({
+      id: 'musecode-pro',
+      name: 'Muse Pro Stadium',
+      agent: 'MuseCode',
+      tagline: 'Centered matchday presentation inspired by San Ramon FC.',
+      stylesheets: ['styles.css?v=20260825b', 'designs/musecode-pro/theme.css?v=20260826a'],
+      themeColor: '#061024',
+      swatch: ['#061024', '#ffcc16'],
+      utility: 'club-strip',
+    }),
+    Object.freeze({
+      id: 'floodlight',
+      name: 'Claude — Floodlight',
+      agent: 'Claude',
+      tagline: 'Broadcast matchday styling with electric blue and italic display type.',
+      stylesheets: ['designs/floodlight/theme.css?v=20260826a'],
+      script: 'designs/floodlight/theme.js?v=20260826a',
+      themeColor: '#04091a',
+      swatch: ['#04091a', '#1268e8', '#ffc51b'],
+    }),
+  ]),
+});

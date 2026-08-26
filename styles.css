@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,700&family=DM+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,700&family=DM+Sans:wght@400;500;600;700&display=swap');
 
 :root {
   --navy: #071b3f;
@@ -80,6 +80,8 @@ h1 em { color: transparent; -webkit-text-stroke: 1.5px rgba(255,255,255,.8); fon
 .hero-register { min-width: 260px; min-height: 58px; text-transform: uppercase; letter-spacing: .035em; }
 .hero-ticker { position: absolute; z-index: 3; bottom: 0; width: 100%; overflow: hidden; padding: 18px 0; color: var(--navy); background: var(--cyan); font: 700 14px/1 var(--display); letter-spacing: .12em; }
 .hero-ticker div { display: flex; width: max-content; gap: 40px; animation: ticker 24s linear infinite; }
+.hero-ticker > div { gap: 0; }
+.hero-ticker-set { display: flex; flex: none; gap: 40px; padding-right: 40px; }
 .hero-ticker b { font-size: 10px; }
 @keyframes ticker { to { transform: translateX(-50%); } }
 @keyframes hero-crossfade {

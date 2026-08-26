@@ -1,25 +1,45 @@
 const header = document.querySelector('[data-header]');
 const toggle = document.querySelector('[data-menu-toggle]');
 const nav = document.querySelector('[data-nav]');
+const mobileNavigation = window.matchMedia('(max-width: 900px)');
 
-const updateHeader = () => header.classList.toggle('scrolled', window.scrollY > 24);
-updateHeader();
-window.addEventListener('scroll', updateHeader, { passive: true });
+if (header) {
+  const updateHeader = () => header.classList.toggle('scrolled', window.scrollY > 24);
+  updateHeader();
+  window.addEventListener('scroll', updateHeader, { passive: true });
+}
 
-toggle.addEventListener('click', () => {
-  const open = nav.classList.toggle('open');
-  toggle.setAttribute('aria-expanded', String(open));
-  toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
-});
+if (toggle && nav) {
+  const setNavigationState = (open, restoreFocus = false) => {
+    const shouldOpen = mobileNavigation.matches && open;
+    nav.classList.toggle('open', shouldOpen);
+    nav.inert = mobileNavigation.matches && !shouldOpen;
+    toggle.setAttribute('aria-expanded', String(shouldOpen));
+    toggle.setAttribute('aria-label', shouldOpen ? 'Close navigation' : 'Open navigation');
+    document.body.classList.toggle('nav-open', shouldOpen);
+    document.dispatchEvent(new CustomEvent('calblue:navigation', { detail: { open: shouldOpen } }));
+    if (restoreFocus) toggle.focus();
+  };
 
-nav.addEventListener('click', (event) => {
-  if (!event.target.closest('a')) return;
-  nav.classList.remove('open');
-  toggle.setAttribute('aria-expanded', 'false');
-  toggle.setAttribute('aria-label', 'Open navigation');
-});
+  setNavigationState(false);
 
-document.querySelector('[data-year]').textContent = new Date().getFullYear();
+  toggle.addEventListener('click', () => {
+    setNavigationState(!nav.classList.contains('open'));
+  });
+
+  nav.addEventListener('click', (event) => {
+    if (event.target.closest('a')) setNavigationState(false);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && nav.classList.contains('open')) setNavigationState(false, true);
+  });
+
+  mobileNavigation.addEventListener('change', () => setNavigationState(false));
+}
+
+const year = document.querySelector('[data-year]');
+if (year) year.textContent = new Date().getFullYear();
 
 const lightbox = document.querySelector('[data-lightbox]');
 if (lightbox) {
