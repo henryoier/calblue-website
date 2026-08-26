@@ -11,7 +11,7 @@ python3 -m http.server 8080
 
 Open `http://localhost:8080`.
 
-For simultaneous desktop and mobile review, open `http://localhost:8080/design-preview.html`. The preview can switch pages and compare the preserved **Classic** site with all three redesigns: **Codex Stadium**, **Muse Pro Stadium**, and **Floodlight**.
+For simultaneous desktop and mobile review, open `http://localhost:8080/design-preview.html`. The preview can switch pages and compare the preserved **Classic** site with all three redesigns: **Codex Stadium**, **Muse Pro Stadium**, and **Claude — Floodlight**.
 
 The on-site design picker remembers a visitor's choice. You can also link directly to a design with `?design=classic`, `?design=codex-pro`, `?design=musecode-pro`, or `?design=floodlight`.
 

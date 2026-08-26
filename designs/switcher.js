@@ -141,10 +141,11 @@
         <div class="design-switcher-options" role="group" aria-label="Website design">
           ${designs.map((design) => {
             const swatch = design.swatch || ['#071b3f', '#1268e8'];
+            const showAgent = !design.name.toLowerCase().includes(design.agent.toLowerCase());
             return `
               <button type="button" data-design-option="${escape(design.id)}" aria-pressed="${design.id === active.id}">
                 <span class="design-option-swatch" style="--swatch-a:${escape(swatch[0])};--swatch-b:${escape(swatch[1])};--swatch-c:${escape(swatch[2] || swatch[1])}" aria-hidden="true"></span>
-                <span><em>${escape(design.agent)}</em><strong>${escape(design.name)}</strong><small>${escape(design.tagline)}</small></span>
+                <span>${showAgent ? `<em>${escape(design.agent)}</em>` : ''}<strong>${escape(design.name)}</strong><small>${escape(design.tagline)}</small></span>
                 <b aria-hidden="true">✓</b>
               </button>`;
           }).join('')}
