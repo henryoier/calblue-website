@@ -689,6 +689,106 @@ def fig_hosting():
     save(fig, "06-hosting.png")
 
 
+
+# ============================================================ 7. clients
+APP = "#0369a1"
+
+
+def fig_clients():
+    W, H = 16.6, 10.7
+    fig, ax = canvas(W, H)
+    title(ax, 0.3, H - 0.15, "Stretch goal — a phone app on the same backend",
+          "The app is another client, not another system. It gets exactly the permissions the member "
+          "already has, because the database is what enforces them.")
+
+    # ---- clients
+    clients = [
+        ("Member — phone", APP, "the 80% case", [
+            "what am I playing next",
+            "register / cancel, pick a number",
+            "my statement and balance",
+        ]),
+        ("Captain — phone at the pitch", PARTICIP, "must work with no signal", [
+            "today's squad list",
+            "tap present / absent",
+            "finalise when back in range",
+        ]),
+        ("Admin — browser", IDENTITY, "stays on a big screen", [
+            "competitions, fixtures, fees",
+            "verification and approvals",
+            "close and export the quarter",
+        ]),
+    ]
+    cw = 5.03
+    for (name, color, tag, bullets), x in zip(clients, (0.4, 5.78, 11.16)):
+        ax.add_patch(FancyBboxPatch((x, 7.55), cw, 2.05,
+                     boxstyle="round,pad=0,rounding_size=0.16",
+                     fc=PAPER, ec=color, lw=1.5, zorder=4))
+        ax.text(x + 0.28, 9.25, name, fontsize=10.4, fontweight="bold",
+                color=color, va="center", zorder=5)
+        ax.text(x + cw - 0.28, 9.25, tag, fontsize=7.6, color=MUTED,
+                ha="right", va="center", style="italic", zorder=5)
+        for i, b in enumerate(bullets):
+            ax.text(x + 0.28, 8.72 - i * 0.34, "•  " + b, fontsize=8.5,
+                    color=INK, va="center", zorder=5)
+        edge(ax, (x + cw / 2, 7.55), (x + cw / 2, 7.02), color=color, lw=1.4)
+
+    # ---- the one door
+    ax.add_patch(FancyBboxPatch((0.4, 6.28), W - 0.8, 0.74,
+                 boxstyle="round,pad=0,rounding_size=0.16",
+                 fc=NAVY, ec=NAVY, zorder=4))
+    ax.text(W / 2, 6.65, "One API · one set of Postgres row-level security policies · one definition of who may see what",
+            fontsize=10.2, fontweight="bold", color="white", ha="center",
+            va="center", zorder=5)
+    edge(ax, (W / 2, 6.28), (W / 2, 5.80), color=NAVY, lw=1.4)
+
+    # ---- the model, unchanged
+    panel(ax, 0.4, 4.05, W - 0.8, 1.75, "The model in sections 5–11 — unchanged", PLATFORM)
+    groups = [("Identity & access", IDENTITY), ("Events & schedule", EVENTS),
+              ("Participation", PARTICIP), ("Money & billing", MONEY)]
+    gw = 3.62
+    for (label, color), x in zip(groups, (0.72, 4.62, 8.52, 12.42)):
+        ax.add_patch(FancyBboxPatch((x, 4.32), gw, 0.72,
+                     boxstyle="round,pad=0,rounding_size=0.12",
+                     fc=PAPER, ec=color, lw=1.3, zorder=4))
+        ax.text(x + gw / 2, 4.68, label, fontsize=9.2, fontweight="bold",
+                color=color, ha="center", va="center", zorder=5)
+
+    # ---- what the app actually adds
+    panel(ax, 0.4, 0.28, 7.55, 3.42, "What a phone app adds", APP)
+    dev = entity(ax, 0.75, 3.00, 6.85, "devices", [
+        "account_id · platform · push_token",
+        "last_seen_at · app_version"], APP)
+    entity(ax, 0.75, dev["y"] - 0.30, 6.85, "notifications  (outbox)", [
+        "account_id · kind · payload · scheduled_for",
+        "sent_at · read_at   — one row per thing we tell somebody"], APP)
+
+    # ---- offline
+    panel(ax, 8.25, 0.35, 7.95, 3.35, "Check-in has to survive a dead signal", PARTICIP)
+    steps = [
+        "Captain taps present / absent\nwith no bars at the field",
+        "Queued on the device, stamped\nwith the phone's own clock",
+        "On reconnect: upsert keyed on\n(game_id, player_id) — idempotent",
+        "Server keeps the latest\ncheck-in; replays are harmless",
+    ]
+    for i, stx in enumerate(steps):
+        y = 2.90 - i * 0.72
+        ax.add_patch(FancyBboxPatch((8.60, y - 0.30), 7.25, 0.60,
+                     boxstyle="round,pad=0,rounding_size=0.12",
+                     fc=PAPER, ec=PARTICIP, lw=1.2, zorder=4))
+        ax.text(8.82, y, str(i + 1), fontsize=9, fontweight="bold",
+                color=PARTICIP, ha="center", va="center", zorder=5)
+        ax.text(9.15, y, stx, fontsize=8.3, color=INK, va="center", zorder=5)
+        if i < 3:
+            edge(ax, (9.0, y - 0.30), (9.0, y - 0.42), color=PARTICIP, lw=1.1)
+
+    ax.text(W / 2, -0.10,
+            "The app bundle never contains the service key. An attacker who unpacks the app finds a client with a member's permissions — and nothing more.",
+            fontsize=8.6, color=NAVY, ha="center", va="bottom", fontweight="bold")
+    trim(fig, ax, W, -0.32, H)
+    save(fig, "07-clients.png")
+
+
 if __name__ == "__main__":
     fig_erd()
     fig_permissions()
@@ -696,3 +796,4 @@ if __name__ == "__main__":
     fig_flow()
     fig_billing()
     fig_hosting()
+    fig_clients()
