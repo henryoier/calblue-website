@@ -321,6 +321,7 @@ h1 em { color: transparent; -webkit-text-stroke: 1.5px rgba(255, 255, 255, .8); 
 .section-heading > p { max-width: 420px; margin: 0 0 8px; color: rgba(255, 255, 255, .66); line-height: 1.75; }
 
 .team-cards { display: grid; grid-template-columns: 1.25fr 1fr; gap: 20px; }
+.team-cards:has(> :only-child) { grid-template-columns: 1fr; }
 .team-card {
   position: relative;
   display: flex;

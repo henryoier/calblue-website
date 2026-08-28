@@ -104,6 +104,7 @@ html[data-design="codex-pro"] .teams::before { content: ''; position: absolute; 
 html[data-design="codex-pro"] .teams .shell { position: relative; }
 html[data-design="codex-pro"] .section-heading { grid-template-columns: 1fr 380px; align-items: end; }
 html[data-design="codex-pro"] .team-cards { grid-template-columns: 1fr 1fr; gap: 2px; background: rgba(255, 255, 255, .12); }
+html[data-design="codex-pro"] .team-cards:has(> :only-child) { grid-template-columns: 1fr; }
 html[data-design="codex-pro"] .team-card { min-height: 440px; padding: 42px; background: linear-gradient(145deg, #0b2a41, #071722); border: 1px solid transparent; }
 html[data-design="codex-pro"] .team-card-featured { background: linear-gradient(145deg, #1268e8, #08489e); }
 html[data-design="codex-pro"] .team-card::before { width: 430px; height: 430px; right: -215px; top: -220px; border-color: rgba(255, 197, 27, .38); box-shadow: 0 0 0 55px rgba(255, 197, 27, .045), 0 0 0 110px rgba(255, 197, 27, .025); }
