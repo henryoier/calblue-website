@@ -1,5 +1,5 @@
 -- =====================================================================
--- CalBlue platform — schema v0.2 (draft, for review)
+-- CalBlue platform — schema v0.3 (draft, for review)
 --
 -- Target: Postgres 15+ / Supabase.  Everything here is portable Postgres
 -- except the references to `auth.users` and `auth.uid()` / `auth.jwt()`.
@@ -1372,3 +1372,94 @@ end $$;
 
 create trigger results_guard before update on public.game_results
   for each row execute function public.guard_result_confirmation();
+
+
+-- =====================================================================
+-- 10. CLIENTS: PUSH AND NOTIFICATIONS  (phase 2 — see DESIGN.md §12)
+--
+--   A phone app needs no new domain tables: it authenticates as the member
+--   and the policies in section 7 already decide what it may see. These two
+--   exist so we can reach a member at all, and they are wanted for email
+--   reminders whether or not an app is ever built.
+-- =====================================================================
+
+create table public.devices (
+  id           uuid primary key default gen_random_uuid(),
+  account_id   uuid not null references public.profiles(id) on delete cascade,
+  platform     text not null check (platform in ('ios','android','web')),
+  push_token   text not null,
+  app_version  text,
+  last_seen_at timestamptz not null default now(),
+  created_at   timestamptz not null default now(),
+  unique (platform, push_token)
+);
+create index devices_by_account on public.devices(account_id);
+
+create table public.notifications (
+  id            uuid primary key default gen_random_uuid(),
+  account_id    uuid not null references public.profiles(id) on delete cascade,
+  kind          text not null
+                check (kind in ('registration_confirmed','waitlist_promoted',
+                                'game_reminder','game_cancelled',
+                                'statement_ready','entry_decision')),
+  title         text not null,
+  body          text,
+  payload       jsonb not null default '{}'::jsonb,   -- deep-link target
+  scheduled_for timestamptz not null default now(),
+  sent_at       timestamptz,
+  read_at       timestamptz,
+  created_at    timestamptz not null default now()
+);
+create index notifications_pending on public.notifications(scheduled_for)
+  where sent_at is null;
+create index notifications_by_account
+  on public.notifications(account_id, created_at desc);
+
+alter table public.devices       enable row level security;
+alter table public.notifications enable row level security;
+
+-- your devices and your notifications, nobody else's
+create policy devices_own on public.devices for all
+  using (account_id = auth.uid()) with check (account_id = auth.uid());
+create policy notifications_own on public.notifications for select
+  using (account_id = auth.uid());
+create policy notifications_mark_read on public.notifications for update
+  using (account_id = auth.uid()) with check (account_id = auth.uid());
+-- only server-side jobs (service role, which bypasses RLS) create them
+
+-- --- offline-safe check-in -------------------------------------------
+-- The captain's phone queues marks with no signal and replays them on
+-- reconnect. Two properties make that safe, and both already exist:
+--   * game_registrations has unique (game_id, player_id), so a sync is an
+--     upsert on a natural key — replaying the same queue changes nothing
+--   * attendance is a state, not an event stream, so last-write-wins is a
+--     correct and comprehensible rule
+-- The client passes the time it recorded the mark; a stale queue can never
+-- overwrite a more recent correction.
+create or replace function public.sync_attendance(
+  p_game       uuid,
+  p_player     uuid,
+  p_attendance text,
+  p_marked_at  timestamptz)
+returns boolean
+language plpgsql security definer set search_path = public as $$
+declare applied boolean;
+begin
+  if not (public.is_admin() or public.manages_game(p_game)) then
+    raise exception 'only a captain or an admin may record attendance';
+  end if;
+  if p_attendance not in ('unknown','present','absent','excused') then
+    raise exception 'bad attendance value %', p_attendance;
+  end if;
+
+  update public.game_registrations
+     set attendance    = p_attendance,
+         checked_in_at = p_marked_at,
+         checked_in_by = auth.uid()
+   where game_id = p_game
+     and player_id = p_player
+     and (checked_in_at is null or checked_in_at < p_marked_at)
+  returning true into applied;
+
+  return coalesce(applied, false);   -- false = a newer mark already won
+end $$;

@@ -1,6 +1,6 @@
 # CalBlue — league, pickup and membership platform
 
-**Data model and permissions design · draft v0.2 · for review**
+**Data model and permissions design · draft v0.3 · for review**
 
 Today calblue.com is a static site: hand-edited HTML for the roster, the galleries and the fixtures. This document proposes the authenticated system that sits behind it — accounts, player identities, leagues and tournaments, pickup games, per-game registration, attendance, and an end-of-quarter bill that the club does not have to add up by hand.
 
@@ -20,6 +20,7 @@ Nothing here has been built. The point of writing it down first is that the part
 8. **A quarterly attendance summary** that turns who-actually-played into who-owes-what.
 9. **Three levels of access** — developer, admin, ordinary user — with the club's private data properly fenced off.
 10. **Eventually, hosting our own tournaments** — the Kylin Cup run on this platform, with visiting clubs entering their own teams. Section 11 covers what that costs and what it needs.
+11. **Eventually, a phone app** on the same backend, so registering and managing an account is a thing you do standing on a touchline. Section 12.
 
 ---
 
@@ -284,13 +285,63 @@ After Milestone 4. Hosting a tournament for other clubs is only credible once ou
 
 ---
 
-## 12. Deliberately not in v1
+## 12. Stretch goal — a phone app on the same backend
 
-Notifications, scheduled quarter-end generation, online payment links, waivers and consent, disciplinary records and suspensions, and multi-club tenancy. Each is additive — none of them changes the tables above. Notifications and the payment link are the two most likely to be wanted early; both are new tables plus a job, not a reshaping.
+The ask: an app that talks to the same system, so members can register for games and manage their accounts easily.
+
+**The headline is that this needs nothing new from the data model.** Because permissions are enforced by row-level security inside Postgres rather than by whichever screen happens to be rendering, a second client cannot quietly become a second security model. The app signs in as the same member, carries the same token, and the same policies decide what comes back. That is the return on the decision in section 10 — it looked like extra work for the web app and it is what makes the app nearly free.
+
+### Diagram 7 — one backend, three clients
+
+*Member phone, captain phone, admin browser — one API and one set of policies. Full resolution: `docs/design/diagrams/07-clients.png`*
+
+### What is actually worth building, in cost order
+
+**1. Mobile-first web — free.** Build milestones 1–4 responsively and the phone case is already handled. This is not a compromise: check-in is *only* ever done on a phone, standing on grass, so that screen should be designed for a thumb from the first commit rather than retrofitted.
+
+**2. A PWA — small.** A web app manifest and a service worker turn the same site into something installable on a home screen, with an offline shell and web push. iOS has supported push for installed web apps since 16.4. No app store, no review cycle, no second codebase, and members get an icon on their phone.
+
+**3. Native, React Native or Expo — a real cost.** Worth it only when you need push you can absolutely rely on, an App Store listing people search for, or native camera and wallet integration. It is a second codebase and a release process forever.
+
+My recommendation is that 1 and 2 are the plan, and 3 stays a decision you make later, once members are actually using the thing and can tell you whether the home-screen icon is enough. Going straight to native is the most common way a volunteer-run club ends up with a half-finished app and a website nobody updated.
+
+### What it adds to the schema
+
+Two tables, and both are wanted for email reminders whether or not an app ever ships:
+
+| Table | Purpose |
+|---|---|
+| `devices` | `account_id`, platform, push token, `last_seen_at`, app version. One row per installed device, so a member with a phone and a tablet gets both. |
+| `notifications` | An outbox: recipient, kind, payload, `scheduled_for`, `sent_at`, `read_at`. One row per thing we tell somebody, which makes "did the reminder actually go out?" a query rather than a guess. |
+
+The obvious notifications to start with: registration confirmed, promoted off the waitlist, a reminder the evening before with the gather time and pitch, and the quarterly statement.
+
+### Offline check-in, which is the one genuinely hard part
+
+Fields have no signal. A captain marking twenty people present cannot depend on a network round-trip per tap, and must not lose the lot when they walk into a dead spot.
+
+The approach: the device queues each mark locally with its own timestamp, and syncs when it reconnects. Two properties make this safe, and both come from decisions already in the schema:
+
+- `game_registrations` already has `unique (game_id, player_id)`, so a sync is an **upsert on a natural key**, not an insert that might duplicate. Replaying the same queue twice changes nothing.
+- Attendance is a **state, not an event** — `present`, `absent`, `excused`. Last write wins on `checked_in_at` is a correct and comprehensible rule, and no count is derived from a sequence of deltas that could arrive out of order.
+
+The client sends the phone's clock in `checked_in_at`; the server keeps the latest per row. A captain's phone that has been offline for an hour cannot overwrite a correction an admin made five minutes ago, so the sync compares timestamps rather than blindly taking the client's word.
+
+### Two things not to get wrong
+
+**The service key never goes in the app bundle.** An app binary is fully inspectable — anyone can unpack it. The app authenticates as the member and gets the member's permissions; anything needing more runs server-side. This is the same rule as the web app, but the consequences of breaking it are worse because you cannot revoke a shipped binary.
+
+**Sign-in has to survive the app store.** Magic links need deep-link handling so tapping the email opens the app rather than a browser tab that knows nothing. Budget for it — it is the single most common place a club app frustrates people on day one.
 
 ---
 
-## 13. Decisions I need from you
+## 13. Deliberately not in v1
+
+Scheduled quarter-end generation, online payment links, waivers and consent, disciplinary records and suspensions, and multi-club tenancy. Each is additive — none of them changes the tables above. The payment link is the one most likely to be wanted early, and it is a new table plus a job, not a reshaping.
+
+---
+
+## 14. Decisions I need from you
 
 These change the data, not the schema, so they are not blocking — but they change what the first screens look like.
 
@@ -304,12 +355,13 @@ These change the data, not the schema, so they are not blocking — but they cha
 8. **Emergency and medical fields** — stored in the system, or deliberately kept offline?
 9. **The existing 30-name Kylin Cup roster** — import it as unclaimed player identities, or start clean?
 10. **Hosted tournaments** — is this a real plan for a specific event, or a someday? If there is a date, the three forward-compatible columns become non-negotiable and the `clubs` table should go in with Milestone 1.
+11. **The app** — is an installable web app (home-screen icon, push, no app store) enough, or do you specifically want to be in the App Store? This is the difference between a few days and a second codebase forever.
 
 My default assumptions, if I hear nothing: per-game fees differing by game type, no-shows tracked but not charged, calendar quarters, per-account billing, pickup open to any signed-in player, admin-only at first, magic link, emergency fields stored, and the roster imported as unclaimed identities.
 
 ---
 
-## 14. Build order
+## 15. Build order
 
 **Milestone 1 — the spine.** Apply the schema. Sign-up, player identities, admin verification. Venues, competitions and games in an admin screen. This is the point at which the fixture list on the public site can start coming from the database instead of hand-edited HTML.
 
@@ -319,8 +371,10 @@ My default assumptions, if I hear nothing: per-game fees differing by game type,
 
 **Milestone 4 — money.** Fee schedules, charges, payments, the quarterly close, CSV export, the member-facing statement.
 
-**Milestone 5 — polish.** Notifications, the database-driven public roster, the captain role in the UI, an audit log viewer.
+**Milestone 5 — polish and the installable app.** Notifications, the PWA manifest and service worker, offline check-in, the database-driven public roster, the captain role in the UI, an audit log viewer. Everything up to here is built mobile-first, so this milestone makes it installable rather than rebuilding it.
 
-**Milestone 6 — hosting (the stretch goal).** Clubs, entries, groups, rosters, results and standings, per section 11.
+**Milestone 6 — hosting (stretch goal).** Clubs, entries, groups, rosters, results and standings, per section 11.
+
+**Milestone 7 — native app, only if wanted (stretch goal).** React Native against the same API, per section 12. Deliberately last: it adds no capability the installable web app lacks, only reach.
 
 Each milestone is independently useful. If the club only ever gets through Milestone 2, it still replaces the WeChat group and the sign-up spreadsheet, which is most of the day-to-day pain.

@@ -4,7 +4,7 @@
     python3 docs/design/build_exports.py
 
 Produces, next to DESIGN.md:
-  "CalBlue Platform Design (draft v0.2).docx"
+  "CalBlue Platform Design (draft v0.3).docx"
                  Import into any Google account (Docs > File > Open > Upload).
                  This is the reliable path: Docs' .docx importer keeps the
                  diagrams and tables intact, and names the new doc after the
@@ -35,14 +35,15 @@ DIAGRAMS = {
     "Diagram 4": "diagrams/04-flow.png",
     "Diagram 5": "diagrams/05-billing.png",
     "Diagram 6": "diagrams/06-hosting.png",
+    "Diagram 7": "diagrams/07-clients.png",
 }
 
 TITLE = ("CalBlue — League, Pickup & Membership Platform: "
-         "Data Model & Permissions Design (draft v0.2)")
+         "Data Model & Permissions Design (draft v0.3)")
 
 # Google Docs names an imported document after its filename, so this is what
 # the club will see in their Drive.
-DOCX_NAME = "CalBlue Platform Design (draft v0.2).docx"
+DOCX_NAME = "CalBlue Platform Design (draft v0.3).docx"
 
 TOKEN = re.compile(r"(\*\*[^*]+\*\*|`[^`]+`|\*[^*]+\*)")
 
