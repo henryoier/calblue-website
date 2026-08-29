@@ -125,6 +125,26 @@ body {
 
 .app-home-links { line-height: 1.8; }
 
+.app-game-list { list-style: none; padding: 0; display: grid; gap: 1rem; }
+@media (min-width: 640px) { .app-game-list { grid-template-columns: 1fr 1fr; } }
+.app-game-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1rem; }
+.app-game-link { text-decoration: none; color: inherit; display: block; }
+.app-game-date { font-size: 0.85rem; color: var(--blue, #1268e8); font-weight: 700; }
+.app-game-meta { font-size: 0.9rem; color: #475569; margin-top: 0.4rem; }
+.app-game-type { font-size: 0.85rem; color: #64748b; margin-top: 0.3rem; text-transform: capitalize; }
+.app-game-state { margin-top: 0.5rem; font-weight: 700; font-size: 0.85rem; }
+.app-game-state-registered { color: #0e7a3c; }
+.app-game-state-waitlisted { color: #b45309; }
+.app-muted { color: #64748b; font-size: 0.9rem; }
+.app-game-meta-large { background: #fff; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1rem; line-height: 1.7; }
+.app-notes { background: #fffbeb; border: 1px solid #fde68a; padding: 0.75rem 1rem; border-radius: 0.4rem; }
+.app-badge { display: inline-block; padding: 0.4rem 0.8rem; border-radius: 0.3rem; background: #f1f5f9; }
+.app-badge-ok { background: #dcfce7; color: #166534; }
+.app-badge-wait { background: #fef3c7; color: #92400e; }
+.app-squad-list { list-style: none; padding: 0; }
+.app-squad-list li { padding: 0.4rem 0; border-bottom: 1px solid #f1f5f9; }
+.app-jersey { display: inline-block; min-width: 2em; text-align: center; background: var(--navy, #071b3f); color: #fff; border-radius: 0.25rem; padding: 0.1rem 0.3rem; font-weight: 700; }
+
 /* 360px mobile-first is default; widen at 640px */
 @media (min-width: 640px) {
   .app-main { padding: 2rem 1.5rem 3rem; }

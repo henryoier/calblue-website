@@ -23,6 +23,8 @@
     import { homeView } from "./views/home.js";
     import { notFoundView } from "./views/not-found.js";
     import { signInView } from "./views/sign-in.js";
+    import { gamesView } from "./views/games.js";
+    import { gameDetailView } from "./views/game-detail.js";
 
     const headerEl = document.getElementById("app-header");
     const navEl = document.getElementById("app-nav");
@@ -32,7 +34,8 @@
     const routes = [
       { pattern: "/", view: () => homeView(mainEl, { profile: getProfile(), roles: getRoles() }), title: "Home" },
       { pattern: "/sign-in", view: () => signInView(mainEl), title: "Sign in" },
-      { pattern: "/games", view: () => { mainEl.innerHTML = "<p>Game list lands in #34, stacked on this PR.</p>"; }, title: "Games" },
+      { pattern: "/games", view: () => gamesView(mainEl, {}), title: "Games" },
+      { pattern: "/games/:id", view: (params) => gameDetailView(mainEl, { gameId: params.id }), title: "Game detail" },
       { pattern: "*", view: () => notFoundView(mainEl), title: "Not found" },
     ];
 
