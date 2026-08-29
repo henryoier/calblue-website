@@ -193,6 +193,48 @@ def main():
     if re.search(r"\brole\s+text\s+not null default 'user'", all_clean):
         problems.append("profiles still has a scalar `role` column; it should be `roles text[]`")
 
+    # --- seed data must be re-runnable and must not contain real people
+    seed = ROOT / "supabase" / "seed.sql"
+    if seed.exists():
+        seed_sql = seed.read_text()
+        seed_clean = strip_noise(seed_sql)
+        inserts = len(re.findall(r"insert into ", seed_clean))
+        guarded = len(re.findall(r"on conflict", seed_clean))
+        if guarded < inserts:
+            problems.append(
+                f"seed.sql: {inserts - guarded} insert(s) without ON CONFLICT — seed must be re-runnable")
+        if "begin;" not in seed_clean or "commit;" not in seed_clean:
+            problems.append("seed.sql: should be wrapped in a transaction")
+        # emails live inside string literals, which strip_noise blanks — search the raw text
+        for m in re.finditer(r"[\w.+-]+@(?!example\.com\b)[\w.-]+\.\w+", seed_sql):
+            problems.append(f"seed.sql: non-example.com address {m.group(0)!r} — no real PII in seed")
+
+        def insert_block(table):
+            match = re.search(
+                rf"insert\s+into\s+public\.{table}\b.*?on\s+conflict",
+                seed_sql,
+                flags=re.IGNORECASE | re.DOTALL,
+            )
+            return match.group(0) if match else ""
+
+        # Fixture-volume requirements from issue #28. Keeping these checks here
+        # prevents a future cleanup from quietly turning demo screens empty again.
+        player_ids = set(re.findall(r"55555555-0000-4000-a000-\d{12}", insert_block("players")))
+        if len(player_ids) < 12:
+            problems.append(f"seed.sql: expected at least 12 player identities, found {len(player_ids)}")
+
+        competition_id = "77777777-0000-4000-a000-000000000001"
+        fixture_count = insert_block("games").count(competition_id)
+        if fixture_count < 3:
+            problems.append(
+                f"seed.sql: expected at least 3 competition fixtures, found {fixture_count}")
+
+        competition_pos = seed_clean.find("insert into public.competitions")
+        grant_pos = seed_clean.find("insert into public.role_grants")
+        if competition_pos == -1 or grant_pos == -1 or competition_pos > grant_pos:
+            problems.append(
+                "seed.sql: competitions must be inserted before role_grants that reference them")
+
     if problems:
         print("check_sql: FAILED")
         for p in problems:
