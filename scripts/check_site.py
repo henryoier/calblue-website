@@ -126,10 +126,83 @@ def main() -> int:
             if "assets/gallery" in source_path.read_text(encoding="utf-8"):
                 errors.append(f"{source_path.name}: contains a removed local gallery reference")
 
+    # --- app shell (#29) ---
+    app_index = ROOT / "app" / "index.html"
+    if not app_index.exists():
+        errors.append("app/index.html: missing app entry point")
+    else:
+        app_source = app_index.read_text(encoding="utf-8")
+        for required in (
+            "js/router.js", "js/supabase.js", "js/session.js", "js/layout.js",
+            "views/home.js", "views/sign-in.js", "views/not-found.js",
+            "views/placeholder.js", "css/app.css",
+        ):
+            if not (ROOT / "app" / required).exists():
+                errors.append(f"app/{required}: missing (app shell #29)")
+            if required not in app_source:
+                errors.append(f"app/index.html: does not load {required}")
+        if 'name="viewport"' not in app_source:
+            errors.append("app/index.html: missing mobile viewport metadata")
+        app_errors = check_page(app_index)
+        # app pages are noindex and use module scripts; only check local refs
+        errors.extend([e for e in app_errors if "missing local file" in e])
+
+    for required_app_file in (
+        "app/js/router.js", "app/js/supabase.js", "app/js/session.js",
+        "app/js/layout.js", "app/js/dom.js", "app/config.js", "app/css/app.css",
+        "app/views/home.js", "app/views/sign-in.js", "app/views/not-found.js",
+        "app/views/placeholder.js", "app/tests/index.html",
+        "app/tests/router.logic.js", "app/tests/session.logic.js",
+        "app/tests/layout.logic.js", "app/tests/supabase.logic.js",
+    ):
+        if not (ROOT / required_app_file).exists():
+            errors.append(f"{required_app_file}: missing (app shell #29)")
+
+    app_tests = ROOT / "app" / "tests" / "index.html"
+    if app_tests.exists():
+        test_source = app_tests.read_text(encoding="utf-8")
+        for module in (
+            "dom.test.js", "router.test.js", "session.test.js",
+            "session.live.test.js", "layout.test.js", "supabase.test.js",
+        ):
+            if module not in test_source:
+                errors.append(f"app/tests/index.html: does not load {module}")
+            if not (app_tests.parent / module).exists():
+                errors.append(f"app/tests/{module}: missing")
+        errors.extend(check_page(app_tests))
+
+    app_css = ROOT / "app" / "css" / "app.css"
+    if app_css.exists():
+        css_source = app_css.read_text(encoding="utf-8")
+        for marker in ("@media (max-width: 400px)", "min-height: 44px", "text-overflow: ellipsis"):
+            if marker not in css_source:
+                errors.append(f"app/css/app.css: missing mobile safeguard {marker!r}")
+
+    # Every visible hash link must resolve to a registered route. This keeps a
+    # new role-gated navigation item from quietly becoming a 404.
+    if app_index.exists():
+        route_patterns = set(re.findall(r'pattern:\s*"([^"]+)"', app_source))
+        linked_routes: set[str] = set()
+        for source_path in (
+            app_index,
+            *(ROOT / "app" / "js").glob("*.js"),
+            *(ROOT / "app" / "views").glob("*.js"),
+        ):
+            source = source_path.read_text(encoding="utf-8")
+            linked_routes.update(
+                link.split("?", 1)[0]
+                for link in re.findall(r'href\s*(?:=|:)\s*["\']#(/[^"\']*)', source)
+            )
+            if source_path.name != "dom.js" and re.search(r"\.innerHTML\s*=", source):
+                errors.append(f"{source_path.relative_to(ROOT)}: assign DOM through app/js/dom.js")
+        for route in sorted(linked_routes - route_patterns):
+            errors.append(f"app navigation links to unregistered route {route}")
+
     if errors:
         print("\n".join(errors), file=sys.stderr)
         return 1
     print(f"Validated {len(PAGES)} pages, local references, and R2 gallery configuration.")
+    print("Validated app shell: router, session, supabase client, layout, and views.")
     return 0
 
 

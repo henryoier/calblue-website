@@ -28,6 +28,10 @@ APP = ROOT / "app"
 # (module under test, logic suite, entry point that wires them together)
 SUITES = [
     (APP / "js" / "dom.js", APP / "tests" / "dom.logic.js", "domLogicTests"),
+    (APP / "js" / "router.js", APP / "tests" / "router.logic.js", "routerLogicTests"),
+    (APP / "js" / "session.js", APP / "tests" / "session.logic.js", "sessionLogicTests"),
+    (APP / "js" / "layout.js", APP / "tests" / "layout.logic.js", "layoutLogicTests"),
+    (APP / "js" / "supabase.js", APP / "tests" / "supabase.logic.js", "supabaseLogicTests"),
 ]
 
 HARNESS = """

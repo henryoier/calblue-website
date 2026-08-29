@@ -2,18 +2,21 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CalBlue app tests</title>
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="../css/app.css">
 <style>
   body { font: 15px/1.5 -apple-system, "Helvetica Neue", Arial, sans-serif; margin: 2rem auto; max-width: 52rem; color: #0b1730; }
   h1 { font-size: 1.3rem; }
   .summary { font-weight: 700; padding: .6rem .9rem; border-radius: .4rem; }
   .summary.ok { background: #e6f6ec; color: #0e7a3c; }
   .summary.bad { background: #fdecec; color: #b91c1c; }
-  ul { list-style: none; padding: 0; }
-  li { padding: .3rem .6rem; border-left: 3px solid transparent; }
-  li.ok { border-color: #0e9384; color: #29405e; }
-  li.bad { border-color: #b91c1c; color: #b91c1c; font-weight: 600; }
-  pre { margin: 0; font: 12px/1.4 Menlo, monospace; white-space: pre-wrap; }
+  #out ul { list-style: none; padding: 0; }
+  #out li { padding: .3rem .6rem; border-left: 3px solid transparent; }
+  #out li.ok { border-color: #0e9384; color: #29405e; }
+  #out li.bad { border-color: #b91c1c; color: #b91c1c; font-weight: 600; }
+  #out pre { margin: 0; font: 12px/1.4 Menlo, monospace; white-space: pre-wrap; }
   p.hint { color: #5b6b83; }
 </style>
 </head>
@@ -24,7 +27,12 @@
   <script type="module">
     import { report } from "./runner.js";
     await import("./dom.test.js");
-    report(document.getElementById("out"));
+    await import("./router.test.js");
+    await import("./session.test.js");
+    await import("./session.live.test.js");
+    await import("./layout.test.js");
+    await import("./supabase.test.js");
+    await report(document.getElementById("out"));
   </script>
 </body>
 </html>
