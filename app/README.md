@@ -27,6 +27,16 @@ Then open `http://localhost:8080/app/`.
 
 There is no watch mode and nothing to compile. Edit a file, reload the page.
 
+The shell uses hash routes, so URLs such as `/app/#/games` work without
+server rewrites. Routes for later member and admin screens render honest
+placeholders until their numbered issues land; every link currently shown in
+the role-aware navigation resolves to one of those routes.
+
+Async route views receive a third context argument with an `AbortSignal` and
+an `isCurrent()` check. Fetch with that signal and confirm the route is still
+current before mounting delayed results, so an old request cannot overwrite a
+newer screen.
+
 ## Layout
 
 ```text
@@ -40,6 +50,11 @@ app/
     dom.js          Escaping template helper
   views/            One module per screen
 ```
+
+Authorization labels in the UI come from `user.app_metadata.roles` in the
+current JWT, matching the claims evaluated by RLS. Profile rows provide display
+details only. After an administrator changes a role, refresh the access token
+before expecting either the UI or database permissions to change.
 
 ## Keys
 
@@ -68,3 +83,15 @@ Run both the scanner and its unit tests before pushing configuration changes:
 python3 scripts/check_secrets.py
 python3 scripts/test_check_secrets.py
 ```
+
+Run the app-shell checks with:
+
+```bash
+python3 scripts/check_site.py
+python3 scripts/run_js_tests.py
+```
+
+The first command verifies the module graph and that every internal navigation
+link has a registered route. The second runs the router, role matrix, session,
+configuration, and escaping logic under JavaScriptCore. Open `/app/tests/` in
+a browser for the DOM-dependent checks.
