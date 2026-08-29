@@ -181,6 +181,22 @@ def main():
     if re.search(r"\brole\s+text\s+not null default 'user'", all_clean):
         problems.append("profiles still has a scalar `role` column; it should be `roles text[]`")
 
+    # --- seed data must be re-runnable and must not contain real people
+    seed = ROOT / "supabase" / "seed.sql"
+    if seed.exists():
+        seed_sql = seed.read_text()
+        seed_clean = strip_noise(seed_sql)
+        inserts = len(re.findall(r"insert into ", seed_clean))
+        guarded = len(re.findall(r"on conflict", seed_clean))
+        if guarded < inserts:
+            problems.append(
+                f"seed.sql: {inserts - guarded} insert(s) without ON CONFLICT — seed must be re-runnable")
+        if "begin;" not in seed_clean or "commit;" not in seed_clean:
+            problems.append("seed.sql: should be wrapped in a transaction")
+        # emails live inside string literals, which strip_noise blanks — search the raw text
+        for m in re.finditer(r"[\w.+-]+@(?!example\.com\b)[\w.-]+\.\w+", seed_sql):
+            problems.append(f"seed.sql: non-example.com address {m.group(0)!r} — no real PII in seed")
+
     if problems:
         print("check_sql: FAILED")
         for p in problems:
