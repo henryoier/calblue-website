@@ -60,7 +60,7 @@
             <p>Player names and profile photos are shown from the team’s approved tournament roster.</p>
           </div>
 
-          <div class="roster-grid">
+          <div class="roster-grid" id="roster-grid" data-public-roster>
             <article class="player-card"><img src="assets/roster/justin-wang.jpg" alt="Justin Wang" loading="lazy" /><h2>Justin Wang</h2></article>
             <article class="player-card"><img src="assets/roster/patrick-lin.jpg" alt="Patrick Lin" loading="lazy" /><h2>Patrick Lin</h2></article>
             <article class="player-card"><img src="assets/roster/kevin-gao.jpg" alt="Kevin Gao" loading="lazy" /><h2>Kevin Gao</h2></article>
@@ -118,5 +118,19 @@
         <p>Made for the Bay Area football community.</p>
       </div>
     </footer>
+    <div id="roster-status" role="status" aria-live="polite" style="display:none"></div>
+    <script type="module">
+      // Public roster driven from v_public_roster (#50), with graceful degradation.
+      // If DB is unreachable or unconfigured, static markup stays — page never breaks.
+      try {
+        const { loadPublicRoster } = await import("./app/js/public-roster-loader.js");
+        await loadPublicRoster({
+          gridEl: document.getElementById("roster-grid"),
+          statusEl: document.getElementById("roster-status"),
+        });
+      } catch (e) {
+        console.warn("public roster loader failed, keeping static roster:", e);
+      }
+    </script>
   </body>
 </html>
