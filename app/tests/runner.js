@@ -5,6 +5,7 @@
 // The page also sets document.title and window.__testResults so a headless driver can read them.
 
 const results = [];
+const pending = [];
 let current = null;
 
 export function test(name, fn) {
@@ -39,7 +40,32 @@ export function throws(fn, message) {
   }
 }
 
-export function report(into) {
+export function testAsync(name, fn) {
+  const record = { name, failures: [] };
+  results.push(record);
+  const scoped = {
+    assert(condition, message) {
+      if (!condition) record.failures.push(message || "assertion failed");
+    },
+    equal(actual, expected, message) {
+      if (actual !== expected) {
+        record.failures.push(
+          `${message || "not equal"}\n      expected: ${JSON.stringify(expected)}\n      actual:   ${JSON.stringify(actual)}`
+        );
+      }
+    },
+  };
+  pending.push(
+    Promise.resolve()
+      .then(() => fn(scoped))
+      .catch((error) => {
+        record.failures.push(`threw: ${error && error.message ? error.message : error}`);
+      })
+  );
+}
+
+export async function report(into) {
+  await Promise.all(pending);
   const failed = results.filter((r) => r.failures.length);
   const total = results.length;
   window.__testResults = { total, failed: failed.length, results };
