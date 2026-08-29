@@ -30,6 +30,20 @@
     import { pickupNewView } from "./views/pickup-new.js";
     import { registerView } from "./views/register.js";
     import { checkInView } from "./views/check-in.js";
+    import { CompetitionsView } from "./views/competitions.js";
+    import { FixturesView } from "./views/fixtures.js";
+    import { SeasonRosterView } from "./views/season-roster.js";
+    import { FeesView } from "./views/fees.js";
+    import { PaymentsView } from "./views/payments.js";
+    import { StatementView } from "./views/statement.js";
+    import { QuarterlyCloseView } from "./views/quarterly-close.js";
+    import { CsvExportView } from "./views/csv-export.js";
+    import { NotificationsView } from "./views/notifications.js";
+    import { AuditView } from "./views/audit.js";
+    import { ClubsView } from "./views/clubs.js";
+    import { TournamentEntriesView } from "./views/tournament-entries.js";
+    import { TournamentGroupsView } from "./views/tournament-groups.js";
+    import { StandingsView } from "./views/standings.js";
 
     const headerEl = document.getElementById("app-header");
     const navEl = document.getElementById("app-nav");
@@ -47,6 +61,20 @@
       { pattern: "/games/new/pickup", view: () => pickupNewView(mainEl), title: "New pickup" },
       { pattern: "/games/:id/register", view: (params) => registerView(mainEl, { gameId: params.id }), title: "Register" },
       { pattern: "/games/:id/check-in", view: (params) => checkInView(mainEl, { gameId: params.id }), title: "Check-in" },
+      { pattern: "/competitions", view: () => CompetitionsView(mainEl), title: "Competitions" },
+      { pattern: "/competitions/:id/fixtures", view: () => FixturesView(mainEl), title: "Fixtures" },
+      { pattern: "/competitions/:id/roster", view: () => SeasonRosterView(mainEl), title: "Season roster" },
+      { pattern: "/admin/fees", view: () => FeesView(mainEl), title: "Fee schedules" },
+      { pattern: "/admin/payments", view: () => PaymentsView(mainEl), title: "Payments" },
+      { pattern: "/statement", view: () => StatementView(mainEl), title: "My statement" },
+      { pattern: "/admin/quarterly-close", view: () => QuarterlyCloseView(mainEl), title: "Quarterly close" },
+      { pattern: "/admin/csv-export", view: () => CsvExportView(mainEl), title: "CSV export" },
+      { pattern: "/notifications", view: () => NotificationsView(mainEl), title: "Notifications" },
+      { pattern: "/admin/audit", view: () => AuditView(mainEl), title: "Audit log" },
+      { pattern: "/admin/clubs", view: () => ClubsView(mainEl), title: "Clubs & teams" },
+      { pattern: "/tournament/entries", view: () => TournamentEntriesView(mainEl), title: "Tournament entries" },
+      { pattern: "/tournament/groups", view: () => TournamentGroupsView(mainEl), title: "Groups & fixtures" },
+      { pattern: "/standings", view: () => StandingsView(mainEl), title: "Standings" },
       { pattern: "*", view: () => notFoundView(mainEl), title: "Not found" },
     ];
 

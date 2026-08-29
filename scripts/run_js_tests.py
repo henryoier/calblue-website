@@ -35,6 +35,7 @@ SUITES = [
     (APP / "js" / "auth.js", APP / "tests" / "auth.logic.js", "authLogicTests"),
     (APP / "js" / "identity.js", APP / "tests" / "identity.logic.js", "identityLogicTests"),
     (APP / "js" / "registration.js", APP / "tests" / "registration.logic.js", "registrationLogicTests"),
+    (APP / "js" / "billing.js", APP / "tests" / "billing.logic.js", "billingLogicTests"),
 ]
 
 HARNESS = """
