@@ -11,9 +11,12 @@ def _token():
             return line[9:]
     raise SystemExit("no github credential in keychain")
 
-TOK = _token()
+TOK = None
 
 def api(method, path, body=None, full=False):
+    global TOK
+    if TOK is None:
+        TOK = _token()
     url = path if full else f"https://api.github.com/repos/{REPO}{path}"
     cmd = ["curl", "-sS", "-X", method, url,
            "-H", f"Authorization: Bearer {TOK}",
