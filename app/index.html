@@ -27,6 +27,9 @@
     import { gameDetailView } from "./views/game-detail.js";
     import { identityView } from "./views/identity.js";
     import { verifyView } from "./views/verify.js";
+    import { pickupNewView } from "./views/pickup-new.js";
+    import { registerView } from "./views/register.js";
+    import { checkInView } from "./views/check-in.js";
 
     const headerEl = document.getElementById("app-header");
     const navEl = document.getElementById("app-nav");
@@ -41,6 +44,9 @@
       { pattern: "/games/:id", view: (params) => gameDetailView(mainEl, { gameId: params.id }), title: "Game detail" },
       { pattern: "/identity", view: () => identityView(mainEl), title: "My identity" },
       { pattern: "/admin/verify", view: () => verifyView(mainEl), title: "Verify players" },
+      { pattern: "/games/new/pickup", view: () => pickupNewView(mainEl), title: "New pickup" },
+      { pattern: "/games/:id/register", view: (params) => registerView(mainEl, { gameId: params.id }), title: "Register" },
+      { pattern: "/games/:id/check-in", view: (params) => checkInView(mainEl, { gameId: params.id }), title: "Check-in" },
       { pattern: "*", view: () => notFoundView(mainEl), title: "Not found" },
     ];
 
