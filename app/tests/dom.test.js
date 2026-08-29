@@ -1,57 +1,47 @@
-import { html, raw, escapeHtml, toFragment, isRaw } from "../js/dom.js";
+import * as dom from "../js/dom.js";
+import { domLogicTests } from "./dom.logic.js";
 import { test, equal, assert } from "./runner.js";
 
-const render = (result) => {
-  const div = document.createElement("div");
-  div.appendChild(toFragment(result));
-  return div.innerHTML;
-};
+// The pure-logic suite, shared with scripts/run_js_tests.py.
+domLogicTests(dom, { test, equal, assert });
 
-test("escapes the five dangerous characters", () => {
-  equal(escapeHtml(`<&>"'`), "&lt;&amp;&gt;&quot;&#39;");
+// --- browser-only: these need a real DOM and cannot run under JavaScriptCore ---
+
+test("[dom] toFragment produces real nodes", () => {
+  const host = document.createElement("div");
+  host.appendChild(dom.toFragment(dom.html`<p>hi</p>`));
+  equal(host.querySelector("p").textContent, "hi");
 });
 
-test("interpolated values are escaped", () => {
-  const evil = '<img src=x onerror="alert(1)">';
-  const out = render(html`<p>${evil}</p>`);
-  assert(!out.includes("<img"), "must not produce a real element");
-  assert(out.includes("&lt;img"), "must contain the escaped form");
-});
-
-test("escaping holds inside a quoted attribute", () => {
-  // Asserted against the parsed DOM, not the serialised string: the escaped value legitimately
-  // contains the text `onmouseover=`, so a substring check here would fail for the wrong reason.
+test("[dom] attribute break-out does not create a handler attribute", () => {
+  // Asserted against the parsed DOM rather than the serialised string: the correctly escaped
+  // output legitimately contains the text `onmouseover=`, so a substring check would fail here
+  // for entirely the wrong reason.
   const evil = '" onmouseover="alert(1)';
   const host = document.createElement("div");
-  host.appendChild(toFragment(html`<a title="${evil}">x</a>`));
+  host.appendChild(dom.toFragment(dom.html`<a title="${evil}">x</a>`));
   const anchor = host.querySelector("a");
-  equal(anchor.getAttribute("onmouseover"), null, "must not break out into a handler attribute");
+  equal(anchor.getAttribute("onmouseover"), null, "must not break out into a handler");
   equal(anchor.getAttribute("title"), evil, "title should round-trip exactly");
 });
 
-test("nested html results are not double-escaped", () => {
-  const inner = html`<b>bold</b>`;
-  equal(render(html`<p>${inner}</p>`), "<p><b>bold</b></p>");
+test("[dom] injected script tags do not execute or appear as elements", () => {
+  const host = document.createElement("div");
+  host.appendChild(dom.toFragment(dom.html`<div>${"<script>window.__pwned=1</script>"}</div>`));
+  equal(host.querySelector("script"), null, "no script element should exist");
+  equal(window.__pwned, undefined, "nothing should have executed");
 });
 
-test("arrays are flattened and each item escaped", () => {
-  const items = ["a", "<b>"];
-  const out = render(html`<ul>${items.map((i) => html`<li>${i}</li>`)}</ul>`);
-  equal(out, "<ul><li>a</li><li>&lt;b&gt;</li></ul>");
+test("[dom] mount replaces children rather than appending", () => {
+  const host = document.createElement("div");
+  dom.mount(host, dom.html`<p>one</p>`);
+  dom.mount(host, dom.html`<p>two</p>`);
+  equal(host.querySelectorAll("p").length, 1);
+  equal(host.querySelector("p").textContent, "two");
 });
 
-test("null, undefined and false render as nothing", () => {
-  equal(render(html`<p>${null}${undefined}${false}</p>`), "<p></p>");
-});
-
-test("zero and empty string still render", () => {
-  equal(render(html`<p>${0}</p>`), "<p>0</p>");
-});
-
-test("raw opts out of escaping, deliberately", () => {
-  equal(render(html`<p>${raw("<b>x</b>")}</p>`), "<p><b>x</b></p>");
-});
-
-test("html returns a raw marker so results compose", () => {
-  assert(isRaw(html`<p></p>`), "html result should be marked raw");
+test("[dom] el throws instead of returning null", () => {
+  let threw = false;
+  try { dom.el("#definitely-not-there"); } catch (_) { threw = true; }
+  assert(threw, "el should throw on a missing selector");
 });
