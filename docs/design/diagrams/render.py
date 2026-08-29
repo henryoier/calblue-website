@@ -151,16 +151,17 @@ def fig_erd():
     prof = entity(ax, 0.92, 9.73, 3.45, "profiles  (account)", [
         "id = auth.users.id",
         "email · display_name · phone",
-        "role: user | admin | developer"], IDENTITY)
-    play = entity(ax, 0.92, 7.85, 3.45, "players", [
-        "account_id -> profiles  (nullable)",
-        "guardian_account_id",
+        "roles[]: player, coach, admin, …"], IDENTITY)
+    play = entity(ax, 0.92, 7.85, 3.45, "players  (the person)", [
+        "account_id -> profiles   UNIQUE",
+        "guardian_account_id · payer_account_id",
         "default_positions[] · pref_number",
         "verification · is_public"], IDENTITY,
-        note="null account = guest / unclaimed identity")
-    staff = entity(ax, 0.92, 5.75, 3.45, "staff_assignments", [
-        "account_id · scope: competition | game",
-        "staff_role: manager | captain"], IDENTITY)
+        note="null account = guest, visitor or child")
+    staff = entity(ax, 0.92, 5.75, 3.45, "role_grants", [
+        "account_id · role · scope: competition |",
+        "game | team | tournament_entry"], IDENTITY,
+        note="organiser of one cup, captain of one game")
 
     # participation --------------------------------------------------------
     creg = entity(ax, 5.25, 9.73, 3.55, "competition_registrations", [
@@ -216,7 +217,7 @@ def fig_erd():
         note="written once, when the admin closes the quarter")
 
     # edges ----------------------------------------------------------------
-    edge(ax, prof["b"], play["t"], "1 : N")
+    edge(ax, prof["b"], play["t"], "1 : 1")
     route(ax, [(0.92, prof["cy"]), (0.55, prof["cy"]),
                (0.55, staff["cy"]), (0.92, staff["cy"])], ls=(0, (3, 3)))
     ax.text(0.55, 7.45, "grants", fontsize=7.3, color=MUTED, ha="center",
@@ -255,7 +256,7 @@ def fig_erd():
 
 # ============================================================ 2. permissions
 def fig_permissions():
-    cols = ["Public", "User", "Player", "Captain†", "Admin", "Developer‡"]
+    cols = ["Public", "Signed in", "Player", "Organiser†", "Admin", "Developer‡"]
     rows = [
         ("Published pages, schedule, results",      ["R", "R", "R", "R", "RW", "R"]),
         ("Own account profile",                     ["–", "RW", "RW", "RW", "RW", "R"]),
@@ -283,14 +284,66 @@ def fig_permissions():
            "B":  ("#fde8d5", "#9a4a06", "break-glass, audited")}
 
     rh, ch, x0, y0 = 0.40, 1.78, 6.15, 0.62
+    BAND = 2.75
     W = x0 + ch * len(cols) + 0.4
-    H = y0 + rh * len(rows) + 1.45
+    H = y0 + rh * len(rows) + 1.45 + BAND
     fig, ax = canvas(W, H)
-    title(ax, 0.3, H - 0.15, "Roles, accessibility & permissions",
-          "The global role lives on profiles.role · captain is a scoped grant, not a global role · "
-          "every cell is enforced by Postgres row-level security, not only by the UI")
+    title(ax, 0.3, H - 0.15, "One identity, many hats",
+          "An account has exactly one identity · that identity holds any number of roles at the same time · "
+          "every cell below is enforced by Postgres row-level security, not only by the UI")
 
     ytop = y0 + rh * len(rows)
+
+    # --- the band: account -> identity -> the hats it may wear
+    by = ytop + 1.05
+    ax.add_patch(FancyBboxPatch((0.45, by), 2.45, 0.92,
+                 boxstyle="round,pad=0,rounding_size=0.14",
+                 fc=PAPER, ec=IDENTITY, lw=1.4, zorder=4))
+    ax.text(1.675, by + 0.60, "Account", fontsize=10, fontweight="bold",
+            color=IDENTITY, ha="center", va="center", zorder=5)
+    ax.text(1.675, by + 0.30, "one login", fontsize=8, color=MUTED,
+            ha="center", va="center", zorder=5)
+
+    edge(ax, (2.90, by + 0.46), (3.55, by + 0.46), "1 : 1", dy=0.24,
+         color=IDENTITY, lw=1.5)
+
+    ax.add_patch(FancyBboxPatch((3.55, by), 2.60, 0.92,
+                 boxstyle="round,pad=0,rounding_size=0.14",
+                 fc=PAPER, ec=IDENTITY, lw=1.4, zorder=4))
+    ax.text(4.85, by + 0.60, "Identity", fontsize=10, fontweight="bold",
+            color=IDENTITY, ha="center", va="center", zorder=5)
+    ax.text(4.85, by + 0.30, "the person", fontsize=8, color=MUTED,
+            ha="center", va="center", zorder=5)
+
+    edge(ax, (6.15, by + 0.46), (6.80, by + 0.46), color=IDENTITY, lw=1.5)
+
+    hats = [
+        ("club-wide — profiles.roles", by + 1.30,
+         [("player", EVENTS), ("coach", EVENTS), ("referee", EVENTS),
+          ("treasurer", MONEY), ("admin", IDENTITY)]),
+        ("scoped — role_grants", by + 0.10,
+         [("organiser of the Kylin Cup", PARTICIP),
+          ("captain of Saturday's pickup", PARTICIP),
+          ("manager of Team B", PARTICIP)]),
+    ]
+    for label, y, chips in hats:
+        ax.text(6.95, y + 0.62, label.upper(), fontsize=7.4,
+                fontweight="bold", color=MUTED, va="center")
+        x = 6.95
+        for text, color in chips:
+            w = 0.34 + 0.098 * len(text)
+            ax.add_patch(FancyBboxPatch((x, y), w, 0.44,
+                         boxstyle="round,pad=0,rounding_size=0.20",
+                         fc=PAPER, ec=color, lw=1.2, zorder=4))
+            ax.text(x + w / 2, y + 0.22, text, fontsize=8.2, color=color,
+                    ha="center", va="center", zorder=5)
+            x += w + 0.22
+
+    ax.text(0.45, by - 0.46,
+            "All at once — nothing makes somebody choose. The columns below are "
+            "capabilities a person may hold in combination, not mutually exclusive job titles.",
+            fontsize=8.4, color=MUTED, va="center")
+    ax.add_patch(Rectangle((0.3, ytop + 0.78), W - 0.6, 0.035, fc=LINE, ec="none"))
     for j, c in enumerate(cols):
         ax.add_patch(FancyBboxPatch((x0 + ch * j + 0.05, ytop + 0.08), ch - 0.1,
                      0.52, boxstyle="round,pad=0,rounding_size=0.10",
@@ -322,7 +375,8 @@ def fig_permissions():
         ax.text(lx + 0.56, 0.31, desc, fontsize=8, color=MUTED, va="center")
         lx += 0.62 + 0.075 * len(desc) * 1.55
     ax.text(W - 0.3, 0.31,
-            "† scoped to one competition or game    ‡ platform role, not a business role",
+            "† a role_grants row scoped to one competition, game or team    "
+            "‡ platform role, not a business role",
             fontsize=7.8, color=MUTED, ha="right", va="center")
     save(fig, "02-permissions.png")
 
