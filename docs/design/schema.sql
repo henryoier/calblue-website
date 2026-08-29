@@ -937,6 +937,7 @@ $$;
 alter table public.profiles                  enable row level security;
 alter table public.players                   enable row level security;
 alter table public.role_grants               enable row level security;
+alter table public.clubs                     enable row level security;
 alter table public.venues                    enable row level security;
 alter table public.teams                     enable row level security;
 alter table public.competitions              enable row level security;
@@ -1003,6 +1004,10 @@ create policy games_write on public.games for all
 create policy competitions_read on public.competitions for select
   using (status <> 'draft' or public.is_admin());
 create policy competitions_write on public.competitions for all
+  using (public.is_admin()) with check (public.is_admin());
+
+create policy clubs_read on public.clubs for select using (true);
+create policy clubs_write on public.clubs for all
   using (public.is_admin()) with check (public.is_admin());
 
 create policy venues_read on public.venues for select using (true);
@@ -1304,16 +1309,11 @@ language sql stable security definer set search_path = public as $$
                           and rg.tournament_entry_id = te.id)))
 $$;
 
-alter table public.clubs               enable row level security;
 alter table public.tournament_entries  enable row level security;
 alter table public.competition_groups  enable row level security;
 alter table public.entry_roster        enable row level security;
 alter table public.game_results        enable row level security;
 alter table public.game_events         enable row level security;
-
-create policy clubs_read on public.clubs for select using (true);
-create policy clubs_write on public.clubs for all
-  using (public.is_admin()) with check (public.is_admin());
 
 -- an approved entry is public (it is on the fixture list); your own entry is
 -- visible to you at every status
