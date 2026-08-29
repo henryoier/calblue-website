@@ -6,12 +6,51 @@
 <meta name="robots" content="noindex">
 <title>CalBlue — members</title>
 <link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-  <main id="app">
-    <p>The member app shell lands in issue #29. This entry point exists so the directory structure and
-       the no-build rule are established first — see
-       <a href="../docs/design/adr/0001-client-stack.md">ADR 0001</a>.</p>
+  <header id="app-header" class="app-header"></header>
+  <nav id="app-nav" class="app-nav" aria-label="Members navigation"></nav>
+  <main id="app" class="app-main" tabindex="-1">
+    <div class="app-loading" role="status">Loading…</div>
   </main>
+  <footer id="app-footer" class="app-footer"></footer>
+  <script type="module">
+    import { getClient, isConfigured } from "./js/supabase.js";
+    import { initSession, getProfile, getRoles, onSessionChange } from "./js/session.js";
+    import { createRouter } from "./js/router.js";
+    import { renderLayout, renderLoading, renderError } from "./js/layout.js";
+    import { homeView } from "./views/home.js";
+    import { notFoundView } from "./views/not-found.js";
+    import { signInView } from "./views/sign-in.js";
+
+    const headerEl = document.getElementById("app-header");
+    const navEl = document.getElementById("app-nav");
+    const mainEl = document.getElementById("app");
+    const footerEl = document.getElementById("app-footer");
+
+    const routes = [
+      { pattern: "/", view: () => homeView(mainEl, { profile: getProfile(), roles: getRoles() }), title: "Home" },
+      { pattern: "/sign-in", view: () => signInView(mainEl), title: "Sign in" },
+      { pattern: "/games", view: () => { mainEl.innerHTML = "<p>Game list lands in #34, stacked on this PR.</p>"; }, title: "Games" },
+      { pattern: "*", view: () => notFoundView(mainEl), title: "Not found" },
+    ];
+
+    function updateChrome() {
+      renderLayout({ headerEl, navEl, footerEl, roles: getRoles(), profile: getProfile(), supabaseConfigured: isConfigured() });
+    }
+
+    try {
+      renderLoading(mainEl);
+      const client = await getClient();
+      await initSession(client);
+      updateChrome();
+      onSessionChange(updateChrome);
+      const router = createRouter({ routes, mountPoint: mainEl });
+      await router.render();
+    } catch (err) {
+      renderError(mainEl, err.message || String(err));
+    }
+  </script>
 </body>
 </html>

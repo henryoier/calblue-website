@@ -24,6 +24,8 @@
   <script type="module">
     import { report } from "./runner.js";
     await import("./dom.test.js");
+    await import("./router.test.js");
+    await import("./session.test.js");
     report(document.getElementById("out"));
   </script>
 </body>

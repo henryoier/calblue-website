@@ -121,10 +121,32 @@ def main() -> int:
             if "assets/gallery" in source_path.read_text(encoding="utf-8"):
                 errors.append(f"{source_path.name}: contains a removed local gallery reference")
 
+    # --- app shell (#29) ---
+    app_index = ROOT / "app" / "index.html"
+    if not app_index.exists():
+        errors.append("app/index.html: missing app entry point")
+    else:
+        app_source = app_index.read_text(encoding="utf-8")
+        for required in ("js/router.js", "js/supabase.js", "js/session.js", "js/layout.js", "css/app.css"):
+            if required not in app_source and not (ROOT / "app" / required).exists():
+                errors.append(f"app/index.html: missing {required}")
+        app_errors = check_page(app_index)
+        # app pages are noindex and use module scripts; only check local refs
+        errors.extend([e for e in app_errors if "missing local file" in e])
+
+    for required_app_file in (
+        "app/js/router.js", "app/js/supabase.js", "app/js/session.js",
+        "app/js/layout.js", "app/js/dom.js", "app/config.js", "app/css/app.css",
+        "app/views/home.js", "app/views/not-found.js",
+    ):
+        if not (ROOT / required_app_file).exists():
+            errors.append(f"{required_app_file}: missing (app shell #29)")
+
     if errors:
         print("\n".join(errors), file=sys.stderr)
         return 1
     print(f"Validated {len(PAGES)} pages, local references, and R2 gallery configuration.")
+    print("Validated app shell: router, session, supabase client, layout, and views.")
     return 0
 
 
