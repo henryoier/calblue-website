@@ -6,12 +6,196 @@
 <meta name="robots" content="noindex">
 <title>CalBlue — members</title>
 <link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-  <main id="app">
-    <p>The member app shell lands in issue #29. This entry point exists so the directory structure and
-       the no-build rule are established first — see
-       <a href="../docs/design/adr/0001-client-stack.md">ADR 0001</a>.</p>
+  <header id="app-header" class="app-header"></header>
+  <nav id="app-nav" class="app-nav" aria-label="Members navigation"></nav>
+  <main id="app" class="app-main" tabindex="-1">
+    <div class="app-loading" role="status">Loading…</div>
   </main>
+  <footer id="app-footer" class="app-footer"></footer>
+  <script type="module">
+    import { getClient, isConfigured } from "./js/supabase.js";
+    import {
+      initSession,
+      getSession,
+      getProfile,
+      getRoles,
+      getSessionError,
+      isAuthenticated,
+      onSessionChange,
+      signOut,
+    } from "./js/session.js";
+    import { createRouter, navigate } from "./js/router.js";
+    import {
+      renderLayout,
+      renderLoading,
+      renderError,
+      renderAccessDenied,
+    } from "./js/layout.js";
+    import { homeView } from "./views/home.js";
+    import { notFoundView } from "./views/not-found.js";
+    import { signInView } from "./views/sign-in.js";
+    import { placeholderView } from "./views/placeholder.js";
+
+    const headerEl = document.getElementById("app-header");
+    const navEl = document.getElementById("app-nav");
+    const mainEl = document.getElementById("app");
+    const footerEl = document.getElementById("app-footer");
+
+    let client = null;
+    let currentPath = "/";
+
+    const placeholder = (details) => () => placeholderView(mainEl, details);
+    const routes = [
+      {
+        pattern: "/",
+        title: "Home",
+        view: () => homeView(mainEl, {
+          profile: getProfile(),
+          roles: getRoles(),
+          authenticated: isAuthenticated(),
+          session: getSession(),
+        }),
+      },
+      {
+        pattern: "/sign-in",
+        title: "Sign in",
+        view: (_params, query) => signInView(mainEl, {
+          authenticated: isAuthenticated(),
+          signedOut: query.signedOut === "1",
+        }),
+      },
+      {
+        pattern: "/sign-out",
+        title: "Sign out",
+        auth: true,
+        view: async () => {
+          await signOut(client);
+          navigate("/sign-in", {}, { signedOut: "1" });
+        },
+      },
+      {
+        pattern: "/games",
+        title: "Games",
+        view: placeholder({
+          eyebrow: "Schedule",
+          title: "Games",
+          description: "Browse published fixtures and pickup sessions.",
+          issue: 34,
+        }),
+      },
+      {
+        pattern: "/identity",
+        title: "My identity",
+        auth: true,
+        view: placeholder({
+          eyebrow: "Member profile",
+          title: "My identity",
+          description: "Review player details, verification, and guardian relationships.",
+          issue: 31,
+        }),
+      },
+      {
+        pattern: "/admin/verify",
+        title: "Verify players",
+        auth: true,
+        roles: ["admin"],
+        view: placeholder({
+          eyebrow: "Administration",
+          title: "Verify players",
+          description: "Review pending identities before they join competition rosters.",
+          issue: 32,
+        }),
+      },
+      {
+        pattern: "/admin/payments",
+        title: "Payments",
+        auth: true,
+        roles: ["admin", "treasurer"],
+        view: placeholder({
+          eyebrow: "Finance",
+          title: "Payments",
+          description: "Record payments and reconcile member balances.",
+          issue: 44,
+        }),
+      },
+      {
+        pattern: "/admin/audit",
+        title: "Audit log",
+        auth: true,
+        roles: ["admin", "developer"],
+        view: placeholder({
+          eyebrow: "Administration",
+          title: "Audit log",
+          description: "Trace sensitive changes across the member platform.",
+          issue: 51,
+        }),
+      },
+      {
+        pattern: "/admin/clubs",
+        title: "Clubs and teams",
+        auth: true,
+        roles: ["admin"],
+        view: placeholder({
+          eyebrow: "Administration",
+          title: "Clubs & teams",
+          description: "Maintain club, team, and venue records.",
+          issue: 52,
+        }),
+      },
+      { pattern: "*", title: "Not found", view: () => notFoundView(mainEl) },
+    ];
+
+    function updateChrome() {
+      renderLayout({
+        headerEl,
+        navEl,
+        footerEl,
+        authenticated: isAuthenticated(),
+        roles: getRoles(),
+        profile: getProfile(),
+        session: getSession(),
+        currentPath,
+        supabaseConfigured: isConfigured(),
+      });
+    }
+
+    const router = createRouter({
+      routes,
+      mountPoint: mainEl,
+      getAccess: () => ({ authenticated: isAuthenticated(), roles: getRoles() }),
+      onRouteChange: ({ path }) => {
+        currentPath = path;
+        updateChrome();
+      },
+      onLoading: () => renderLoading(mainEl),
+      onError: (error) => renderError(mainEl, error.message || String(error)),
+      onUnauthorized: (_target, access) => renderAccessDenied(mainEl, access),
+    });
+
+    updateChrome();
+    renderLoading(mainEl, "Starting members app…");
+
+    try {
+      client = await getClient();
+      await initSession(client);
+      updateChrome();
+
+      onSessionChange(({ error }) => {
+        updateChrome();
+        if (error) renderError(mainEl, error.message || String(error));
+        else router.render();
+      });
+
+      const sessionError = getSessionError();
+      if (sessionError) renderError(mainEl, sessionError.message || String(sessionError));
+      else await router.render();
+    } catch (error) {
+      updateChrome();
+      renderError(mainEl, error.message || String(error));
+    }
+  </script>
 </body>
 </html>

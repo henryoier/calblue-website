@@ -6,3 +6,7 @@
 // or database password here. Client initialization follows in issue #29.
 export const SUPABASE_URL = "https://rmksoklavpoartewjvus.supabase.co";
 export const SUPABASE_ANON_KEY = "sb_publishable_E6Nev6Kb2-8WF5YC0ZNJkA_2reaQUvU";
+
+// Pin the only external browser dependency so upgrades are explicit and
+// reviewable instead of changing underneath the no-build application.
+export const SUPABASE_CLIENT_VERSION = "2.45.4";
