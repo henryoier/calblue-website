@@ -1,6 +1,6 @@
 # CalBlue — league, pickup and membership platform
 
-**Data model and permissions design · draft v0.3 · for review**
+**Data model and permissions design · draft v0.4 · for review**
 
 Today calblue.com is a static site: hand-edited HTML for the roster, the galleries and the fixtures. This document proposes the authenticated system that sits behind it — accounts, player identities, leagues and tournaments, pickup games, per-game registration, attendance, and an end-of-quarter bill that the club does not have to add up by hand.
 
@@ -40,9 +40,9 @@ Firebase or a hand-rolled API would both work. The schema in `schema.sql` is sta
 
 ## 3. Eight decisions that shape everything else
 
-**1. An account is not a player.** `profiles` is a login. `players` is a person in the club. One account can hold several player identities — a parent registering two children — and a non-player account simply holds none. This is the difference between a system that can handle a family and one that can't.
+**1. One account, one identity — but many roles at once.** `profiles` is a login; `players` is the person. The link is **1:1**, enforced by a unique index, so nothing in the UI ever asks "which of your identities is playing today?". What *is* plural is roles: the same person is routinely a player, a coach, and the point of contact for one tournament, all at the same time. Club-wide roles are a set in `profiles.roles`; roles that apply to one competition, game or team are rows in `role_grants`.
 
-**2. A player identity can exist without an account.** A drop-in guest at a pickup, or the thirty names on the existing Kylin Cup roster sheet, become `players` rows with `account_id = null`, and can be claimed later with a code. Requiring a login before a person can be recorded is how clubs end up keeping the real roster in a spreadsheet anyway.
+**2. An identity can exist without an account.** 1:1 means *at most* one, not exactly one. A drop-in guest, a visiting player, or the thirty names on the existing Kylin Cup roster sheet become `players` rows with `account_id = null`, claimable later with a code. Children work the same way: a child is their own identity with no login, pointed at a parent by `guardian_account_id` — so the parent still has exactly one identity, their own, while acting and paying for the child. Requiring a login before a person can be recorded is how clubs end up keeping the real roster in a spreadsheet anyway.
 
 **3. One `games` table for everything.** A league fixture, a cup tie, a friendly and a Saturday pickup are the same shape: a time, a place, a capacity, a list of people. `game_type` distinguishes them. The alternative — a separate `pickup_games` table — duplicates registration, attendance and billing three times over.
 
@@ -60,26 +60,34 @@ Firebase or a hand-rolled API would both work. The schema in `schema.sql` is sta
 
 ## 4. Roles, accessibility and permissions
 
-Three global roles, and one scoped grant:
+Roles are **additive, not exclusive**. The question is never "is this person a player or a coach?" — it is "what does this person currently hold?", and the answer is usually several things.
 
-| Actor | How it is represented | What it is for |
-|---|---|---|
-| **Public** | not signed in | The published schedule, results, and the opt-in public roster. |
-| **User** | `profiles.role = 'user'` | The default on sign-up. Manages their own account, their own player identities, their own registrations, and sees their own statement. May have no player identity at all. |
-| **Player** | *not a role* — a capability | Anyone whose account owns a verified `players` row can register to play. Nothing to grant. |
-| **Captain / organiser** | a row in `staff_assignments` | Scoped to one competition or one game: edit that game, run check-in, move the waitlist. Deliberately **not** a global role, so a captain for one tournament does not become a captain of everything. |
-| **Admin** | `profiles.role = 'admin'` | Club operations: competitions, games, venues, fees, verification, attendance, payments, closing the quarter. |
-| **Developer** | `profiles.role = 'developer'` | Schema, secrets, deploys, break-glass. No routine business writes — those go through an admin account so the audit trail means something. |
+They come from two places:
 
-### Diagram 1 — permission matrix
+**Club-wide roles — `profiles.roles`, a set.** Any combination of `player`, `coach`, `referee`, `treasurer`, `admin`, `developer`. An ordinary member who just turns up and plays has `{player}`. A parent who never plays has `{}` and is no less of an account. The club's treasurer who also plays has `{player, treasurer}`. This array is mirrored into the auth token so policies can read it without re-querying the table.
 
-*Who can read and write what. Every cell is enforced by a Postgres policy, not only by whether a button is visible. Full resolution: `docs/design/diagrams/02-permissions.png`*
+**Scoped roles — `role_grants`, one row per grant.** A role attached to exactly one competition, game, team or tournament entry: `organiser`, `manager`, `captain`, `coach`, `team_manager`. This is how somebody becomes the point of contact for the Kylin Cup **without becoming an admin of the whole club** — which is the distinction that matters, because tournament POCs are often people you would not give the member database to.
+
+| Capability | Where it comes from |
+|---|---|
+| Browse published pages | nobody signed in |
+| Manage own account, identity and registrations | any signed-in account |
+| Register to play official games | `player` role **and** a verified identity |
+| Run one competition: fixtures, approvals, results | `organiser` grant on that competition |
+| Run one match: check-in, waitlist | `captain` grant on that game, or an organiser of its competition |
+| Enter and manage a visiting team | `team_manager` grant on that entry |
+| Club operations: verification, fees, closing the quarter | `admin` |
+| Schema, secrets, deploys | `developer` |
 
 Three details worth calling out:
 
-- **Minors.** A player identity carries `guardian_account_id`. Only that guardian or an admin can register or cancel for them.
-- **Medical and emergency fields.** Visible to the owner, the guardian, and to a captain of a game that player is registered for — not to the club at large.
-- **The public roster is opt-in.** `v_public_roster` returns only players who are both `is_public` and `verified`. The current static roster page is already opt-in; this preserves that rather than quietly widening it.
+- **Minors.** A child is an identity with no login and a `guardian_account_id`. Only that guardian or an admin can register or cancel for them, and charges land on the guardian's account via `players.payer_account_id`.
+- **Medical and emergency fields.** Visible to the person, their guardian, and a captain of a game they are registered for — not to the club at large.
+- **The public roster is opt-in.** `v_public_roster` returns only identities that are both `is_public` and `verified`.
+
+### Diagram 1 — one identity, many hats
+
+*One account, one identity, any number of roles at once — and what each of those roles can read and write. Every cell is enforced by a Postgres policy, not only by whether a button is visible. Full resolution: `docs/design/diagrams/02-permissions.png`*
 
 ---
 
@@ -93,9 +101,9 @@ Three details worth calling out:
 
 | Table | Purpose | Notes worth reading |
 |---|---|---|
-| `profiles` | One row per login, keyed to `auth.users` | `role` is mirrored into the JWT by a trigger, so policies read the token rather than re-querying this table — otherwise the policy on `profiles` would recurse into itself. The cost: a promotion takes effect on the next token refresh. |
-| `players` | A person in the club | `account_id` is **nullable** (guests, unclaimed imports). `guardian_account_id` handles minors. `verification_status` gates official games. `is_public` gates the roster page. |
-| `staff_assignments` | Scoped captain / manager grants | Points at a competition *or* a game. This is how we avoid a fourth global role. |
+| `profiles` | One row per login, keyed to `auth.users` | `roles` is a **set**, mirrored into the JWT by a trigger so policies read the token rather than re-querying this table — otherwise the policy on `profiles` would recurse into itself. The cost: a role change takes effect on the next token refresh. |
+| `players` | The person | `account_id` is **unique and nullable**: at most one identity per account, and identities may exist with none (guests, children, imports). `payer_account_id` is a stored `coalesce(account_id, guardian_account_id)` — who actually gets the bill. |
+| `role_grants` | Roles scoped to one thing | A role plus exactly one of competition, game, team or tournament entry. An account may hold any number, alongside its club-wide roles. |
 | `audit_log` | Before/after JSON for sensitive writes | Triggered on charges, payments, role changes and period closes. |
 
 ### 5.2 Events and schedule

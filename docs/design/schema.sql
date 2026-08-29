@@ -39,8 +39,12 @@ create table public.profiles (
   email         citext not null unique,
   display_name  text   not null default '',
   phone         text,
-  role          text   not null default 'user'
-                check (role in ('user', 'admin', 'developer')),
+  -- Roles are additive: the same person is routinely a player, a coach and
+  -- the point of contact for one tournament. Club-wide roles live here;
+  -- roles that apply to only one competition or team live in role_grants.
+  roles         text[] not null default '{}'
+                check (roles <@ array['player','coach','referee','treasurer',
+                                      'admin','developer']),
   locale        text   not null default 'en',
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now()
@@ -61,32 +65,36 @@ end $$;
 create trigger on_auth_user_created after insert on auth.users
   for each row execute function public.handle_new_user();
 
--- Mirror profiles.role into the JWT so RLS can read the role from the token
+-- Mirror profiles.roles into the JWT so RLS can read them from the token
 -- instead of re-querying profiles (which would make profiles policies
 -- recursive). NOTE: the claim only changes when the token is refreshed —
 -- after a promotion, the user must re-login or refresh.
 create or replace function public.sync_role_claim() returns trigger
 language plpgsql security definer set search_path = public, auth as $$
 begin
-  if tg_op = 'INSERT' or new.role is distinct from old.role then
+  if tg_op = 'INSERT' or new.roles is distinct from old.roles then
     update auth.users
-       set raw_app_meta_data =
-           coalesce(raw_app_meta_data, '{}'::jsonb) || jsonb_build_object('role', new.role)
+       set raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb)
+                               || jsonb_build_object('roles', to_jsonb(new.roles))
      where id = new.id;
   end if;
   return new;
 end $$;
 
-create trigger profiles_sync_role after insert or update of role on public.profiles
+create trigger profiles_sync_roles after insert or update of roles on public.profiles
   for each row execute function public.sync_role_claim();
 
 
--- A person identity inside the club. Usually a player; may also be a coach
--- or a volunteer who never plays. Deliberately separate from `profiles`:
---   * one account can hold several identities (a parent and two children)
---   * an identity can exist with NO account at all — a drop-in guest, or a
---     historical roster entry imported from the spreadsheet — and be
---     claimed later
+-- A person inside the club. Deliberately separate from `profiles`, but
+-- **at most one identity per account** (see the unique index below):
+--   * an account never has two identities, so nothing in the UI ever asks
+--     "which of your identities is playing today?"
+--   * an identity may exist with NO account at all — a drop-in guest, a
+--     visiting player, or a name imported from the old roster sheet — and
+--     be claimed later with claim_code
+--   * a child is their own identity with no account, pointed at a parent by
+--     guardian_account_id. The parent therefore still has exactly one
+--     identity (their own) while acting for, and paying for, the children.
 create table public.players (
   id                      uuid primary key default gen_random_uuid(),
   account_id              uuid references public.profiles(id) on delete set null,
@@ -109,12 +117,20 @@ create table public.players (
   claim_code              text unique,                    -- for unclaimed identities
   claimed_at              timestamptz,
   created_at              timestamptz not null default now(),
-  updated_at              timestamptz not null default now()
+  updated_at              timestamptz not null default now(),
+  -- Who receives this person's charges: themselves, or their guardian if
+  -- they have no login of their own. coalesce of two columns is immutable,
+  -- so this can be stored and indexed.
+  payer_account_id        uuid generated always as
+                          (coalesce(account_id, guardian_account_id)) stored
   -- "a minor must have a guardian" is enforced in the application, not here:
   -- date_of_birth is optional and current_date is not immutable.
 );
-create index players_account   on public.players(account_id);
+-- at most one identity per account (many NULLs are allowed: guests)
+create unique index players_one_per_account on public.players(account_id)
+  where account_id is not null;
 create index players_guardian  on public.players(guardian_account_id);
+create index players_payer     on public.players(payer_account_id);
 create index players_public    on public.players(is_public)
   where is_public and verification_status = 'verified';
 create trigger players_touch before update on public.players
@@ -290,21 +306,27 @@ create trigger games_touch before update on public.games
   for each row execute function public.touch_updated_at();
 
 
--- Scoped grants. A captain is NOT a global role — they are a manager of one
--- competition or of one game. This keeps `profiles.role` down to three values.
-create table public.staff_assignments (
+-- Roles that apply to ONE thing rather than the whole club. The organiser of
+-- the Kylin Cup is an organiser *of the Kylin Cup* — not a club-wide admin.
+-- An account may hold any number of these at once, alongside its club-wide
+-- roles in profiles.roles.
+create table public.role_grants (
   id             uuid primary key default gen_random_uuid(),
   account_id     uuid not null references public.profiles(id) on delete cascade,
+  role           text not null,
   competition_id uuid references public.competitions(id) on delete cascade,
   game_id        uuid references public.games(id) on delete cascade,
-  staff_role     text not null default 'captain',
+  team_id        uuid references public.teams(id) on delete cascade,
+  granted_by     uuid references public.profiles(id),
   created_at     timestamptz not null default now(),
-  constraint staff_role_allowed
-    check (staff_role in ('manager','captain','treasurer')),
-  constraint staff_scope_required
-    check (competition_id is not null or game_id is not null)
+  constraint role_grant_allowed
+    check (role in ('organiser','manager','captain','coach','treasurer')),
+  constraint role_grant_scope_required
+    check (competition_id is not null or game_id is not null
+           or team_id is not null)
 );
-create index staff_by_account on public.staff_assignments(account_id);
+create index role_grants_by_account on public.role_grants(account_id);
+create index role_grants_by_comp    on public.role_grants(competition_id);
 
 
 -- =====================================================================
@@ -680,7 +702,7 @@ begin
   -- the game fee, for everyone who actually played
   insert into public.charges (player_id, account_id, game_id, competition_id,
                               kind, description, amount, charge_date, source)
-  select gr.player_id, p.account_id, p_game, v_game.competition_id,
+  select gr.player_id, p.payer_account_id, p_game, v_game.competition_id,
          'game_fee', v_game.title, v_fee, v_game.game_date, 'auto'
     from public.game_registrations gr
     join public.players p on p.id = gr.player_id
@@ -693,7 +715,7 @@ begin
   -- the no-show fee, if the club charges one
   insert into public.charges (player_id, account_id, game_id, competition_id,
                               kind, description, amount, charge_date, source)
-  select gr.player_id, p.account_id, p_game, v_game.competition_id,
+  select gr.player_id, p.payer_account_id, p_game, v_game.competition_id,
          'no_show', 'No-show: ' || v_game.title, v_no_show, v_game.game_date, 'auto'
     from public.game_registrations gr
     join public.players p on p.id = gr.player_id
@@ -780,7 +802,7 @@ begin
     billing_period_id, player_id, account_id, games_attended,
     attended_league, attended_tournament, attended_pickup, attended_other,
     no_shows, late_cancels, charges_total)
-  select p_period, i.player_id, pl.account_id,
+  select p_period, i.player_id, pl.payer_account_id,
          coalesce(a.present, 0), coalesce(a.league, 0), coalesce(a.tourn, 0),
          coalesce(a.pickup, 0), coalesce(a.other, 0), coalesce(a.no_shows, 0),
          coalesce(a.late_cancels, 0), coalesce(m.total, 0)
@@ -860,17 +882,37 @@ select p.id, p.display_name, p.preferred_number, p.default_positions, p.photo_ur
 
 -- =====================================================================
 -- 7. ROW-LEVEL SECURITY
---   The role comes from the JWT (synced from profiles.role above) so that
+--   Roles come from the JWT (synced from profiles.roles above) so that
 --   policies never re-query profiles — that would recurse.
 -- =====================================================================
 
-create or replace function public.app_role() returns text
+create or replace function public.app_roles() returns text[]
 language sql stable as $$
-  select coalesce(nullif(auth.jwt() -> 'app_metadata' ->> 'role', ''), 'user')
+  select case
+    when auth.jwt() -> 'app_metadata' ? 'roles'
+      then array(select jsonb_array_elements_text(
+                          auth.jwt() -> 'app_metadata' -> 'roles'))
+    else array[]::text[]
+  end
 $$;
 
+create or replace function public.has_role(r text) returns boolean
+language sql stable as $$ select r = any(public.app_roles()) $$;
+
 create or replace function public.is_admin() returns boolean
-language sql stable as $$ select public.app_role() = 'admin' $$;
+language sql stable as $$ select public.has_role('admin') $$;
+
+-- Holding a scoped role over one competition, game or team. This is what
+-- makes somebody the point of contact for a single tournament without
+-- giving them any authority over the rest of the club.
+create or replace function public.has_grant_on_competition(c uuid, roles text[])
+returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.role_grants g
+                  where g.account_id = auth.uid()
+                    and g.competition_id = c
+                    and g.role = any(roles))
+$$;
 
 create or replace function public.owns_player(p uuid) returns boolean
 language sql stable security definer set search_path = public as $$
@@ -883,15 +925,18 @@ $$;
 create or replace function public.manages_game(g uuid) returns boolean
 language sql stable security definer set search_path = public as $$
   select exists (
-    select 1 from public.staff_assignments sa
-     where sa.account_id = auth.uid()
-       and (sa.game_id = g
-            or sa.competition_id = (select competition_id from public.games where id = g)))
+    select 1 from public.role_grants rg
+     where rg.account_id = auth.uid()
+       and rg.role in ('organiser','manager','captain','coach')
+       and (rg.game_id = g
+            or rg.competition_id = (select competition_id
+                                      from public.games where id = g)
+            or rg.team_id = (select team_id from public.games where id = g)))
 $$;
 
 alter table public.profiles                  enable row level security;
 alter table public.players                   enable row level security;
-alter table public.staff_assignments         enable row level security;
+alter table public.role_grants               enable row level security;
 alter table public.venues                    enable row level security;
 alter table public.teams                     enable row level security;
 alter table public.competitions              enable row level security;
@@ -916,8 +961,8 @@ create policy profiles_self_write on public.profiles for update
 create or replace function public.guard_role_change() returns trigger
 language plpgsql as $$
 begin
-  if new.role is distinct from old.role and not public.is_admin() then
-    raise exception 'only an admin may change a role';
+  if new.roles is distinct from old.roles and not public.is_admin() then
+    raise exception 'only an admin may change roles';
   end if;
   return new;
 end $$;
@@ -1023,11 +1068,20 @@ create policy pas_read on public.period_account_summaries for select
 
 create policy audit_read on public.audit_log for select using (public.is_admin());
 
--- staff_assignments and teams: readable by all signed-in users, admin-writable
-create policy staff_read on public.staff_assignments for select
+-- role_grants and teams: readable by all signed-in users, admin-writable.
+-- A competition organiser may also grant captain/coach within their own
+-- competition, so running a tournament does not require pestering an admin.
+create policy grants_read on public.role_grants for select
   using (auth.uid() is not null);
-create policy staff_write on public.staff_assignments for all
-  using (public.is_admin()) with check (public.is_admin());
+create policy grants_write on public.role_grants for all
+  using (public.is_admin()
+         or (competition_id is not null
+             and public.has_grant_on_competition(competition_id,
+                                                 array['organiser'])))
+  with check (public.is_admin()
+              or (competition_id is not null and role <> 'organiser'
+                  and public.has_grant_on_competition(competition_id,
+                                                      array['organiser'])));
 create policy teams_read on public.teams for select using (true);
 create policy teams_write on public.teams for all
   using (public.is_admin()) with check (public.is_admin());
@@ -1175,18 +1229,20 @@ alter table public.charges
   add constraint charges_entry_fk foreign key (entry_id)
   references public.tournament_entries(id) on delete restrict;
 
--- A visiting manager is a scoped grant, exactly like a captain.
-alter table public.staff_assignments
-  add column tournament_entry_id uuid references public.tournament_entries(id) on delete cascade;
-alter table public.staff_assignments drop constraint staff_scope_required;
-alter table public.staff_assignments
-  add constraint staff_scope_required
+-- A visiting club's manager is one more scoped grant, exactly like a captain.
+alter table public.role_grants
+  add column tournament_entry_id uuid
+  references public.tournament_entries(id) on delete cascade;
+alter table public.role_grants drop constraint role_grant_scope_required;
+alter table public.role_grants
+  add constraint role_grant_scope_required
   check (competition_id is not null or game_id is not null
-         or tournament_entry_id is not null);
-alter table public.staff_assignments drop constraint staff_role_allowed;
-alter table public.staff_assignments
-  add constraint staff_role_allowed
-  check (staff_role in ('manager','captain','treasurer','team_manager'));
+         or team_id is not null or tournament_entry_id is not null);
+alter table public.role_grants drop constraint role_grant_allowed;
+alter table public.role_grants
+  add constraint role_grant_allowed
+  check (role in ('organiser','manager','captain','coach','treasurer',
+                  'team_manager'));
 
 
 -- --- the tables the public tournament pages read ---------------------
@@ -1243,9 +1299,9 @@ language sql stable security definer set search_path = public as $$
     select 1 from public.tournament_entries te
      where te.id = e
        and (te.manager_account_id = auth.uid()
-            or exists (select 1 from public.staff_assignments sa
-                        where sa.account_id = auth.uid()
-                          and sa.tournament_entry_id = te.id)))
+            or exists (select 1 from public.role_grants rg
+                        where rg.account_id = auth.uid()
+                          and rg.tournament_entry_id = te.id)))
 $$;
 
 alter table public.clubs               enable row level security;
