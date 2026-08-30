@@ -63,6 +63,7 @@ end $$;
 
 create trigger on_auth_user_created after insert on auth.users
   for each row execute function public.handle_new_user();
+revoke all on function public.handle_new_user() from public;
 
 -- Mirror profiles.roles into the JWT so RLS can read them from the token
 -- instead of re-querying profiles (which would make profiles policies
@@ -82,6 +83,7 @@ end $$;
 
 create trigger profiles_sync_roles after insert or update of roles on public.profiles
   for each row execute function public.sync_role_claim();
+revoke all on function public.sync_role_claim() from public;
 
 
 -- A person inside the club. Deliberately separate from `profiles`, but
@@ -480,3 +482,4 @@ end $$;
 
 create trigger greg_promote after update of status on public.game_registrations
   for each row execute function public.on_slot_freed();
+revoke all on function public.promote_from_waitlist(uuid) from public;
