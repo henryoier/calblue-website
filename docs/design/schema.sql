@@ -64,6 +64,7 @@ end $$;
 
 create trigger on_auth_user_created after insert on auth.users
   for each row execute function public.handle_new_user();
+revoke all on function public.handle_new_user() from public;
 
 -- Mirror profiles.roles into the JWT so RLS can read them from the token
 -- instead of re-querying profiles (which would make profiles policies
@@ -83,6 +84,7 @@ end $$;
 
 create trigger profiles_sync_roles after insert or update of roles on public.profiles
   for each row execute function public.sync_role_claim();
+revoke all on function public.sync_role_claim() from public;
 
 
 -- A person inside the club. Deliberately separate from `profiles`, but
@@ -481,6 +483,7 @@ end $$;
 
 create trigger greg_promote after update of status on public.game_registrations
   for each row execute function public.on_slot_freed();
+revoke all on function public.promote_from_waitlist(uuid) from public;
 
 
 -- =====================================================================
@@ -683,6 +686,9 @@ begin
   if v_game is null then
     raise exception 'no such game %', p_game;
   end if;
+  if not (public.is_admin() or public.manages_game(p_game)) then
+    raise exception 'only a captain, organiser or admin may finalise attendance';
+  end if;
   if v_game.status = 'cancelled' then
     return;                       -- a cancelled game never bills anybody
   end if;
@@ -729,6 +735,8 @@ begin
      set status = 'locked', attendance_locked_at = now()
    where id = p_game;
 end $$;
+revoke all on function public.finalise_game_attendance(uuid) from public;
+grant execute on function public.finalise_game_attendance(uuid) to authenticated;
 
 
 -- 5.3 File every unassigned charge and payment into the period its date
@@ -747,6 +755,7 @@ language sql security definer set search_path = public as $$
     from p where pay.billing_period_id is null
      and pay.payment_date between p.start_date and p.end_date;
 $$;
+revoke all on function public.assign_to_periods() from public;
 
 
 -- 5.4 Close the quarter: freeze both snapshots. Refuses if any game in the
@@ -757,6 +766,9 @@ returns void
 language plpgsql security definer set search_path = public as $$
 declare v public.billing_periods;
 begin
+  if not public.is_admin() then
+    raise exception 'only an admin may close a billing period';
+  end if;
   select * into v from public.billing_periods where id = p_period for update;
   if v.status = 'closed' then
     raise exception 'period % is already closed', v.label;
@@ -844,6 +856,8 @@ begin
      set status = 'closed', closed_at = now(), closed_by = auth.uid()
    where id = p_period;
 end $$;
+revoke all on function public.close_billing_period(uuid) from public;
+grant execute on function public.close_billing_period(uuid) to authenticated;
 
 
 -- =====================================================================
@@ -1115,6 +1129,7 @@ create trigger audit_profiles after update on public.profiles
   for each row execute function public.audit_row();
 create trigger audit_periods  after update on public.billing_periods
   for each row execute function public.audit_row();
+revoke all on function public.audit_row() from public;
 
 
 -- =====================================================================
