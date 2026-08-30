@@ -76,6 +76,15 @@ def pr_state(pr):
     return "open" if pr["state"] == "open" else "closed"
 
 
+def has_active_pr(num, links):
+    """Whether an issue has work that is still reviewable or already merged.
+
+    A closed, unmerged PR is historical context, not a satisfied dependency. This matters when a
+    superseded implementation is abandoned during stack consolidation.
+    """
+    return any(pr_state(pr) != "closed" for pr, _ in links.get(num, []))
+
+
 def status_of(num, issues, links):
     issue = issues.get(num)
     if issue and issue["state"] == "closed":
@@ -86,7 +95,7 @@ def status_of(num, issues, links):
     if any(pr_state(pr) == "open" for pr, _ in linked):
         return "in review"
     deps = plan.HARD[num]
-    unmet = [d for d in deps if not links.get(d)]
+    unmet = [d for d in deps if not has_active_pr(d, links)]
     if unmet:
         return "blocked"
     return "ready"
