@@ -76,13 +76,17 @@ def pr_state(pr):
     return "open" if pr["state"] == "open" else "closed"
 
 
-def has_active_pr(num, links):
-    """Whether an issue has work that is still reviewable or already merged.
+def active_links(num, links):
+    """Return reviewable or merged work, excluding abandoned pull requests.
 
     A closed, unmerged PR is historical context, not a satisfied dependency. This matters when a
     superseded implementation is abandoned during stack consolidation.
     """
-    return any(pr_state(pr) != "closed" for pr, _ in links.get(num, []))
+    return [(pr, kind) for pr, kind in links.get(num, []) if pr_state(pr) != "closed"]
+
+
+def has_active_pr(num, links):
+    return bool(active_links(num, links))
 
 
 def status_of(num, issues, links):
@@ -112,7 +116,7 @@ def build_report(issues, prs, links):
         counts[st] += 1
         title = issues.get(num, {}).get("title", f"#{num}")
         title = title.split("] ", 1)[1] if "] " in title[:6] else title
-        prs_for = links.get(num, [])
+        prs_for = active_links(num, links)
         pr_txt = ", ".join(
             f"#{pr['number']}{'' if k == 'resolves' else ' (part)'}"
             f"{' ✔' if pr_state(pr) == 'merged' else ''}"

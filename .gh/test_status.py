@@ -75,6 +75,18 @@ class ActivePullRequestTests(unittest.TestCase):
         self.assertTrue(status.has_active_pr(29, open_links))
         self.assertTrue(status.has_active_pr(29, merged_links))
 
+    def test_active_links_hide_abandoned_prs(self):
+        links = {
+            29: [
+                ({"number": 64, "state": "closed", "merged_at": None}, "resolves"),
+                ({"number": 76, "state": "open", "merged_at": None}, "resolves"),
+            ]
+        }
+        self.assertEqual(
+            [pr["number"] for pr, _kind in status.active_links(29, links)],
+            [76],
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
