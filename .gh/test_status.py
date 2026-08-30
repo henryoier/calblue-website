@@ -62,5 +62,19 @@ class LinkedNumbersTests(unittest.TestCase):
         )
 
 
+class ActivePullRequestTests(unittest.TestCase):
+    def test_closed_unmerged_pr_does_not_satisfy_dependency(self):
+        links = {29: [({"state": "closed", "merged_at": None}, "resolves")]}
+        self.assertFalse(status.has_active_pr(29, links))
+
+    def test_open_or_merged_pr_satisfies_dependency(self):
+        open_links = {29: [({"state": "open", "merged_at": None}, "resolves")]}
+        merged_links = {
+            29: [({"state": "closed", "merged_at": "2026-08-30T00:00:00Z"}, "resolves")]
+        }
+        self.assertTrue(status.has_active_pr(29, open_links))
+        self.assertTrue(status.has_active_pr(29, merged_links))
+
+
 if __name__ == "__main__":
     unittest.main()
