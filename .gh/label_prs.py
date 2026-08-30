@@ -72,7 +72,6 @@ def main():
     for p in prs:
         body = p.get("body") or ""
         # use status.py's clause parser rather than a second, divergent implementation
-        # use status.py's clause parser rather than a second, divergent implementation
         res = primary_issues(body, RESOLVES) or primary_issues(body, PARTOF)
         issue_of[p["number"]] = [int(x) for x in dict.fromkeys(res)]
 

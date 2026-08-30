@@ -6,7 +6,8 @@ two of them edit the same file in the same directory.
 
 Two mechanisms keep them apart:
 
-- **`.git/hooks/agent-guard.py`** — the enforcement layer. A per-worktree lease that refuses commits
+- **`scripts/agent_guard.py`** — the versioned enforcement layer, installed into the clone's shared
+  hooks directory by `scripts/install_agent_guard.sh`. A per-worktree lease refuses commits
   and pushes from the wrong agent, the wrong branch, or an unclaimed worktree. It is local and not
   version-controlled, because it is machine state rather than project source.
 - **`scripts/check_worktrees.py`** — the inventory. The guard only ever sees the worktree it was
@@ -31,6 +32,12 @@ scripts/agent_worktree.sh cc migration-core
 # -> ~/calblue-wt-migration-core-cc on feat/migration-core-cc, configured and claimed
 ```
 
+For an existing clone, install or refresh the hooks once before claiming worktrees:
+
+```sh
+scripts/install_agent_guard.sh
+```
+
 Check the machine at any time:
 
 ```sh
@@ -43,7 +50,7 @@ Each worktree carries its own git config and a claim file at `<git-dir>/agent-cl
 
 | Setting | Meaning |
 |---|---|
-| `calblue.agent` | who owns this worktree |
+| `calblue.agent` | who owns this worktree; stored with `git config --worktree` |
 | `calblue.sessionId` | which run owns it, so a stale claim is distinguishable from a live one |
 | `calblue.allowedBranchRegex` | e.g. `^(chore\|feat\|fix)/.*-cc$` — stops you committing to another agent's branch from your own worktree |
 | `calblue.readOnly` | set on the shared clone; makes it reject all commits |
