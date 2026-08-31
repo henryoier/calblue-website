@@ -53,13 +53,15 @@ def worktrees():
 
 def guard_state(path):
     """What agent-guard.py would make of this worktree."""
-    agent = git(["config", "--get", "calblue.agent"], cwd=path)
+    agent = git(["config", "--worktree", "--get", "calblue.agent"], cwd=path)
     upstream = git(["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}"], cwd=path)
     branch = git(["symbolic-ref", "--quiet", "--short", "HEAD"], cwd=path)
     common = git(["rev-parse", "--path-format=absolute", "--git-common-dir"], cwd=path)
     git_dir = git(["rev-parse", "--path-format=absolute", "--git-dir"], cwd=path)
     claimed = bool(git_dir) and (pathlib.Path(git_dir) / "agent-claim.json").exists()
-    read_only = git(["config", "--get", "calblue.readOnly"], cwd=path).lower() == "true"
+    read_only = git(
+        ["config", "--worktree", "--get", "calblue.readOnly"], cwd=path
+    ).lower() == "true"
     upstream_ok = (not branch) or upstream == f"origin/{branch}"
     return {"agent": agent, "claimed": claimed, "read_only": read_only,
             "upstream_ok": upstream_ok, "upstream": upstream,
@@ -84,6 +86,16 @@ def main():
         return 0
 
     problems, notes, rows = [], [], []
+    common = pathlib.Path(git(
+        ["rev-parse", "--path-format=absolute", "--git-common-dir"], cwd=SHARED
+    ))
+    for hook in ("agent-guard.py", "pre-commit", "pre-push"):
+        hook_path = common / "hooks" / hook
+        if not hook_path.is_file() or not os.access(hook_path, os.X_OK):
+            problems.append(
+                f"shared guard hook is missing or not executable: {hook_path}\n"
+                f"        {SHARED / 'scripts' / 'install_agent_guard.sh'}"
+            )
 
     for wt in worktrees():
         path = wt["path"]
