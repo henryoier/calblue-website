@@ -172,6 +172,18 @@ def main():
             ("charges_auto_once", "the partial unique index making finalisation idempotent is missing"),
             ("charges cannot be deleted", "charge immutability trigger is missing"),
             ("billing_periods_no_overlap", "billing periods must not be allowed to overlap"),
+            (
+                "only a captain, organiser or admin may finalise attendance",
+                "finalise_game_attendance must authorize its security-definer caller",
+            ),
+            (
+                "revoke all on function public.finalise_game_attendance(uuid) from public",
+                "finalise_game_attendance must not be executable by PUBLIC",
+            ),
+            (
+                "only an admin may close a billing period",
+                "close_billing_period must authorize its security-definer caller",
+            ),
         ]
     for needle, why in invariants:
         if needle not in all_raw:
