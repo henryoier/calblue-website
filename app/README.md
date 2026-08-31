@@ -49,3 +49,22 @@ the identity that row-level security evaluates against, and it grants nothing on
 The **service-role key bypasses row-level security entirely**. It must never appear in this
 directory, in any committed file, or in any deployed asset. It belongs only to server-side scheduled
 jobs. `scripts/check_secrets.py` fails the build if one shows up in tracked files.
+
+The committed config contains placeholders until a club administrator provisions the project. To
+finish that one-time setup:
+
+1. Create the Supabase project in the club-owned account and apply the migrations in
+   `supabase/migrations/` in filename order.
+2. In **Authentication → Providers → Email**, enable magic-link sign-in and email confirmations.
+3. Set the production site URL to `https://calbluefc.com/app/` and allow redirects to both
+   `https://calbluefc.com/app/` and `http://localhost:8080/app/`.
+4. Copy the project's URL and browser-safe anon/publishable key into `app/config.js`.
+5. Put the service-role key only in the scheduled job runner's secret store. For local job work,
+   copy `.env.example` to an ignored `.env` file and fill it there.
+
+Run both the scanner and its unit tests before pushing configuration changes:
+
+```bash
+python3 scripts/check_secrets.py
+python3 scripts/test_check_secrets.py
+```

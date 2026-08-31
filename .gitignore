@@ -1,4 +1,6 @@
-.env.r2
+.env*
+!.env.example
 .media-build/
 .venv-media/
-
+__pycache__/
+*.pyc
