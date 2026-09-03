@@ -91,6 +91,7 @@ The deploy workflow runs both syncs every six hours and before every Pages deplo
 ```text
 index.html               Main one-page site
 roster.html              Public Kylin Cup roster
+competitions.html        League and tournament directory
 competition-swpl.html    Complete upcoming SWPL schedule
 competition-nccsf.html   Complete upcoming NCCSF Fall schedule
 gallery.html             2026 NCCSF Tournament photo gallery

@@ -106,19 +106,33 @@
     return `${side} vs ${opponent}`;
   };
 
+  const competitionDestination = (fixture) => {
+    const competition = fixture.competition.toLowerCase();
+    if (competition.includes('nccsf')) {
+      return { href: 'competition-nccsf.html', label: 'NCCSF' };
+    }
+    if (competition.includes('swpl')) {
+      return { href: 'competition-swpl.html', label: 'SWPL' };
+    }
+    return { href: safeHttpsUrl(fixture.sourceUrl) || sourceUrl, label: 'competition' };
+  };
+
   const renderUpcoming = (fixtures) => {
     fixtureList.replaceChildren();
     fixtures.slice(1, 5).forEach((fixture) => {
       const item = document.createElement('li');
       const date = document.createElement('time');
-      const details = document.createElement('div');
+      const details = document.createElement('a');
       const opponent = document.createElement('strong');
       const meta = document.createElement('span');
 
       date.dateTime = fixture.startsAt || fixture.date;
       date.textContent = formatDate(fixture, { month: 'short', day: 'numeric' });
       opponent.textContent = fixtureSummary(fixture);
-      meta.textContent = `${fixture.competition} · ${fixture.timeLabel} · ${fixture.venue.name}`;
+      const destination = competitionDestination(fixture);
+      details.href = destination.href;
+      details.setAttribute('aria-label', `${fixtureSummary(fixture)} — view ${destination.label} schedule`);
+      meta.textContent = `${fixture.competition} · ${fixture.timeLabel} · ${fixture.venue.name} · View schedule →`;
       details.append(opponent, meta);
       item.append(date, details);
       fixtureList.append(item);
@@ -142,8 +156,9 @@
     venueElement.textContent = fixture.venue.name;
     competitionElement.textContent = fixture.competition;
     timeElement.textContent = fixture.timeLabel;
-    detailsLink.href = safeHttpsUrl(fixture.sourceUrl) || sourceUrl;
-    detailsLink.textContent = 'Official match details ↗';
+    const destination = competitionDestination(fixture);
+    detailsLink.href = destination.href;
+    detailsLink.textContent = `View ${destination.label} schedule →`;
     setTeam(schedule.querySelector('[data-team-home]'), fixture.home);
     setTeam(schedule.querySelector('[data-team-away]'), fixture.away);
   };
