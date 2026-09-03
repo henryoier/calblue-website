@@ -191,6 +191,19 @@ h1 em { color: transparent; -webkit-text-stroke: 1.5px rgba(255, 255, 255, .8); 
 .site-nav > a:not(.button):hover::after,
 .site-nav > a[aria-current='page']::after { right: 0; }
 .site-nav > a[aria-current='page'] { color: var(--gold); }
+.nav-competitions { position: relative; align-self: stretch; display: flex; align-items: center; }
+.nav-competitions > a { position: relative; padding: 6px 0; transition: color .2s ease; }
+.nav-competitions > a::after { content: ''; position: absolute; left: 0; right: 100%; bottom: 0; height: 3px; background: var(--gold); transform: skewX(var(--skew)); transition: right .22s ease; }
+.nav-competitions:hover > a, .nav-competitions:focus-within > a { color: var(--gold); }
+.nav-competitions:hover > a::after, .nav-competitions:focus-within > a::after, .nav-competitions > a[aria-current='page']::after { right: 0; }
+.nav-competition-menu { position: absolute; top: calc(100% - 1px); left: 50%; width: 300px; padding: 11px; color: var(--ink); background: #fff; border-top: 4px solid var(--gold); box-shadow: 0 22px 54px rgba(0,0,0,.34); opacity: 0; pointer-events: none; transform: translate(-50%, 12px); transition: opacity .18s ease, transform .18s ease, visibility .18s; visibility: hidden; }
+.nav-competitions:hover .nav-competition-menu, .nav-competitions:focus-within .nav-competition-menu { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); visibility: visible; }
+.nav-competition-menu a { display: block; padding: 14px; border-bottom: 1px solid var(--line); }
+.nav-competition-menu a:last-child { border-bottom: 0; }
+.nav-competition-menu a:hover, .nav-competition-menu a:focus-visible { background: var(--mist); }
+.nav-competition-menu span, .nav-competition-menu strong { display: block; }
+.nav-competition-menu span { margin-bottom: 6px; color: var(--blue); font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.nav-competition-menu strong { font: italic 800 22px/1.05 var(--display); text-transform: uppercase; }
 
 .menu-toggle { display: none; padding: 10px; border: 0; background: none; cursor: pointer; }
 .menu-toggle span { display: block; width: 26px; height: 3px; margin: 5px 0; background: #fff; transition: background .2s ease; }
@@ -711,6 +724,13 @@ footer > .shell { position: relative; }
   .site-nav.open { transform: translateY(0); }
   .site-nav > a:not(.button) { padding: 16px 0; border-bottom: 1px solid var(--line-light); }
   .site-nav > a:not(.button)::after { display: none; }
+  .nav-competitions { display: block; }
+  .nav-competitions > a { display: block; padding: 16px 0; border-bottom: 1px solid var(--line-light); }
+  .nav-competitions > a::after { display: none; }
+  .nav-competition-menu { position: static; width: auto; padding: 6px 0 8px 20px; color: white; background: transparent; border: 0; box-shadow: none; opacity: 1; pointer-events: auto; transform: none; visibility: visible; }
+  .nav-competition-menu a { padding: 12px 0; border-color: var(--line-light); }
+  .nav-competition-menu a:hover, .nav-competition-menu a:focus-visible { background: transparent; }
+  .nav-competition-menu span { color: var(--gold); }
   .site-nav .button { margin-top: 20px; }
   .intro-grid, .values-grid, .join-inner, .section-heading { grid-template-columns: 1fr; gap: 40px; }
   .intro-body { padding-top: 0; }
