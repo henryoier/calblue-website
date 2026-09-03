@@ -37,14 +37,20 @@ curl --fail --silent --show-error --location \
   'https://pacific.swplsoccer.com/teams/calblue-fc' \
   | python3 scripts/sync_swpl.py --source-file -
 
+nccsf_sync_dir=$(mktemp -d)
 curl --fail --silent --show-error --location \
-  --header 'Accept: application/json' \
-  --header 'User-Agent: CalBlueScheduleSync/1.0 (+https://calbluefc.com/)' \
-  'https://nccsf.org/en/league/game?a=ag&lid=36' \
-  | python3 scripts/sync_nccsf.py --source-file -
+  --output "$nccsf_sync_dir/games.json" \
+  'https://nccsf.org/en/league/game?a=ag&lid=36'
+curl --fail --silent --show-error --location \
+  --output "$nccsf_sync_dir/teams.html" \
+  'https://nccsf.org/en/league/team?a=teams&lid=36'
+python3 scripts/sync_nccsf.py \
+  --source-file "$nccsf_sync_dir/games.json" \
+  --teams-file "$nccsf_sync_dir/teams.html"
+rm -rf "$nccsf_sync_dir"
 ```
 
-The deploy workflow runs both syncs every six hours and before every Pages deployment. It writes small `data/swpl.json` and `data/nccsf.json` snapshots, which the homepage merges chronologically to emphasize the next match and show the full upcoming schedule. The importers only accept rows involving CalBlue and deliberately ignore contact, player, and unrelated-team data. If either official source is unavailable or changes structure, deployment stops and the previous Pages deployment remains live.
+The deploy workflow runs both syncs every six hours and before every Pages deployment. It writes small `data/swpl.json` and `data/nccsf.json` snapshots. The homepage merges both feeds chronologically and emphasizes the next five matches; dedicated SWPL and NCCSF pages show each complete upcoming schedule. The NCCSF importer also reads the official team directory so every club uses its published crest, including the site's mixed `.png`, `.jpeg`, and `.jpg` filenames. The importers only accept rows involving CalBlue and deliberately ignore contact, player, and unrelated-team data. If either official source is unavailable or changes structure, deployment stops and the previous Pages deployment remains live.
 
 ## Content to confirm before launch
 
@@ -85,6 +91,8 @@ The deploy workflow runs both syncs every six hours and before every Pages deplo
 ```text
 index.html               Main one-page site
 roster.html              Public Kylin Cup roster
+competition-swpl.html    Complete upcoming SWPL schedule
+competition-nccsf.html   Complete upcoming NCCSF Fall schedule
 gallery.html             2026 NCCSF Tournament photo gallery
 gallery-*.html           Individual match albums backed by Cloudflare R2
 styles.css                         Classic responsive visual system
@@ -98,6 +106,8 @@ designs/switcher.css               Theme-neutral picker styling
 design-preview.html                Multi-page desktop/mobile review tool
 script.js                Navigation and small UI behavior
 swpl-schedule.js         Safe merged rendering for official SWPL and NCCSF fixtures
+competition-schedule.js  Shared renderer for competition schedule pages
+competition.css          Responsive competition schedule page styles
 media-config.js          Public R2 media base URL
 assets/calblue-logo-web.jpg  Web-optimized official crest sourced from the shared Drive
 assets/roster/           Public face photos sourced from the roster sheet

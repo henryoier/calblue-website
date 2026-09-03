@@ -21,6 +21,7 @@ LEAGUE_ID = 36
 SEASON_YEAR = 2026
 TEAM_ID = 621
 API_URL = f"https://nccsf.org/en/league/game?a=ag&lid={LEAGUE_ID}"
+TEAM_LIST_URL = f"https://nccsf.org/en/league/team?a=teams&lid={LEAGUE_ID}"
 PACIFIC = ZoneInfo("America/Los_Angeles")
 MAX_RESPONSE_BYTES = 5_000_000
 
@@ -50,8 +51,77 @@ class FragmentParser(HTMLParser):
             self.text.append(data)
 
 
+class TeamDirectoryParser(HTMLParser):
+    """Extract team IDs, names, profile URLs, and official crests."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.found_table = False
+        self.teams: dict[int, dict[str, str]] = {}
+        self._table_depth = 0
+        self._team: dict[str, object] | None = None
+        self._anchor_depth = 0
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        values = dict(attrs)
+        if tag == "table" and values.get("id") == "teamList":
+            self.found_table = True
+            self._table_depth = 1
+            return
+        if not self._table_depth:
+            return
+        if tag == "table":
+            self._table_depth += 1
+        if tag == "a" and self._team is None:
+            identifier = team_id(values.get("href"))
+            if identifier is not None:
+                self._team = {
+                    "id": identifier,
+                    "name": [],
+                    "url": absolute_https_url(values.get("href"), TEAM_LIST_URL) or "",
+                    "logo": "",
+                }
+                self._anchor_depth = 1
+        elif tag == "a" and self._team is not None:
+            self._anchor_depth += 1
+        elif tag == "img" and self._team is not None:
+            self._team["logo"] = absolute_https_url(values.get("src"), TEAM_LIST_URL) or ""
+
+    def handle_endtag(self, tag: str) -> None:
+        if not self._table_depth:
+            return
+        if tag == "a" and self._team is not None:
+            self._anchor_depth -= 1
+            if self._anchor_depth == 0:
+                identifier = int(self._team["id"])
+                logo = str(self._team["logo"])
+                if logo:
+                    self.teams[identifier] = {
+                        "name": clean_text("".join(self._team["name"])),
+                        "url": str(self._team["url"]),
+                        "logo": logo,
+                    }
+                self._team = None
+        elif tag == "table":
+            self._table_depth -= 1
+
+    def handle_data(self, data: str) -> None:
+        if self._team is not None and self._anchor_depth:
+            self._team["name"].append(data)
+
+
 def clean_text(value: str) -> str:
     return " ".join(value.split())
+
+
+def absolute_https_url(value: str | None, base: str) -> str | None:
+    if not value:
+        return None
+    absolute = urljoin(base, value)
+    parsed = urlparse(absolute)
+    if parsed.scheme not in {"http", "https"}:
+        return None
+    return parsed._replace(scheme="https").geturl()
 
 
 def parse_fragment(value: object) -> tuple[str, str | None]:
@@ -60,11 +130,7 @@ def parse_fragment(value: object) -> tuple[str, str | None]:
     text = clean_text("".join(parser.text))
     if not parser.href:
         return text, None
-    absolute = urljoin("https://nccsf.org/en/league/", parser.href)
-    parsed = urlparse(absolute)
-    if parsed.scheme not in {"http", "https"}:
-        return text, None
-    return text, parsed._replace(scheme="https").geturl()
+    return text, absolute_https_url(parser.href, "https://nccsf.org/en/league/")
 
 
 def team_id(value: object) -> int | None:
@@ -75,6 +141,16 @@ def team_id(value: object) -> int | None:
 def game_id(value: object) -> str:
     match = re.search(r"[?&]gid=(\d+)", str(value or ""))
     return match.group(1) if match else ""
+
+
+def parse_team_directory(content: str) -> dict[int, dict[str, str]]:
+    parser = TeamDirectoryParser()
+    parser.feed(content)
+    if not parser.found_table:
+        raise ValueError("NCCSF team directory was not found; the upstream page may have changed")
+    if TEAM_ID not in parser.teams or parser.teams[TEAM_ID]["name"] != "CalBlue":
+        raise ValueError("NCCSF team directory did not identify CalBlue")
+    return parser.teams
 
 
 def parse_start(value: object, season_year: int) -> tuple[str, str, str]:
@@ -91,6 +167,7 @@ def parse_start(value: object, season_year: int) -> tuple[str, str, str]:
 
 def build_snapshot(
     content: str,
+    team_directory_html: str,
     checked_at: datetime,
     *,
     season_year: int = SEASON_YEAR,
@@ -105,10 +182,9 @@ def build_snapshot(
     if not isinstance(rows, list):
         raise ValueError("NCCSF response did not contain a game list")
 
+    teams = parse_team_directory(team_directory_html)
     checked_at = checked_at.astimezone(PACIFIC)
     competition = f"{season_year} NCCSF Fall League"
-    team_url = f"https://nccsf.org/en/league/team?a=tp&tid={calblue_team_id}"
-    team_logo = f"https://nccsf.org/en/img/team/logo/{calblue_team_id}.jpeg"
     fixtures: list[dict[str, object]] = []
     calblue_rows = 0
     for row in rows:
@@ -127,6 +203,10 @@ def build_snapshot(
             away_id == calblue_team_id and away_name != "CalBlue"
         ):
             raise ValueError("NCCSF team ID no longer identifies CalBlue; refusing unknown data")
+        for identifier, name in ((home_id, home_name), (away_id, away_name)):
+            directory_team = teams.get(identifier or -1)
+            if not directory_team or directory_team["name"] != name:
+                raise ValueError(f"NCCSF team directory is missing a matching crest for {name}")
 
         fixture_date, starts_at, time_label = parse_start(row.get("date"), season_year)
         score = clean_text(str(row.get("score") or ""))
@@ -146,12 +226,12 @@ def build_snapshot(
                 "home": {
                     "name": home_name,
                     "url": home_url,
-                    "logo": team_logo if home_id == calblue_team_id else None,
+                    "logo": teams[home_id]["logo"],
                 },
                 "away": {
                     "name": away_name,
                     "url": away_url,
-                    "logo": team_logo if away_id == calblue_team_id else None,
+                    "logo": teams[away_id]["logo"],
                 },
                 "venue": {
                     "name": venue_name or "Venue TBA",
@@ -179,8 +259,8 @@ def build_snapshot(
         "team": {
             "name": "CalBlue",
             "id": calblue_team_id,
-            "url": team_url,
-            "logo": team_logo,
+            "url": teams[calblue_team_id]["url"],
+            "logo": teams[calblue_team_id]["logo"],
         },
         "fixtures": fixtures,
         "diagnostics": {
@@ -190,11 +270,11 @@ def build_snapshot(
     }
 
 
-def fetch_source(url: str) -> str:
+def fetch_source(url: str, accept: str) -> str:
     request = Request(
         url,
         headers={
-            "Accept": "application/json",
+            "Accept": accept,
             "User-Agent": "CalBlueScheduleSync/1.0 (+https://calbluefc.com/)",
         },
     )
@@ -226,6 +306,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-url", default=API_URL)
     parser.add_argument("--source-file", type=Path)
+    parser.add_argument("--teams-url", default=TEAM_LIST_URL)
+    parser.add_argument("--teams-file", type=Path)
     parser.add_argument("--output", type=Path, default=Path("data/nccsf.json"))
     parser.add_argument("--checked-at", help="ISO timestamp used for reproducible tests")
     parser.add_argument("--season-year", type=int, default=SEASON_YEAR)
@@ -249,9 +331,14 @@ def main() -> int:
         elif args.source_file:
             source = args.source_file.read_text(encoding="utf-8")
         else:
-            source = fetch_source(args.source_url)
+            source = fetch_source(args.source_url, "application/json")
+        if args.teams_file:
+            team_directory = args.teams_file.read_text(encoding="utf-8")
+        else:
+            team_directory = fetch_source(args.teams_url, "text/html,application/xhtml+xml")
         snapshot = build_snapshot(
             source,
+            team_directory,
             checked_at,
             season_year=args.season_year,
             league_id=args.league_id,

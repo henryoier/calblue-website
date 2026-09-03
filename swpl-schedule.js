@@ -108,7 +108,7 @@
 
   const renderUpcoming = (fixtures) => {
     fixtureList.replaceChildren();
-    fixtures.slice(1).forEach((fixture) => {
+    fixtures.slice(1, 5).forEach((fixture) => {
       const item = document.createElement('li');
       const date = document.createElement('time');
       const details = document.createElement('div');

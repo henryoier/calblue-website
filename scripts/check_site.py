@@ -100,6 +100,12 @@ def main() -> int:
             errors.append("data/nccsf.json: expected the 2026 NCCSF Fall League")
         if not isinstance(nccsf.get("fixtures"), list):
             errors.append("data/nccsf.json: fixtures must be a list")
+        else:
+            for fixture in nccsf["fixtures"]:
+                for side in ("home", "away"):
+                    logo = fixture.get(side, {}).get("logo", "")
+                    if not logo.startswith("https://nccsf.org/en/img/team/logo/"):
+                        errors.append(f"data/nccsf.json: {side} team is missing its official crest")
     except (OSError, json.JSONDecodeError) as error:
         errors.append(f"data/nccsf.json: {error}")
 
@@ -108,6 +114,13 @@ def main() -> int:
         errors.append("index.html: missing SWPL schedule integration")
     if "data-nccsf-source" not in homepage:
         errors.append("index.html: missing NCCSF schedule integration")
+    for page_name, feed in (
+        ("competition-swpl.html", "data/swpl.json"),
+        ("competition-nccsf.html", "data/nccsf.json"),
+    ):
+        competition_page = (ROOT / page_name).read_text(encoding="utf-8")
+        if feed not in competition_page or "competition-schedule.js" not in competition_page:
+            errors.append(f"{page_name}: missing competition schedule integration")
     if "data-matchday-poster" not in homepage:
         errors.append("index.html: missing match-day poster section")
     if not (ROOT / "assets" / "matchday" / "calblue-vs-sf-glens-2026-09-13.webp").exists():
