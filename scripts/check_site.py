@@ -93,6 +93,10 @@ def main() -> int:
     homepage = (ROOT / "index.html").read_text(encoding="utf-8")
     if "data-swpl-schedule" not in homepage or "swpl-schedule.js" not in homepage:
         errors.append("index.html: missing SWPL schedule integration")
+    if "data-matchday-poster" not in homepage:
+        errors.append("index.html: missing match-day poster section")
+    if not (ROOT / "assets" / "matchday" / "calblue-vs-sf-glens-2026-09-13.webp").exists():
+        errors.append("assets/matchday: missing the CalBlue vs SF Glens poster")
 
     for page in DESIGN_PAGES:
         source = page.read_text(encoding="utf-8")

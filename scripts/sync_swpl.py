@@ -237,7 +237,50 @@ def parse_fixtures(parser: SWPLTeamParser, today: date) -> tuple[list[dict[str, 
     return fixtures, ignored_rows
 
 
-def build_snapshot(html: str, checked_at: datetime) -> dict[str, object]:
+def fixture_key(fixture: dict[str, object]) -> tuple[str, tuple[str, str]]:
+    teams = tuple(
+        sorted(
+            re.sub(r"[^a-z0-9]", "", str(fixture[side]["name"]).lower())
+            for side in ("home", "away")
+        )
+    )
+    return str(fixture["date"]), teams
+
+
+def merge_overrides(
+    fixtures: list[dict[str, object]], overrides: list[dict[str, object]], today: date
+) -> list[dict[str, object]]:
+    merged = list(fixtures)
+    existing = {fixture_key(fixture) for fixture in fixtures}
+    for override in overrides:
+        if not isinstance(override, dict):
+            raise ValueError("SWPL override fixtures must be JSON objects")
+        try:
+            game_date = date.fromisoformat(str(override["date"]))
+            home_name = str(override["home"]["name"])
+            away_name = str(override["away"]["name"])
+            venue_name = str(override["venue"]["name"])
+        except (KeyError, TypeError, ValueError) as error:
+            raise ValueError("SWPL override fixture is missing a valid date, teams, or venue") from error
+        if not (is_calblue(home_name) or is_calblue(away_name)):
+            raise ValueError("SWPL override fixture does not involve CalBlue FC")
+        if not venue_name:
+            raise ValueError("SWPL override fixture venue cannot be empty")
+        if game_date < today:
+            continue
+        key = fixture_key(override)
+        if key not in existing:
+            merged.append(override)
+            existing.add(key)
+    merged.sort(key=lambda fixture: (fixture["date"], fixture.get("startsAt") or ""))
+    return merged
+
+
+def build_snapshot(
+    html: str,
+    checked_at: datetime,
+    overrides: list[dict[str, object]] | None = None,
+) -> dict[str, object]:
     parser = SWPLTeamParser()
     parser.feed(html)
     if not is_calblue(parser.team_name):
@@ -247,6 +290,7 @@ def build_snapshot(html: str, checked_at: datetime) -> dict[str, object]:
 
     checked_at = checked_at.astimezone(PACIFIC)
     fixtures, ignored_rows = parse_fixtures(parser, checked_at.date())
+    fixtures = merge_overrides(fixtures, overrides or [], checked_at.date())
     meta_parts = [part.strip() for part in parser.team_meta.split("-") if part.strip()]
     return {
         "schemaVersion": 1,
@@ -259,7 +303,10 @@ def build_snapshot(html: str, checked_at: datetime) -> dict[str, object]:
             "logo": parser.team_logo,
         },
         "fixtures": fixtures,
-        "diagnostics": {"ignoredNonCalBlueRows": ignored_rows},
+        "diagnostics": {
+            "ignoredNonCalBlueRows": ignored_rows,
+            "editorialOverrides": sum(bool(fixture.get("editorial")) for fixture in fixtures),
+        },
     }
 
 
@@ -299,6 +346,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-url", default=SOURCE_URL)
     parser.add_argument("--source-file", type=Path)
+    parser.add_argument("--overrides", type=Path, default=Path("data/swpl-overrides.json"))
     parser.add_argument("--output", type=Path, default=Path("data/swpl.json"))
     parser.add_argument("--checked-at", help="ISO timestamp used for reproducible tests")
     return parser.parse_args()
@@ -321,7 +369,13 @@ def main() -> int:
             html = args.source_file.read_text(encoding="utf-8")
         else:
             html = fetch_source(args.source_url)
-        snapshot = build_snapshot(html, checked_at)
+        override_fixtures: list[dict[str, object]] = []
+        if args.overrides.exists():
+            override_payload = json.loads(args.overrides.read_text(encoding="utf-8"))
+            if not isinstance(override_payload.get("fixtures"), list):
+                raise ValueError("SWPL overrides must contain a fixtures list")
+            override_fixtures = override_payload["fixtures"]
+        snapshot = build_snapshot(html, checked_at, override_fixtures)
         write_json(args.output, snapshot)
     except (OSError, ValueError) as error:
         print(f"SWPL sync failed: {error}", file=sys.stderr)
