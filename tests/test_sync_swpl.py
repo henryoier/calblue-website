@@ -42,6 +42,13 @@ SAMPLE = """
 </table>
 """
 
+EMPTY_CALBLUE_SCHEDULE = """
+<div class="teamPageLogo"><img src="//nisa.sportzstudio.com/team_images/calblue.png"></div>
+<div class="teamPageName">CalBlue FC</div>
+<div class="teamPageConference">Mens Open Pacific - Sunnyvale, CA</div>
+<table id="scheduleTable"></table>
+"""
+
 
 class BuildSnapshotTest(unittest.TestCase):
     def test_extracts_only_upcoming_calblue_fixtures(self) -> None:
@@ -57,6 +64,49 @@ class BuildSnapshotTest(unittest.TestCase):
         self.assertEqual(snapshot["fixtures"][0]["startsAt"], "2026-09-05T19:00:00-07:00")
         self.assertEqual(snapshot["fixtures"][1]["away"]["name"], "CalBlue FC")
         self.assertEqual(snapshot["diagnostics"]["ignoredNonCalBlueRows"], 1)
+
+    def test_uses_an_editorial_fixture_until_swpl_publishes_it(self) -> None:
+        checked_at = datetime(2026, 9, 2, 12, tzinfo=ZoneInfo("America/Los_Angeles"))
+        override = {
+            "id": "poster-fixture",
+            "date": "2026-09-13",
+            "startsAt": "2026-09-13T19:00:00-07:00",
+            "timeLabel": "7:00 pm PT",
+            "competition": "SWPL Pacific League",
+            "home": {"name": "CalBlue FC", "url": None, "logo": None},
+            "away": {"name": "SF Glens", "url": None, "logo": None},
+            "venue": {"name": "Central Park, Fremont, CA", "mapUrl": None},
+            "conference": "Mens Open Pacific",
+            "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
+            "status": "scheduled",
+            "editorial": True,
+        }
+
+        snapshot = build_snapshot(EMPTY_CALBLUE_SCHEDULE, checked_at, [override])
+
+        self.assertEqual(len(snapshot["fixtures"]), 1)
+        self.assertEqual(snapshot["fixtures"][0]["id"], "poster-fixture")
+        self.assertEqual(snapshot["diagnostics"]["editorialOverrides"], 1)
+
+    def test_prefers_the_official_row_over_a_matching_override(self) -> None:
+        checked_at = datetime(2026, 9, 2, 12, tzinfo=ZoneInfo("America/Los_Angeles"))
+        override = {
+            "id": "poster-fixture",
+            "date": "2026-09-05",
+            "startsAt": "2026-09-05T19:00:00-07:00",
+            "timeLabel": "7:00 pm PT",
+            "competition": "SWPL Pacific League",
+            "home": {"name": "CalBlue FC"},
+            "away": {"name": "SF Glens"},
+            "venue": {"name": "Central Park"},
+            "editorial": True,
+        }
+
+        snapshot = build_snapshot(SAMPLE, checked_at, [override])
+
+        self.assertEqual(len(snapshot["fixtures"]), 2)
+        self.assertNotIn("poster-fixture", [fixture["id"] for fixture in snapshot["fixtures"]])
+        self.assertEqual(snapshot["diagnostics"]["editorialOverrides"], 0)
 
     def test_rejects_an_unrecognized_team_page(self) -> None:
         checked_at = datetime(2026, 9, 2, 12, tzinfo=ZoneInfo("America/Los_Angeles"))

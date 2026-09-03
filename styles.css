@@ -163,6 +163,27 @@ h2 { font-size: clamp(52px, 6.8vw, 88px); line-height: .9; letter-spacing: -.025
 .schedule-source a { color: var(--blue); font-weight: 700; }
 .schedule-source [data-swpl-checked] { width: 100%; }
 
+.matchday-poster { position: relative; overflow: hidden; color: white; background: #061631; }
+.matchday-poster::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 86% 16%, rgba(18,104,232,.55), transparent 35%), linear-gradient(120deg, rgba(255,197,27,.08), transparent 45%); pointer-events: none; }
+.matchday-poster-grid { position: relative; display: grid; grid-template-columns: minmax(300px, .85fr) minmax(340px, 1.15fr); align-items: center; gap: clamp(50px, 8vw, 110px); }
+.matchday-poster-art { margin: 0; }
+.matchday-poster-art a { display: block; transform: rotate(-1.5deg); transition: transform .25s ease; }
+.matchday-poster-art a:hover { transform: rotate(0) scale(1.01); }
+.matchday-poster-art img { display: block; width: 100%; height: auto; box-shadow: 28px 32px 0 rgba(18,104,232,.2), 0 30px 80px rgba(0,0,0,.38); }
+.matchday-poster-copy { max-width: 590px; }
+.poster-countdown { display: inline-block; margin: 26px 0 18px; padding: 9px 12px; color: var(--navy); background: var(--yellow); font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.matchday-poster-copy h2 { font-size: clamp(70px, 9vw, 132px); line-height: .78; }
+.poster-matchup { margin: 30px 0; font: 700 clamp(28px, 3.4vw, 48px)/1 var(--display); text-transform: uppercase; }
+.poster-matchup span { color: var(--yellow); }
+.poster-details { display: grid; grid-template-columns: repeat(3, 1fr); margin: 0 0 28px; border-top: 1px solid rgba(255,255,255,.18); border-bottom: 1px solid rgba(255,255,255,.18); }
+.poster-details div { padding: 20px 18px 20px 0; }
+.poster-details dt { margin-bottom: 7px; color: var(--cyan); font-size: 9px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+.poster-details dd { margin: 0; font-size: 13px; font-weight: 700; line-height: 1.4; }
+.matchday-poster-copy > p:not(.section-tag):not(.poster-matchup) { max-width: 500px; color: rgba(255,255,255,.67); line-height: 1.7; }
+.poster-actions { display: flex; align-items: center; gap: 25px; margin-top: 30px; }
+.poster-actions .button { color: var(--navy); background: var(--yellow); border-color: var(--yellow); }
+.poster-actions .text-link { color: white; }
+
 .values { color: white; background-image: linear-gradient(105deg, rgba(5,25,58,.98) 12%, rgba(7,27,63,.92) 58%, rgba(7,27,63,.78)), url('https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/tiger/full/025.jpg'); background-position: center, center 46%; background-size: cover; }
 .values-grid { display: grid; grid-template-columns: .85fr 1.15fr; gap: 100px; }
 .values-title h2 { max-width: 500px; }
@@ -317,6 +338,10 @@ footer { padding: 72px 0 24px; color: white; background: #04112a; }
   .next-match-countdown { align-self: center; }
   .match-card .button { justify-self: center; }
   .upcoming-fixtures { grid-template-columns: 1fr; gap: 24px; }
+  .matchday-poster-grid { grid-template-columns: minmax(260px, .8fr) minmax(300px, 1.2fr); gap: 50px; }
+  .poster-details { grid-template-columns: 1fr; }
+  .poster-details div { padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,.12); }
+  .poster-details div:last-child { border-bottom: 0; }
   .footer-top { flex-wrap: wrap; gap: 38px; }
   .footer-links { grid-template-columns: repeat(3, 1fr); width: 100%; }
 }
@@ -357,6 +382,11 @@ footer { padding: 72px 0 24px; color: white; background: #04112a; }
   .crest-placeholder { width: 58px; height: 58px; }
   .upcoming-fixtures { padding: 24px 20px; }
   .upcoming-fixtures li { grid-template-columns: 62px 1fr; gap: 12px; }
+  .matchday-poster-grid { grid-template-columns: 1fr; gap: 54px; }
+  .matchday-poster-art { width: min(100%, 440px); margin: 0 auto; }
+  .matchday-poster-art img { box-shadow: 14px 18px 0 rgba(18,104,232,.2), 0 24px 60px rgba(0,0,0,.35); }
+  .matchday-poster-copy h2 { font-size: clamp(70px, 24vw, 104px); }
+  .poster-actions { align-items: flex-start; flex-direction: column; }
   .team-card { min-height: 330px; padding: 25px; }
   .roster-heading, .roster-source { align-items: flex-start; flex-direction: column; }
   .roster-grid { grid-template-columns: 1fr; gap: 10px; }

@@ -95,6 +95,7 @@ swpl-schedule.js         Safe rendering for the next match and following fixture
 media-config.js          Public R2 media base URL
 assets/calblue-logo-web.jpg  Web-optimized official crest sourced from the shared Drive
 assets/roster/           Public face photos sourced from the roster sheet
+assets/matchday/         Time-bounded match-day posters displayed on the homepage
 assets/favicon.svg       Browser icon
 404.html                 Branded error page
 netlify.toml             Optional Netlify config
