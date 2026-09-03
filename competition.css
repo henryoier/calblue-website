@@ -1,0 +1,43 @@
+.competition-schedule-section { background: var(--cream); }
+.competition-schedule-heading { display: flex; align-items: end; justify-content: space-between; gap: 36px; margin-bottom: 42px; }
+.competition-schedule-heading > div > p:last-child { max-width: 600px; margin: 18px 0 0; color: var(--muted); line-height: 1.7; }
+.competition-sync { flex: none; text-align: right; }
+.competition-sync .status-pill { display: inline-flex; margin: 0 0 12px; }
+.competition-sync small { display: block; max-width: 330px; color: var(--muted); font-size: 11px; }
+.season-fixtures { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.season-fixture { display: grid; grid-template-columns: 140px 1fr auto; align-items: center; gap: 28px; min-height: 146px; padding: 24px 28px; background: var(--white); border: 1px solid var(--line); box-shadow: 0 12px 32px rgba(7, 27, 63, .05); }
+.season-fixture.is-next { border-top: 4px solid var(--blue); }
+.season-fixture-date { display: flex; flex-direction: column; padding-right: 24px; border-right: 1px solid var(--line); }
+.season-fixture-date em { margin-bottom: 9px; color: var(--blue); font-size: 9px; font-style: normal; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.season-fixture-date strong { font: 700 27px/1 var(--display); text-transform: uppercase; }
+.season-fixture-date span { margin-top: 7px; color: var(--muted); font-size: 12px; }
+.season-fixture-matchup { display: grid; gap: 10px; }
+.season-team { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 12px; }
+.season-team img, .season-team-placeholder { width: 34px; height: 34px; border-radius: 50%; object-fit: contain; background: #eef1f5; }
+.season-team-placeholder { display: grid; place-items: center; color: var(--muted); font: 700 13px/1 var(--display); }
+.season-team strong { font: 700 20px/1 var(--display); text-transform: uppercase; }
+.season-team span { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.season-team.is-calblue strong { color: var(--blue); }
+.season-fixture-details { min-width: 190px; text-align: right; }
+.season-fixture-details strong, .season-fixture-details span { display: block; }
+.season-fixture-details strong { font-size: 13px; }
+.season-fixture-details span { margin-top: 6px; color: var(--muted); font-size: 11px; }
+.season-fixture-details a { display: inline-block; margin-top: 12px; color: var(--blue); font-size: 11px; font-weight: 700; }
+.season-empty { padding: 44px; color: var(--muted); text-align: center; background: var(--white); border: 1px solid var(--line); }
+.competition-page-links { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; margin-top: 34px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+.competition-page-links div { display: flex; flex-wrap: wrap; gap: 12px 22px; }
+.competition-page-links a { color: var(--blue); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .competition-schedule-heading { align-items: flex-start; flex-direction: column; }
+  .competition-sync { text-align: left; }
+  .season-fixture { grid-template-columns: 95px 1fr; gap: 18px; padding: 22px 18px; }
+  .season-fixture-date { padding-right: 16px; }
+  .season-fixture-details { grid-column: 1 / -1; padding-top: 16px; border-top: 1px solid var(--line); text-align: left; }
+}
+
+@media (max-width: 460px) {
+  .season-fixture { grid-template-columns: 1fr; }
+  .season-fixture-date { padding: 0 0 16px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .season-fixture-details { grid-column: auto; }
+}

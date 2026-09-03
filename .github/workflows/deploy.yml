@@ -35,11 +35,20 @@ jobs:
             | python3 scripts/sync_swpl.py --source-file -
       - name: Sync official NCCSF schedule
         run: |
+          nccsf_sync_dir=$(mktemp -d)
+          trap 'rm -rf "$nccsf_sync_dir"' EXIT
           curl --fail --silent --show-error --location \
             --header 'Accept: application/json' \
             --header 'User-Agent: CalBlueScheduleSync/1.0 (+https://calbluefc.com/)' \
-            'https://nccsf.org/en/league/game?a=ag&lid=36' \
-            | python3 scripts/sync_nccsf.py --source-file -
+            --output "$nccsf_sync_dir/games.json" \
+            'https://nccsf.org/en/league/game?a=ag&lid=36'
+          curl --fail --silent --show-error --location \
+            --header 'User-Agent: CalBlueScheduleSync/1.0 (+https://calbluefc.com/)' \
+            --output "$nccsf_sync_dir/teams.html" \
+            'https://nccsf.org/en/league/team?a=teams&lid=36'
+          python3 scripts/sync_nccsf.py \
+            --source-file "$nccsf_sync_dir/games.json" \
+            --teams-file "$nccsf_sync_dir/teams.html"
       - name: Validate site
         run: python3 scripts/check_site.py
       - name: Configure Pages

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://nccsf.org/en/league/game?a=ag&lid=36",
   "sourcePage": "https://nccsf.org/en/league/game?a=games&lid=36",
-  "checkedAt": "2026-09-03T00:55:00-07:00",
+  "checkedAt": "2026-09-03T01:15:00-07:00",
   "season": {
     "name": "2026 NCCSF Fall League",
     "year": 2026,
@@ -25,7 +25,7 @@
       "home": {
         "name": "GSF United",
         "url": "https://nccsf.org/en/league/team?a=tp&tid=623",
-        "logo": null
+        "logo": "https://nccsf.org/en/img/team/logo/623.jpeg"
       },
       "away": {
         "name": "CalBlue",
@@ -50,7 +50,7 @@
       "home": {
         "name": "THU West",
         "url": "https://nccsf.org/en/league/team?a=tp&tid=630",
-        "logo": null
+        "logo": "https://nccsf.org/en/img/team/logo/630.jpeg"
       },
       "away": {
         "name": "CalBlue",
@@ -80,7 +80,7 @@
       "away": {
         "name": "HeHeFC",
         "url": "https://nccsf.org/en/league/team?a=tp&tid=625",
-        "logo": null
+        "logo": "https://nccsf.org/en/img/team/logo/625.png"
       },
       "venue": {
         "name": "Newark Right",
@@ -105,7 +105,7 @@
       "away": {
         "name": "GSF-Locomotive",
         "url": "https://nccsf.org/en/league/team?a=tp&tid=624",
-        "logo": null
+        "logo": "https://nccsf.org/en/img/team/logo/624.jpeg"
       },
       "venue": {
         "name": "Nordvik Park",
@@ -125,7 +125,7 @@
       "home": {
         "name": "OverPower",
         "url": "https://nccsf.org/en/league/team?a=tp&tid=628",
-        "logo": null
+        "logo": "https://nccsf.org/en/img/team/logo/628.png"
       },
       "away": {
         "name": "CalBlue",
@@ -155,7 +155,7 @@
       "away": {
         "name": "PP United",
         "url": "https://nccsf.org/en/league/team?a=tp&tid=632",
-        "logo": null
+        "logo": "https://nccsf.org/en/img/team/logo/632.png"
       },
       "venue": {
         "name": "Newark Left",
@@ -180,7 +180,7 @@
       "away": {
         "name": "JTU",
         "url": "https://nccsf.org/en/league/team?a=tp&tid=633",
-        "logo": null
+        "logo": "https://nccsf.org/en/img/team/logo/633.png"
       },
       "venue": {
         "name": "Nordvik Park",
@@ -200,7 +200,7 @@
       "home": {
         "name": "EBU Rangers",
         "url": "https://nccsf.org/en/league/team?a=tp&tid=622",
-        "logo": null
+        "logo": "https://nccsf.org/en/img/team/logo/622.jpeg"
       },
       "away": {
         "name": "CalBlue",
@@ -230,7 +230,7 @@
       "away": {
         "name": "Hunters",
         "url": "https://nccsf.org/en/league/team?a=tp&tid=626",
-        "logo": null
+        "logo": "https://nccsf.org/en/img/team/logo/626.png"
       },
       "venue": {
         "name": "Newark Right",
@@ -250,7 +250,7 @@
       "home": {
         "name": "Shoreline",
         "url": "https://nccsf.org/en/league/team?a=tp&tid=631",
-        "logo": null
+        "logo": "https://nccsf.org/en/img/team/logo/631.png"
       },
       "away": {
         "name": "CalBlue",
@@ -280,7 +280,7 @@
       "away": {
         "name": "South Bay FC",
         "url": "https://nccsf.org/en/league/team?a=tp&tid=627",
-        "logo": null
+        "logo": "https://nccsf.org/en/img/team/logo/627.png"
       },
       "venue": {
         "name": "Nordvik Park",
@@ -300,7 +300,7 @@
       "home": {
         "name": "Athletic Capybara",
         "url": "https://nccsf.org/en/league/team?a=tp&tid=620",
-        "logo": null
+        "logo": "https://nccsf.org/en/img/team/logo/620.png"
       },
       "away": {
         "name": "CalBlue",
@@ -325,7 +325,7 @@
       "home": {
         "name": "OX9 F.C.",
         "url": "https://nccsf.org/en/league/team?a=tp&tid=629",
-        "logo": null
+        "logo": "https://nccsf.org/en/img/team/logo/629.jpg"
       },
       "away": {
         "name": "CalBlue",
