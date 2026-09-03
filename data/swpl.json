@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "source": "https://pacific.swplsoccer.com/teams/calblue-fc",
+  "checkedAt": "2026-09-02T23:25:17-07:00",
+  "team": {
+    "name": "CalBlue FC",
+    "competition": "Mens Open Pacific",
+    "location": "Sunnyvale, CA",
+    "logo": "https://nisa.sportzstudio.com/team_images/1786032806_a.png"
+  },
+  "fixtures": [],
+  "diagnostics": {
+    "ignoredNonCalBlueRows": 1
+  }
+}

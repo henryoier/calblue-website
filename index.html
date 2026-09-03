@@ -25,6 +25,7 @@
     <script src="designs/registry.js?v=20260826c"></script>
     <script src="designs/switcher.js?v=20260826a"></script>
     <script defer src="home-gallery.js?v=20260826e"></script>
+    <script defer src="swpl-schedule.js?v=20260902a"></script>
     <script defer src="script.js?v=20260825b"></script>
     <script type="application/ld+json">
       {
@@ -163,47 +164,68 @@
             </article>
           </div>
 
-          <a class="league-banner" href="https://pacific.swplsoccer.com/teams" target="_blank" rel="noopener">
+          <a class="league-banner" href="https://pacific.swplsoccer.com/teams/calblue-fc" target="_blank" rel="noopener">
             <span class="league-kicker">Next league</span>
             <strong>SWPL Pacific Premier League</strong>
-            <span class="league-action">Official teams directory ↗</span>
+            <span class="league-action">Official CalBlue profile ↗</span>
           </a>
         </div>
       </section>
 
-      <section class="schedule section" id="schedule">
+      <section
+        class="schedule section"
+        id="schedule"
+        data-swpl-schedule
+        data-swpl-source="https://pacific.swplsoccer.com/teams/calblue-fc"
+      >
         <div class="shell">
           <div class="schedule-heading">
             <div>
               <p class="section-tag">Match center</p>
               <h2>Next up.</h2>
             </div>
-            <p class="status-pill"><span></span> Schedule updates coming soon</p>
+            <p class="status-pill"><span class="status-dot" aria-hidden="true"></span><b data-swpl-status-text>Checking official SWPL schedule</b></p>
           </div>
 
-          <div class="match-card">
+          <div class="match-card match-card-empty" data-next-match aria-live="polite">
             <div class="match-meta">
-              <span>Next fixture</span>
-              <strong>To be announced</strong>
-              <small>Bay Area, California</small>
+              <em class="next-match-countdown" data-match-countdown>Awaiting fixtures</em>
+              <span data-match-competition>SWPL Pacific</span>
+              <strong><time data-match-date>Schedule pending</time></strong>
+              <small data-match-venue>SWPL has not published a CalBlue fixture yet</small>
             </div>
             <div class="matchup">
-              <div class="club-side">
-                <img src="assets/calblue-logo-web.jpg" alt="CalBlue crest" width="90" height="90" />
-                <strong>CalBlue</strong>
+              <div class="club-side" data-team-home data-side="home">
+                <img data-team-crest src="assets/calblue-logo-web.jpg" alt="CalBlue crest" width="90" height="90" />
+                <div class="crest-placeholder" data-team-placeholder hidden aria-hidden="true">?</div>
+                <span class="team-role" data-team-role>Home</span>
+                <strong data-team-name>CalBlue</strong>
               </div>
-              <div class="versus"><span>VS</span><small>— : —</small></div>
-              <div class="club-side opponent">
-                <div class="crest-placeholder" aria-hidden="true">?</div>
-                <strong>Opponent</strong>
+              <div class="versus"><span>VS</span><small data-match-time>TBA</small></div>
+              <div class="club-side opponent" data-team-away data-side="away">
+                <img data-team-crest alt="" width="90" height="90" hidden />
+                <div class="crest-placeholder" data-team-placeholder aria-hidden="true">?</div>
+                <span class="team-role" data-team-role>Away</span>
+                <strong data-team-name>Opponent</strong>
               </div>
             </div>
-            <a class="button button-dark" href="#contact">Get match updates</a>
+            <a class="button button-dark" data-match-link href="https://pacific.swplsoccer.com/teams/calblue-fc" target="_blank" rel="noopener">Check official SWPL page ↗</a>
           </div>
+
+          <div class="upcoming-fixtures" data-upcoming-fixtures hidden>
+            <div><span>On deck</span><h3>Following fixtures</h3></div>
+            <ol data-fixture-list></ol>
+          </div>
+
+          <p class="schedule-source">
+            Schedule data comes from the
+            <a href="https://pacific.swplsoccer.com/teams/calblue-fc" target="_blank" rel="noopener">official CalBlue SWPL profile ↗</a>.
+            <span data-swpl-checked>Updates are checked automatically.</span>
+          </p>
 
           <div class="competition-links" aria-label="CalBlue competition links">
             <span>Competitions:</span>
-            <a href="https://pacific.swplsoccer.com/teams" target="_blank" rel="noopener">SWPL Pacific ↗</a>
+            <a href="https://pacific.swplsoccer.com/teams/calblue-fc" target="_blank" rel="noopener">SWPL Pacific ↗</a>
             <a href="https://www.beyondthegame.us/" target="_blank" rel="noopener">Beyond the Game ↗</a>
             <a href="https://nccsf.org/" target="_blank" rel="noopener">NCCSF ↗</a>
           </div>

@@ -116,7 +116,7 @@ html[data-design="codex-pro"] .league-kicker { color: var(--pro-lime); }
 
 html[data-design="codex-pro"] .schedule { background: var(--pro-paper); }
 html[data-design="codex-pro"] .status-pill { color: #0d5630; background: #dcf5e8; border-radius: 0; }
-html[data-design="codex-pro"] .status-pill span { background: #12a05e; box-shadow: 0 0 0 5px rgba(18, 160, 94, .12); }
+html[data-design="codex-pro"] .status-pill .status-dot { background: #12a05e; box-shadow: 0 0 0 5px rgba(18, 160, 94, .12); }
 html[data-design="codex-pro"] .match-card { position: relative; overflow: hidden; padding: 54px; color: white; background: #071a28; border: 0; box-shadow: 18px 18px 0 rgba(18, 104, 232, .16); }
 html[data-design="codex-pro"] .match-card::before { content: 'MATCH CENTER'; position: absolute; right: -20px; top: 16px; color: rgba(255, 255, 255, .045); font: 800 90px/1 var(--display); letter-spacing: .03em; pointer-events: none; }
 html[data-design="codex-pro"] .match-meta { position: relative; border-color: rgba(255, 255, 255, .15); }

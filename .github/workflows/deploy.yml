@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
 
 permissions:
   contents: read
@@ -23,6 +25,14 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+      - name: Test SWPL importer
+        run: python3 -m unittest discover -s tests -v
+      - name: Sync official SWPL schedule
+        run: |
+          curl --fail --silent --show-error --location \
+            --header 'User-Agent: CalBlueScheduleSync/1.0 (+https://calbluefc.com/)' \
+            'https://pacific.swplsoccer.com/teams/calblue-fc' \
+            | python3 scripts/sync_swpl.py --source-file -
       - name: Validate site
         run: python3 scripts/check_site.py
       - name: Configure Pages
