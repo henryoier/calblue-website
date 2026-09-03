@@ -157,6 +157,8 @@ h2 { font-size: clamp(52px, 6.8vw, 88px); line-height: .9; letter-spacing: -.025
 .upcoming-fixtures li:last-child { padding-bottom: 0; border-bottom: 0; }
 .upcoming-fixtures time { color: var(--cyan); font-size: 12px; font-weight: 800; text-transform: uppercase; }
 .upcoming-fixtures strong, .upcoming-fixtures li span { display: block; }
+.upcoming-fixtures li a { color: inherit; }
+.upcoming-fixtures li a:hover strong { text-decoration: underline; }
 .upcoming-fixtures strong { font: 700 18px/1.1 var(--display); text-transform: uppercase; }
 .upcoming-fixtures li span { margin-top: 5px; color: rgba(255,255,255,.6); font-size: 11px; }
 .schedule-source { display: flex; flex-wrap: wrap; gap: 5px; margin: 18px 0 0; color: var(--muted); font-size: 11px; }

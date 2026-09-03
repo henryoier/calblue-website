@@ -130,6 +130,8 @@ def main() -> int:
         source = page.read_text(encoding="utf-8")
         if "data-site-stylesheet" not in source:
             errors.append(f"{page.name}: missing fallback site stylesheet")
+        if "site-nav" in source and "competitions.html" not in source:
+            errors.append(f"{page.name}: missing competitions navigation")
         for asset in ("designs/registry.js", "designs/switcher.js", "designs/switcher.css"):
             if asset not in source:
                 errors.append(f"{page.name}: missing {asset}")
