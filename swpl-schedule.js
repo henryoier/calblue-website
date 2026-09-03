@@ -14,6 +14,7 @@
   const fixturePanel = schedule.querySelector('[data-upcoming-fixtures]');
   const fixtureList = schedule.querySelector('[data-fixture-list]');
   const checkedElement = schedule.querySelector('[data-swpl-checked]');
+  const matchdayPoster = document.querySelector('[data-matchday-poster]');
 
   const pacificDateParts = (value = new Date()) => {
     const parts = new Intl.DateTimeFormat('en-US', {
@@ -32,6 +33,20 @@
     const targetUtc = Date.UTC(target[0], target[1] - 1, target[2]);
     return Math.round((targetUtc - todayUtc) / 86400000);
   };
+
+  if (matchdayPoster) {
+    const posterDays = dayDifference(matchdayPoster.dataset.matchdayDate);
+    const posterCountdown = matchdayPoster.querySelector('[data-matchday-countdown]');
+    if (posterDays < 0) {
+      matchdayPoster.hidden = true;
+    } else if (posterCountdown) {
+      posterCountdown.textContent = posterDays === 0
+        ? 'Match day'
+        : posterDays === 1
+          ? 'Tomorrow'
+          : `${posterDays} days to kickoff`;
+    }
+  }
 
   const formatDate = (fixture, options) => {
     const instant = fixture.startsAt
