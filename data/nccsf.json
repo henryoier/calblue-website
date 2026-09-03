@@ -1,0 +1,348 @@
+{
+  "schemaVersion": 1,
+  "source": "https://nccsf.org/en/league/game?a=ag&lid=36",
+  "sourcePage": "https://nccsf.org/en/league/game?a=games&lid=36",
+  "checkedAt": "2026-09-03T00:55:00-07:00",
+  "season": {
+    "name": "2026 NCCSF Fall League",
+    "year": 2026,
+    "leagueId": 36
+  },
+  "team": {
+    "name": "CalBlue",
+    "id": 621,
+    "url": "https://nccsf.org/en/league/team?a=tp&tid=621",
+    "logo": "https://nccsf.org/en/img/team/logo/621.jpeg"
+  },
+  "fixtures": [
+    {
+      "id": "nccsf-3388",
+      "date": "2026-09-12",
+      "startsAt": "2026-09-12T19:00:00-07:00",
+      "timeLabel": "7:00 PM PT",
+      "competition": "2026 NCCSF Fall League",
+      "round": "Sat-1",
+      "home": {
+        "name": "GSF United",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=623",
+        "logo": null
+      },
+      "away": {
+        "name": "CalBlue",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=621",
+        "logo": "https://nccsf.org/en/img/team/logo/621.jpeg"
+      },
+      "venue": {
+        "name": "Nordvik Park",
+        "mapUrl": "https://maps.app.goo.gl/fVo5PbJ5cvf1WsUc9"
+      },
+      "conference": "Open",
+      "sourceUrl": "https://nccsf.org/en/league/game?a=games&lid=36",
+      "status": "scheduled"
+    },
+    {
+      "id": "nccsf-3399",
+      "date": "2026-09-20",
+      "startsAt": "2026-09-20T17:00:00-07:00",
+      "timeLabel": "5:00 PM PT",
+      "competition": "2026 NCCSF Fall League",
+      "round": "Sun-2",
+      "home": {
+        "name": "THU West",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=630",
+        "logo": null
+      },
+      "away": {
+        "name": "CalBlue",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=621",
+        "logo": "https://nccsf.org/en/img/team/logo/621.jpeg"
+      },
+      "venue": {
+        "name": "Nordvik Park",
+        "mapUrl": "https://maps.app.goo.gl/fVo5PbJ5cvf1WsUc9"
+      },
+      "conference": "Open",
+      "sourceUrl": "https://nccsf.org/en/league/game?a=games&lid=36",
+      "status": "scheduled"
+    },
+    {
+      "id": "nccsf-3401",
+      "date": "2026-09-26",
+      "startsAt": "2026-09-26T20:00:00-07:00",
+      "timeLabel": "8:00 PM PT",
+      "competition": "2026 NCCSF Fall League",
+      "round": "Sat-3",
+      "home": {
+        "name": "CalBlue",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=621",
+        "logo": "https://nccsf.org/en/img/team/logo/621.jpeg"
+      },
+      "away": {
+        "name": "HeHeFC",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=625",
+        "logo": null
+      },
+      "venue": {
+        "name": "Newark Right",
+        "mapUrl": "https://goo.gl/maps/4rPxw8NThmqPG5d26"
+      },
+      "conference": "Open",
+      "sourceUrl": "https://nccsf.org/en/league/game?a=games&lid=36",
+      "status": "scheduled"
+    },
+    {
+      "id": "nccsf-3413",
+      "date": "2026-10-04",
+      "startsAt": "2026-10-04T17:00:00-07:00",
+      "timeLabel": "5:00 PM PT",
+      "competition": "2026 NCCSF Fall League",
+      "round": "Sun-4",
+      "home": {
+        "name": "CalBlue",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=621",
+        "logo": "https://nccsf.org/en/img/team/logo/621.jpeg"
+      },
+      "away": {
+        "name": "GSF-Locomotive",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=624",
+        "logo": null
+      },
+      "venue": {
+        "name": "Nordvik Park",
+        "mapUrl": "https://maps.app.goo.gl/fVo5PbJ5cvf1WsUc9"
+      },
+      "conference": "Open",
+      "sourceUrl": "https://nccsf.org/en/league/game?a=games&lid=36",
+      "status": "scheduled"
+    },
+    {
+      "id": "nccsf-3421",
+      "date": "2026-10-11",
+      "startsAt": "2026-10-11T19:00:00-07:00",
+      "timeLabel": "7:00 PM PT",
+      "competition": "2026 NCCSF Fall League",
+      "round": "Sun-5",
+      "home": {
+        "name": "OverPower",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=628",
+        "logo": null
+      },
+      "away": {
+        "name": "CalBlue",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=621",
+        "logo": "https://nccsf.org/en/img/team/logo/621.jpeg"
+      },
+      "venue": {
+        "name": "Nordvik Park",
+        "mapUrl": "https://maps.app.goo.gl/fVo5PbJ5cvf1WsUc9"
+      },
+      "conference": "Open",
+      "sourceUrl": "https://nccsf.org/en/league/game?a=games&lid=36",
+      "status": "scheduled"
+    },
+    {
+      "id": "nccsf-3426",
+      "date": "2026-10-18",
+      "startsAt": "2026-10-18T20:00:00-07:00",
+      "timeLabel": "8:00 PM PT",
+      "competition": "2026 NCCSF Fall League",
+      "round": "Sun-6",
+      "home": {
+        "name": "CalBlue",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=621",
+        "logo": "https://nccsf.org/en/img/team/logo/621.jpeg"
+      },
+      "away": {
+        "name": "PP United",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=632",
+        "logo": null
+      },
+      "venue": {
+        "name": "Newark Left",
+        "mapUrl": "https://goo.gl/maps/4rPxw8NThmqPG5d26"
+      },
+      "conference": "Open",
+      "sourceUrl": "https://nccsf.org/en/league/game?a=games&lid=36",
+      "status": "scheduled"
+    },
+    {
+      "id": "nccsf-3430",
+      "date": "2026-10-24",
+      "startsAt": "2026-10-24T20:00:00-07:00",
+      "timeLabel": "8:00 PM PT",
+      "competition": "2026 NCCSF Fall League",
+      "round": "Sat-7",
+      "home": {
+        "name": "CalBlue",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=621",
+        "logo": "https://nccsf.org/en/img/team/logo/621.jpeg"
+      },
+      "away": {
+        "name": "JTU",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=633",
+        "logo": null
+      },
+      "venue": {
+        "name": "Nordvik Park",
+        "mapUrl": "https://maps.app.goo.gl/fVo5PbJ5cvf1WsUc9"
+      },
+      "conference": "Open",
+      "sourceUrl": "https://nccsf.org/en/league/game?a=games&lid=36",
+      "status": "scheduled"
+    },
+    {
+      "id": "nccsf-3436",
+      "date": "2026-10-31",
+      "startsAt": "2026-10-31T20:00:00-07:00",
+      "timeLabel": "8:00 PM PT",
+      "competition": "2026 NCCSF Fall League",
+      "round": "Sat-8",
+      "home": {
+        "name": "EBU Rangers",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=622",
+        "logo": null
+      },
+      "away": {
+        "name": "CalBlue",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=621",
+        "logo": "https://nccsf.org/en/img/team/logo/621.jpeg"
+      },
+      "venue": {
+        "name": "Newark Right",
+        "mapUrl": "https://goo.gl/maps/4rPxw8NThmqPG5d26"
+      },
+      "conference": "Open",
+      "sourceUrl": "https://nccsf.org/en/league/game?a=games&lid=36",
+      "status": "scheduled"
+    },
+    {
+      "id": "nccsf-3445",
+      "date": "2026-11-08",
+      "startsAt": "2026-11-08T18:00:00-08:00",
+      "timeLabel": "6:00 PM PT",
+      "competition": "2026 NCCSF Fall League",
+      "round": "Sun-9",
+      "home": {
+        "name": "CalBlue",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=621",
+        "logo": "https://nccsf.org/en/img/team/logo/621.jpeg"
+      },
+      "away": {
+        "name": "Hunters",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=626",
+        "logo": null
+      },
+      "venue": {
+        "name": "Newark Right",
+        "mapUrl": "https://goo.gl/maps/4rPxw8NThmqPG5d26"
+      },
+      "conference": "Open",
+      "sourceUrl": "https://nccsf.org/en/league/game?a=games&lid=36",
+      "status": "scheduled"
+    },
+    {
+      "id": "nccsf-3455",
+      "date": "2026-11-15",
+      "startsAt": "2026-11-15T17:00:00-08:00",
+      "timeLabel": "5:00 PM PT",
+      "competition": "2026 NCCSF Fall League",
+      "round": "Sun-10",
+      "home": {
+        "name": "Shoreline",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=631",
+        "logo": null
+      },
+      "away": {
+        "name": "CalBlue",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=621",
+        "logo": "https://nccsf.org/en/img/team/logo/621.jpeg"
+      },
+      "venue": {
+        "name": "Nordvik Park",
+        "mapUrl": "https://maps.app.goo.gl/fVo5PbJ5cvf1WsUc9"
+      },
+      "conference": "Open",
+      "sourceUrl": "https://nccsf.org/en/league/game?a=games&lid=36",
+      "status": "scheduled"
+    },
+    {
+      "id": "nccsf-3458",
+      "date": "2026-11-21",
+      "startsAt": "2026-11-21T19:00:00-08:00",
+      "timeLabel": "7:00 PM PT",
+      "competition": "2026 NCCSF Fall League",
+      "round": "Sat-11",
+      "home": {
+        "name": "CalBlue",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=621",
+        "logo": "https://nccsf.org/en/img/team/logo/621.jpeg"
+      },
+      "away": {
+        "name": "South Bay FC",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=627",
+        "logo": null
+      },
+      "venue": {
+        "name": "Nordvik Park",
+        "mapUrl": "https://maps.app.goo.gl/fVo5PbJ5cvf1WsUc9"
+      },
+      "conference": "Open",
+      "sourceUrl": "https://nccsf.org/en/league/game?a=games&lid=36",
+      "status": "scheduled"
+    },
+    {
+      "id": "nccsf-3464",
+      "date": "2026-12-05",
+      "startsAt": "2026-12-05T20:00:00-08:00",
+      "timeLabel": "8:00 PM PT",
+      "competition": "2026 NCCSF Fall League",
+      "round": "Sat-12",
+      "home": {
+        "name": "Athletic Capybara",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=620",
+        "logo": null
+      },
+      "away": {
+        "name": "CalBlue",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=621",
+        "logo": "https://nccsf.org/en/img/team/logo/621.jpeg"
+      },
+      "venue": {
+        "name": "Newark Right",
+        "mapUrl": "https://goo.gl/maps/4rPxw8NThmqPG5d26"
+      },
+      "conference": "Open",
+      "sourceUrl": "https://nccsf.org/en/league/game?a=games&lid=36",
+      "status": "scheduled"
+    },
+    {
+      "id": "nccsf-3472",
+      "date": "2026-12-12",
+      "startsAt": "2026-12-12T19:00:00-08:00",
+      "timeLabel": "7:00 PM PT",
+      "competition": "2026 NCCSF Fall League",
+      "round": "Sat-13",
+      "home": {
+        "name": "OX9 F.C.",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=629",
+        "logo": null
+      },
+      "away": {
+        "name": "CalBlue",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=621",
+        "logo": "https://nccsf.org/en/img/team/logo/621.jpeg"
+      },
+      "venue": {
+        "name": "Nordvik Park",
+        "mapUrl": "https://maps.app.goo.gl/fVo5PbJ5cvf1WsUc9"
+      },
+      "conference": "Open",
+      "sourceUrl": "https://nccsf.org/en/league/game?a=games&lid=36",
+      "status": "scheduled"
+    }
+  ],
+  "diagnostics": {
+    "publishedCalBlueFixtures": 13,
+    "upcomingCalBlueFixtures": 13
+  }
+}

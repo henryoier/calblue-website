@@ -27,18 +27,24 @@ Validate the site before publishing:
 python3 scripts/check_site.py
 ```
 
-## SWPL schedule sync
+## Official schedule sync
 
-The homepage match center is generated from CalBlue's official SWPL profile:
+The homepage match center merges CalBlue's official SWPL profile with its 2026 NCCSF Fall League schedule:
 
 ```bash
 curl --fail --silent --show-error --location \
   --header 'User-Agent: CalBlueScheduleSync/1.0 (+https://calbluefc.com/)' \
   'https://pacific.swplsoccer.com/teams/calblue-fc' \
   | python3 scripts/sync_swpl.py --source-file -
+
+curl --fail --silent --show-error --location \
+  --header 'Accept: application/json' \
+  --header 'User-Agent: CalBlueScheduleSync/1.0 (+https://calbluefc.com/)' \
+  'https://nccsf.org/en/league/game?a=ag&lid=36' \
+  | python3 scripts/sync_nccsf.py --source-file -
 ```
 
-The deploy workflow runs this sync every six hours and before every Pages deployment. It writes a small `data/swpl.json` snapshot, which the homepage uses to emphasize the next match and list the following fixtures. The parser only accepts rows involving CalBlue and deliberately ignores SWPL contact details and unrelated matches. If SWPL is unavailable or changes its page structure, deployment stops and the previous Pages deployment remains live.
+The deploy workflow runs both syncs every six hours and before every Pages deployment. It writes small `data/swpl.json` and `data/nccsf.json` snapshots, which the homepage merges chronologically to emphasize the next match and show the full upcoming schedule. The importers only accept rows involving CalBlue and deliberately ignore contact, player, and unrelated-team data. If either official source is unavailable or changes structure, deployment stops and the previous Pages deployment remains live.
 
 ## Content to confirm before launch
 
@@ -91,7 +97,7 @@ designs/switcher.js                Persistent multi-design loader and picker
 designs/switcher.css               Theme-neutral picker styling
 design-preview.html                Multi-page desktop/mobile review tool
 script.js                Navigation and small UI behavior
-swpl-schedule.js         Safe rendering for the next match and following fixtures
+swpl-schedule.js         Safe merged rendering for official SWPL and NCCSF fixtures
 media-config.js          Public R2 media base URL
 assets/calblue-logo-web.jpg  Web-optimized official crest sourced from the shared Drive
 assets/roster/           Public face photos sourced from the roster sheet
@@ -101,7 +107,9 @@ assets/favicon.svg       Browser icon
 netlify.toml             Optional Netlify config
 scripts/check_site.py    Dependency-free pre-deployment checks
 scripts/sync_swpl.py     Dependency-free official SWPL schedule importer
+scripts/sync_nccsf.py    Dependency-free official NCCSF schedule importer
 data/swpl.json           Build-time SWPL snapshot and local fallback
+data/nccsf.json          Build-time NCCSF snapshot and local fallback
 serve.sh                 Local preview helper
 ```
 

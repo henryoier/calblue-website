@@ -25,7 +25,7 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
-      - name: Test SWPL importer
+      - name: Test schedule importers
         run: python3 -m unittest discover -s tests -v
       - name: Sync official SWPL schedule
         run: |
@@ -33,6 +33,13 @@ jobs:
             --header 'User-Agent: CalBlueScheduleSync/1.0 (+https://calbluefc.com/)' \
             'https://pacific.swplsoccer.com/teams/calblue-fc' \
             | python3 scripts/sync_swpl.py --source-file -
+      - name: Sync official NCCSF schedule
+        run: |
+          curl --fail --silent --show-error --location \
+            --header 'Accept: application/json' \
+            --header 'User-Agent: CalBlueScheduleSync/1.0 (+https://calbluefc.com/)' \
+            'https://nccsf.org/en/league/game?a=ag&lid=36' \
+            | python3 scripts/sync_nccsf.py --source-file -
       - name: Validate site
         run: python3 scripts/check_site.py
       - name: Configure Pages
