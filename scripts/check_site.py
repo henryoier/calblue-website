@@ -90,9 +90,24 @@ def main() -> int:
     except (OSError, json.JSONDecodeError) as error:
         errors.append(f"data/swpl.json: {error}")
 
+    try:
+        nccsf = json.loads((ROOT / "data" / "nccsf.json").read_text(encoding="utf-8"))
+        if nccsf.get("schemaVersion") != 1:
+            errors.append("data/nccsf.json: unsupported schemaVersion")
+        if nccsf.get("team", {}).get("name") != "CalBlue":
+            errors.append("data/nccsf.json: expected the CalBlue team")
+        if nccsf.get("season", {}).get("leagueId") != 36:
+            errors.append("data/nccsf.json: expected the 2026 NCCSF Fall League")
+        if not isinstance(nccsf.get("fixtures"), list):
+            errors.append("data/nccsf.json: fixtures must be a list")
+    except (OSError, json.JSONDecodeError) as error:
+        errors.append(f"data/nccsf.json: {error}")
+
     homepage = (ROOT / "index.html").read_text(encoding="utf-8")
     if "data-swpl-schedule" not in homepage or "swpl-schedule.js" not in homepage:
         errors.append("index.html: missing SWPL schedule integration")
+    if "data-nccsf-source" not in homepage:
+        errors.append("index.html: missing NCCSF schedule integration")
     if "data-matchday-poster" not in homepage:
         errors.append("index.html: missing match-day poster section")
     if not (ROOT / "assets" / "matchday" / "calblue-vs-sf-glens-2026-09-13.webp").exists():

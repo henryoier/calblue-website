@@ -3,6 +3,7 @@
   if (!schedule) return;
 
   const sourceUrl = schedule.dataset.swplSource;
+  const nccsfSourceUrl = schedule.dataset.nccsfSource;
   const status = schedule.querySelector('[data-swpl-status-text]');
   const card = schedule.querySelector('[data-next-match]');
   const dateElement = schedule.querySelector('[data-match-date]');
@@ -67,7 +68,9 @@
     }
   };
 
-  const isCalBlue = (name) => name.toLowerCase().replace(/[^a-z0-9]/g, '') === 'calbluefc';
+  const isCalBlue = (name) => ['calblue', 'calbluefc'].includes(
+    name.toLowerCase().replace(/[^a-z0-9]/g, ''),
+  );
 
   const setTeam = (side, team) => {
     const name = side.querySelector('[data-team-name]');
@@ -105,7 +108,7 @@
 
   const renderUpcoming = (fixtures) => {
     fixtureList.replaceChildren();
-    fixtures.slice(1, 5).forEach((fixture) => {
+    fixtures.slice(1).forEach((fixture) => {
       const item = document.createElement('li');
       const date = document.createElement('time');
       const details = document.createElement('div');
@@ -115,7 +118,7 @@
       date.dateTime = fixture.startsAt || fixture.date;
       date.textContent = formatDate(fixture, { month: 'short', day: 'numeric' });
       opponent.textContent = fixtureSummary(fixture);
-      meta.textContent = `${fixture.timeLabel} · ${fixture.venue.name}`;
+      meta.textContent = `${fixture.competition} · ${fixture.timeLabel} · ${fixture.venue.name}`;
       details.append(opponent, meta);
       item.append(date, details);
       fixtureList.append(item);
@@ -150,21 +153,32 @@
     countdownElement.textContent = 'Awaiting fixtures';
     dateElement.removeAttribute('datetime');
     dateElement.textContent = 'Schedule pending';
-    venueElement.textContent = 'SWPL has not published a CalBlue fixture yet';
-    competitionElement.textContent = 'SWPL Pacific';
+    venueElement.textContent = 'No upcoming CalBlue fixture is published yet';
+    competitionElement.textContent = 'CalBlue fixtures';
     timeElement.textContent = 'TBA';
     detailsLink.href = sourceUrl;
-    detailsLink.textContent = 'Check official SWPL page ↗';
+    detailsLink.textContent = 'Check official schedule ↗';
     fixturePanel.hidden = true;
   };
 
-  fetch('data/swpl.json', { cache: 'no-cache' })
+  const feeds = [
+    { name: 'SWPL', dataUrl: 'data/swpl.json' },
+    { name: 'NCCSF', dataUrl: 'data/nccsf.json' },
+  ];
+  const loadFeed = (feed) => fetch(feed.dataUrl, { cache: 'no-cache' })
     .then((response) => {
-      if (!response.ok) throw new Error(`Schedule request failed (${response.status})`);
+      if (!response.ok) throw new Error(`${feed.name} schedule request failed (${response.status})`);
       return response.json();
     })
-    .then((data) => {
-      const fixtures = Array.isArray(data.fixtures)
+    .then((data) => ({ ...feed, data }));
+
+  Promise.allSettled(feeds.map(loadFeed)).then((results) => {
+    const loaded = results
+      .filter((result) => result.status === 'fulfilled')
+      .map((result) => result.value);
+    const failed = feeds.filter((feed) => !loaded.some((item) => item.name === feed.name));
+    const fixtures = loaded.flatMap(({ data }) => (
+      Array.isArray(data.fixtures)
         ? data.fixtures.filter((fixture) => (
           /^\d{4}-\d{2}-\d{2}$/.test(fixture.date)
           && fixture.home?.name
@@ -172,26 +186,44 @@
           && fixture.venue?.name
           && dayDifference(fixture.date) >= 0
         ))
-        : [];
-      status.textContent = fixtures.length ? 'Synced from official SWPL' : 'Watching official SWPL';
-      if (fixtures.length) renderNextMatch(fixtures[0]);
-      else renderEmpty();
-      renderUpcoming(fixtures);
+        : []
+    ));
+    fixtures.sort((left, right) => (
+      (left.startsAt || `${left.date}T23:59:59`).localeCompare(
+        right.startsAt || `${right.date}T23:59:59`,
+      )
+    ));
 
-      if (data.checkedAt) {
-        const checked = new Date(data.checkedAt);
-        checkedElement.textContent = `Last checked ${new Intl.DateTimeFormat('en-US', {
-          timeZone: 'America/Los_Angeles',
-          month: 'short',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: '2-digit',
-          timeZoneName: 'short',
-        }).format(checked)}`;
-      }
-    })
-    .catch(() => {
-      status.textContent = 'Official schedule temporarily unavailable';
-      checkedElement.textContent = 'Showing the safe fallback; use the official SWPL link for the latest update.';
-    });
+    if (loaded.length === feeds.length) {
+      status.textContent = fixtures.length
+        ? 'Synced from official SWPL + NCCSF'
+        : 'Watching official SWPL + NCCSF';
+    } else if (loaded.length) {
+      status.textContent = `Synced from official ${loaded.map(({ name }) => name).join(' + ')}`;
+    } else {
+      status.textContent = 'Official schedules temporarily unavailable';
+    }
+
+    if (fixtures.length) renderNextMatch(fixtures[0]);
+    else renderEmpty();
+    renderUpcoming(fixtures);
+
+    const checkedTimes = loaded
+      .map(({ data }) => Date.parse(data.checkedAt))
+      .filter(Number.isFinite);
+    if (checkedTimes.length) {
+      const checked = new Date(Math.min(...checkedTimes));
+      const suffix = failed.length ? ` · ${failed.map(({ name }) => name).join(' + ')} unavailable` : '';
+      checkedElement.textContent = `Schedules checked ${new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/Los_Angeles',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        timeZoneName: 'short',
+      }).format(checked)}${suffix}`;
+    } else {
+      checkedElement.textContent = `Use the official ${nccsfSourceUrl ? 'NCCSF or ' : ''}SWPL link for the latest update.`;
+    }
+  });
 })();
