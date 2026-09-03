@@ -3,6 +3,34 @@ const toggle = document.querySelector('[data-menu-toggle]');
 const nav = document.querySelector('[data-nav]');
 const mobileNavigation = window.matchMedia('(max-width: 900px)');
 
+if (nav) {
+  const competitionsLink = nav.querySelector('a[href$="competitions.html"]');
+  if (competitionsLink) {
+    const wrapper = document.createElement('div');
+    const menu = document.createElement('div');
+    wrapper.className = 'nav-competitions';
+    menu.className = 'nav-competition-menu';
+    menu.setAttribute('aria-label', 'Current competitions');
+    competitionsLink.setAttribute('aria-haspopup', 'true');
+    competitionsLink.parentNode.insertBefore(wrapper, competitionsLink);
+    wrapper.append(competitionsLink, menu);
+
+    [
+      ['competition-swpl.html', '2026 · Current season', 'SWPL Pacific Premier League'],
+      ['competition-nccsf.html', '2026 · Fall season', 'NCCSF Fall League'],
+    ].forEach(([href, season, league]) => {
+      const link = document.createElement('a');
+      const seasonLabel = document.createElement('span');
+      const leagueLabel = document.createElement('strong');
+      link.href = href;
+      seasonLabel.textContent = season;
+      leagueLabel.textContent = league;
+      link.append(seasonLabel, leagueLabel);
+      menu.append(link);
+    });
+  }
+}
+
 if (header) {
   const updateHeader = () => header.classList.toggle('scrolled', window.scrollY > 24);
   updateHeader();
