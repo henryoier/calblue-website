@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from html.parser import HTMLParser
+import json
 from pathlib import Path
 import re
 import sys
@@ -77,6 +78,21 @@ def check_page(path: Path) -> list[str]:
 
 def main() -> int:
     errors = [error for page in PAGES for error in check_page(page)]
+
+    try:
+        swpl = json.loads((ROOT / "data" / "swpl.json").read_text(encoding="utf-8"))
+        if swpl.get("schemaVersion") != 1:
+            errors.append("data/swpl.json: unsupported schemaVersion")
+        if swpl.get("team", {}).get("name") != "CalBlue FC":
+            errors.append("data/swpl.json: expected the CalBlue FC team")
+        if not isinstance(swpl.get("fixtures"), list):
+            errors.append("data/swpl.json: fixtures must be a list")
+    except (OSError, json.JSONDecodeError) as error:
+        errors.append(f"data/swpl.json: {error}")
+
+    homepage = (ROOT / "index.html").read_text(encoding="utf-8")
+    if "data-swpl-schedule" not in homepage or "swpl-schedule.js" not in homepage:
+        errors.append("index.html: missing SWPL schedule integration")
 
     for page in DESIGN_PAGES:
         source = page.read_text(encoding="utf-8")
