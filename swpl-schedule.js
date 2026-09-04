@@ -151,6 +151,13 @@
     return { href: safeHttpsUrl(fixture.sourceUrl) || sourceUrl, label: 'competition' };
   };
 
+  const fixtureKind = (fixture) => {
+    const competition = fixture.competition.toLowerCase();
+    if (competition.includes('abronzino')) return 'cup';
+    if (competition.includes('nccsf')) return 'nccsf';
+    return 'swpl';
+  };
+
   const renderUpcoming = (fixtures) => {
     upcomingSchedule = fixtures;
     fixtureList.replaceChildren();
@@ -164,7 +171,7 @@
       const opponent = document.createElement('strong');
       const meta = document.createElement('span');
 
-      item.classList.toggle('is-cup', fixture.competition.toLowerCase().includes('abronzino'));
+      item.classList.add(`is-${fixtureKind(fixture)}`);
 
       date.dateTime = fixture.startsAt || fixture.date;
       date.textContent = formatDate(fixture, { month: 'short', day: 'numeric' });
@@ -197,8 +204,11 @@
   const renderNextMatch = (fixture) => {
     const days = dayDifference(fixture.date);
     const countdown = days === 0 ? 'Match day' : days === 1 ? 'Tomorrow' : `In ${days} days`;
+    const kind = fixtureKind(fixture);
 
     card.classList.remove('match-card-empty');
+    card.classList.remove('is-swpl', 'is-nccsf', 'is-cup');
+    card.classList.add(`is-${kind}`);
     countdownElement.textContent = countdown;
     countdownElement.classList.toggle('is-match-day', days === 0);
     dateElement.dateTime = fixture.startsAt || fixture.date;

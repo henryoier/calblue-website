@@ -141,6 +141,11 @@ h2 { font-size: clamp(52px, 6.8vw, 88px); line-height: .9; letter-spacing: -.025
 .status-pill .status-dot { width: 7px; height: 7px; background: var(--blue); border-radius: 50%; box-shadow: 0 0 0 5px rgba(18,104,232,.1); }
 .status-pill b { font: inherit; }
 .match-card { display: grid; grid-template-columns: .8fr 1.6fr .7fr; align-items: center; gap: 35px; padding: 45px; border: 1px solid #dce2ea; box-shadow: 0 20px 60px rgba(13,36,70,.07); }
+.match-card.is-swpl { border-top: 4px solid var(--blue); }
+.match-card.is-nccsf { border-top: 4px solid #18a995; }
+.match-card.is-cup { border-top: 4px solid var(--cyan); }
+.match-card.is-nccsf .next-match-countdown:not(.is-match-day) { background: #168c7c; }
+.match-card.is-cup .next-match-countdown:not(.is-match-day) { color: var(--navy); background: var(--cyan); }
 .match-card-empty { box-shadow: none; }
 .match-meta { display: flex; flex-direction: column; padding-right: 25px; border-right: 1px solid #dce2ea; }
 .next-match-countdown { align-self: flex-start; margin-bottom: 16px; padding: 8px 10px; color: white; background: var(--blue); font-size: 10px; font-style: normal; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
@@ -169,7 +174,13 @@ h2 { font-size: clamp(52px, 6.8vw, 88px); line-height: .9; letter-spacing: -.025
 .upcoming-fixtures li { display: grid; grid-template-columns: 74px 1fr; gap: 18px; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,.14); }
 .upcoming-fixtures li:first-child { padding-top: 0; }
 .upcoming-fixtures li:last-child { padding-bottom: 0; border-bottom: 0; }
-.upcoming-fixtures li.is-cup { padding-left: 12px; border-left: 3px solid var(--cyan); }
+.upcoming-fixtures li.is-swpl, .upcoming-fixtures li.is-nccsf, .upcoming-fixtures li.is-cup { padding-left: 12px; }
+.upcoming-fixtures li.is-swpl { background: linear-gradient(90deg, rgba(18,104,232,.16), transparent 62%); border-left: 3px solid #62a2ff; }
+.upcoming-fixtures li.is-nccsf { background: linear-gradient(90deg, rgba(44,195,174,.15), transparent 62%); border-left: 3px solid #4bd0bc; }
+.upcoming-fixtures li.is-cup { background: linear-gradient(90deg, rgba(255,197,27,.15), transparent 62%); border-left: 3px solid var(--cyan); }
+.upcoming-fixtures li.is-swpl time { color: #8bbaff; }
+.upcoming-fixtures li.is-nccsf time { color: #66dccb; }
+.upcoming-fixtures li.is-cup time { color: var(--cyan); }
 .upcoming-fixtures time { color: var(--cyan); font-size: 12px; font-weight: 800; text-transform: uppercase; }
 .upcoming-fixtures strong, .upcoming-fixtures li span { display: block; }
 .upcoming-fixtures li a { color: inherit; }
