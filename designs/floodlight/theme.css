@@ -461,8 +461,8 @@ h1 em { color: transparent; -webkit-text-stroke: 1.5px rgba(255, 255, 255, .8); 
 .fixture-list-toggle:hover { color: #fff; }
 .upcoming-fixtures ol { margin: 0; padding: 0; list-style: none; }
 .upcoming-fixtures li { display: grid; grid-template-columns: 76px 1fr; gap: 18px; padding: 16px 0; border-bottom: 1px solid var(--line-light); }
-.upcoming-fixtures li:first-child { padding-top: 0; }
-.upcoming-fixtures li:last-child { padding-bottom: 0; border-bottom: 0; }
+.upcoming-fixtures li:first-child { padding-top: 16px; }
+.upcoming-fixtures li:last-child { padding-bottom: 16px; border-bottom: 0; }
 .upcoming-fixtures li.is-swpl, .upcoming-fixtures li.is-nccsf, .upcoming-fixtures li.is-cup { padding-left: 12px; }
 .upcoming-fixtures li.is-swpl { background: linear-gradient(90deg, rgba(18,104,232,.18), transparent 64%); border-left: 3px solid var(--blue-bright); }
 .upcoming-fixtures li.is-nccsf { background: linear-gradient(90deg, rgba(53,200,178,.16), transparent 64%); border-left: 3px solid #35c8b2; }
