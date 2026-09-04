@@ -101,6 +101,9 @@
   };
 
   const fixtureSummary = (fixture) => {
+    if (fixture.eventOnly || fixture.competition.toLowerCase().includes('abronzino')) {
+      return `Abronzino Cup · ${fixture.round || 'Fixture TBA'}`;
+    }
     const opponent = isCalBlue(fixture.home.name) ? fixture.away.name : fixture.home.name;
     const side = isCalBlue(fixture.home.name) ? 'Home' : 'Away';
     return `${side} vs ${opponent}`;
@@ -111,7 +114,7 @@
     if (competition.includes('nccsf')) {
       return { href: 'competition-nccsf.html', label: 'NCCSF' };
     }
-    if (competition.includes('swpl')) {
+    if (competition.includes('swpl') || fixture.sourceUrl?.includes('swplsoccer.com')) {
       return { href: 'competition-swpl.html', label: 'SWPL' };
     }
     return { href: safeHttpsUrl(fixture.sourceUrl) || sourceUrl, label: 'competition' };
@@ -125,6 +128,8 @@
       const details = document.createElement('a');
       const opponent = document.createElement('strong');
       const meta = document.createElement('span');
+
+      item.classList.toggle('is-cup', fixture.competition.toLowerCase().includes('abronzino'));
 
       date.dateTime = fixture.startsAt || fixture.date;
       date.textContent = formatDate(fixture, { month: 'short', day: 'numeric' });
@@ -209,10 +214,15 @@
       )
     ));
 
+    const previewFixtures = loaded.reduce((total, { data }) => (
+      total + Number(data.diagnostics?.editorialOverrides || 0)
+    ), 0);
     if (loaded.length === feeds.length) {
-      status.textContent = fixtures.length
-        ? 'Synced from official SWPL + NCCSF'
-        : 'Watching official SWPL + NCCSF';
+      status.textContent = previewFixtures
+        ? 'Official feeds + SWPL preview schedule'
+        : fixtures.length
+          ? 'Synced from official SWPL + NCCSF'
+          : 'Watching official SWPL + NCCSF';
     } else if (loaded.length) {
       status.textContent = `Synced from official ${loaded.map(({ name }) => name).join(' + ')}`;
     } else {

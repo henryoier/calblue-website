@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from datetime import datetime
+import json
+from pathlib import Path
 import unittest
 from zoneinfo import ZoneInfo
 
@@ -108,6 +110,40 @@ class BuildSnapshotTest(unittest.TestCase):
         self.assertNotIn("poster-fixture", [fixture["id"] for fixture in snapshot["fixtures"]])
         self.assertEqual(snapshot["diagnostics"]["editorialOverrides"], 0)
 
+    def test_official_matchup_replaces_a_preview_on_a_changed_date(self) -> None:
+        checked_at = datetime(2026, 9, 2, 12, tzinfo=ZoneInfo("America/Los_Angeles"))
+        override = {
+            "id": "preview-fixture",
+            "date": "2026-09-06",
+            "home": {"name": "CalBlue FC"},
+            "away": {"name": "SF Glens"},
+            "venue": {"name": "Preview venue"},
+            "editorial": True,
+        }
+
+        snapshot = build_snapshot(SAMPLE, checked_at, [override])
+
+        self.assertNotIn("preview-fixture", [fixture["id"] for fixture in snapshot["fixtures"]])
+        self.assertEqual(snapshot["fixtures"][0]["date"], "2026-09-05")
+
+    def test_official_cup_fixture_replaces_a_preview_cup_date(self) -> None:
+        checked_at = datetime(2026, 9, 2, 12, tzinfo=ZoneInfo("America/Los_Angeles"))
+        cup_html = SAMPLE.replace("Regular Season", "Abronzino Cup")
+        override = {
+            "id": "preview-cup-date",
+            "date": "2026-09-05",
+            "home": {"name": "CalBlue FC"},
+            "away": {"name": "Opponent TBA"},
+            "venue": {"name": "Venue TBA"},
+            "competition": "Abronzino Cup",
+            "eventOnly": True,
+            "editorial": True,
+        }
+
+        snapshot = build_snapshot(cup_html, checked_at, [override])
+
+        self.assertNotIn("preview-cup-date", [fixture["id"] for fixture in snapshot["fixtures"]])
+
     def test_rejects_an_unrecognized_team_page(self) -> None:
         checked_at = datetime(2026, 9, 2, 12, tzinfo=ZoneInfo("America/Los_Angeles"))
         with self.assertRaisesRegex(ValueError, "did not identify CalBlue"):
@@ -117,6 +153,38 @@ class BuildSnapshotTest(unittest.TestCase):
         checked_at = datetime(2026, 9, 2, 12, tzinfo=ZoneInfo("America/Los_Angeles"))
         with self.assertRaisesRegex(ValueError, "schedule table was not found"):
             build_snapshot('<div class="teamPageName">CalBlue FC</div>', checked_at)
+
+
+class PreviewScheduleTest(unittest.TestCase):
+    def test_preview_contains_the_transcribed_league_and_cup_dates(self) -> None:
+        path = Path(__file__).resolve().parent.parent / "data" / "swpl-overrides.json"
+        fixtures = json.loads(path.read_text(encoding="utf-8"))["fixtures"]
+        league = [fixture for fixture in fixtures if not fixture.get("eventOnly")]
+        cup = [fixture for fixture in fixtures if fixture.get("eventOnly")]
+
+        self.assertEqual(
+            [(fixture["date"], fixture["timeLabel"]) for fixture in league],
+            [
+                ("2026-09-13", "7:00 PM PT"),
+                ("2026-09-19", "7:30 PM PT"),
+                ("2026-10-03", "8:00 PM PT"),
+                ("2026-10-10", "7:30 PM PT"),
+                ("2026-10-17", "6:00 PM PT"),
+                ("2026-11-01", "7:00 PM PT"),
+                ("2026-11-07", "Time TBA"),
+                ("2026-11-14", "7:30 PM PT"),
+                ("2026-12-06", "6:30 PM PT"),
+            ],
+        )
+        self.assertEqual(
+            [(fixture["date"], fixture["round"]) for fixture in cup],
+            [
+                ("2026-09-26", "Group Stage 1"),
+                ("2026-10-24", "Group Stage 2"),
+                ("2026-11-21", "Group Stage 3"),
+            ],
+        )
+        self.assertTrue(all(fixture.get("provisional") for fixture in fixtures))
 
 
 if __name__ == "__main__":

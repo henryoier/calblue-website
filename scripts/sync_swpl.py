@@ -247,11 +247,21 @@ def fixture_key(fixture: dict[str, object]) -> tuple[str, tuple[str, str]]:
     return str(fixture["date"]), teams
 
 
+def matchup_key(fixture: dict[str, object]) -> tuple[str, str]:
+    return tuple(
+        sorted(
+            re.sub(r"[^a-z0-9]", "", str(fixture[side]["name"]).lower())
+            for side in ("home", "away")
+        )
+    )
+
+
 def merge_overrides(
     fixtures: list[dict[str, object]], overrides: list[dict[str, object]], today: date
 ) -> list[dict[str, object]]:
     merged = list(fixtures)
     existing = {fixture_key(fixture) for fixture in fixtures}
+    official_matchups = {matchup_key(fixture) for fixture in fixtures}
     for override in overrides:
         if not isinstance(override, dict):
             raise ValueError("SWPL override fixtures must be JSON objects")
@@ -267,6 +277,16 @@ def merge_overrides(
         if not venue_name:
             raise ValueError("SWPL override fixture venue cannot be empty")
         if game_date < today:
+            continue
+        if override.get("eventOnly"):
+            official_cup_on_date = any(
+                str(fixture["date"]) == str(override["date"])
+                and "abronzino" in str(fixture.get("competition", "")).lower()
+                for fixture in fixtures
+            )
+            if official_cup_on_date:
+                continue
+        elif matchup_key(override) in official_matchups:
             continue
         key = fixture_key(override)
         if key not in existing:

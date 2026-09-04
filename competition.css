@@ -7,6 +7,8 @@
 .season-fixtures { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
 .season-fixture { display: grid; grid-template-columns: 140px 1fr auto; align-items: center; gap: 28px; min-height: 146px; padding: 24px 28px; background: var(--white); border: 1px solid var(--line); box-shadow: 0 12px 32px rgba(7, 27, 63, .05); }
 .season-fixture.is-next { border-top: 4px solid var(--blue); }
+.season-fixture.is-cup { background: linear-gradient(90deg, rgba(255, 197, 27, .13), var(--white) 38%); border-left: 5px solid var(--cyan); }
+.season-fixture.is-cup .season-fixture-date em { color: #8a6200; }
 .season-fixture-date { display: flex; flex-direction: column; padding-right: 24px; border-right: 1px solid var(--line); }
 .season-fixture-date em { margin-bottom: 9px; color: var(--blue); font-size: 9px; font-style: normal; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
 .season-fixture-date strong { font: 700 27px/1 var(--display); text-transform: uppercase; }
