@@ -84,14 +84,11 @@
     const link = document.createElement('a');
 
     const isCup = fixture.competition.toLowerCase().includes('abronzino');
+    const isNccsf = fixture.competition.toLowerCase().includes('nccsf');
     item.className = `season-fixture${index === 0 ? ' is-next' : ''}${isCup ? ' is-cup' : ''}`;
     date.className = 'season-fixture-date';
     date.dateTime = fixture.startsAt || fixture.date;
-    marker.textContent = isCup
-      ? `Cup date · ${fixture.round || 'Details TBA'}`
-      : fixture.provisional
-        ? 'Preview · League fixture'
-        : index === 0 ? 'Next match' : (fixture.round || 'League fixture');
+    marker.textContent = isCup ? 'Abronzino Cup' : isNccsf ? 'NCCSF League' : 'SWPL League';
     dateText.textContent = formatDate(fixture, { month: 'short', day: 'numeric' });
     timeText.textContent = formatDate(fixture, { weekday: 'long' });
     date.append(marker, dateText, timeText);
@@ -101,7 +98,9 @@
 
     details.className = 'season-fixture-details';
     venue.textContent = fixture.venue.name;
-    meta.textContent = fixture.timeLabel;
+    meta.textContent = fixture.round
+      ? `${fixture.round} · ${fixture.timeLabel}`
+      : fixture.timeLabel;
     link.href = safeHttpsUrl(fixture.sourceUrl) || sourceUrl;
     link.target = '_blank';
     link.rel = 'noopener';

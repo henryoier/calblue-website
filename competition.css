@@ -15,7 +15,7 @@
 .season-fixture-date span { margin-top: 7px; color: var(--muted); font-size: 12px; }
 .season-fixture-matchup { display: grid; gap: 10px; }
 .season-team { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 12px; }
-.season-team img, .season-team-placeholder { width: 34px; height: 34px; border-radius: 50%; object-fit: contain; background: #eef1f5; }
+.season-team img, .season-team-placeholder { width: 34px; height: 34px; border-radius: 50%; object-fit: contain; object-position: center; background: #eef1f5; }
 .season-team-placeholder { display: grid; place-items: center; color: var(--muted); font: 700 13px/1 var(--display); }
 .season-team strong { font: 700 20px/1 var(--display); text-transform: uppercase; }
 .season-team span { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }

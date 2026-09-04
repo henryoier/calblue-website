@@ -175,7 +175,7 @@ h2 { font: 900 clamp(46px, 6vw, 78px)/.88 var(--display); letter-spacing: -.03em
 .match-meta small { color: var(--muted); }
 .matchup { display: flex; align-items: center; justify-content: center; gap: clamp(24px, 5vw, 56px); }
 .club-side { display: flex; align-items: center; gap: 14px; font: 900 21px/1 var(--display); text-transform: uppercase; }
-.club-side img { width: 78px; height: 78px; border-radius: 50%; object-fit: cover; border: 2px solid var(--line-strong); }
+.club-side img { width: 78px; height: 78px; padding: 4px; background: #fff; border-radius: 50%; object-fit: contain; object-position: center; border: 2px solid var(--line-strong); }
 .crest-placeholder { display: grid; place-items: center; width: 78px; height: 78px; background: #edf0f4; border-radius: 50%; border: 1px solid var(--line); color: #9ba4b2; font: 700 25px/1 var(--display); }
 .opponent { color: #7d8795; }
 .versus { display: flex; flex-direction: column; align-items: center; gap: 7px; }

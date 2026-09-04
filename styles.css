@@ -150,7 +150,7 @@ h2 { font-size: clamp(52px, 6.8vw, 88px); line-height: .9; letter-spacing: -.025
 .match-meta small { color: var(--muted); }
 .matchup { display: flex; align-items: center; justify-content: center; gap: clamp(25px, 5vw, 65px); }
 .club-side { display: flex; align-items: center; gap: 14px; font: 700 21px/1 var(--display); text-transform: uppercase; }
-.club-side img { border-radius: 50%; object-fit: cover; }
+.club-side img { padding: 4px; background: white; border-radius: 50%; object-fit: contain; object-position: center; }
 .club-side .team-role { display: none; }
 .crest-placeholder { display: grid; place-items: center; width: 68px; height: 68px; color: #9ba4b2; background: #edf0f4; border-radius: 50%; font: 700 25px/1 var(--display); }
 .opponent { color: #7d8795; }
@@ -176,7 +176,7 @@ h2 { font-size: clamp(52px, 6.8vw, 88px); line-height: .9; letter-spacing: -.025
 .upcoming-fixtures li a:hover strong { text-decoration: underline; }
 .fixture-row-link { display: grid; grid-template-columns: 40px 1fr; align-items: center; gap: 14px; }
 .upcoming-fixtures .fixture-row-crest { display: grid; place-items: center; width: 40px; height: 40px; margin: 0; overflow: hidden; color: var(--navy); background: white; border-radius: 50%; font: 800 16px/1 var(--display); }
-.fixture-row-crest img { width: 100%; height: 100%; object-fit: contain; }
+.fixture-row-crest img { width: 100%; height: 100%; padding: 3px; object-fit: contain; object-position: center; }
 .upcoming-fixtures strong { font: 700 18px/1.1 var(--display); text-transform: uppercase; }
 .upcoming-fixtures li span { margin-top: 5px; color: rgba(255,255,255,.6); font-size: 11px; }
 .schedule-source { display: flex; flex-wrap: wrap; gap: 5px; margin: 18px 0 0; color: var(--muted); font-size: 11px; }
