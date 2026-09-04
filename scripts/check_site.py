@@ -91,6 +91,22 @@ def main() -> int:
         errors.append(f"data/swpl.json: {error}")
 
     try:
+        swpl_preview = json.loads((ROOT / "data" / "swpl-overrides.json").read_text(encoding="utf-8"))
+        preview_fixtures = swpl_preview.get("fixtures", [])
+        cup_dates = [fixture for fixture in preview_fixtures if fixture.get("eventOnly")]
+        if len(preview_fixtures) != 12 or len(cup_dates) != 3:
+            errors.append("data/swpl-overrides.json: expected 9 league fixtures and 3 cup dates")
+        for fixture in preview_fixtures:
+            if fixture.get("eventOnly"):
+                continue
+            for side in ("home", "away"):
+                logo = fixture.get(side, {}).get("logo", "")
+                if not logo.startswith("https://nisa.sportzstudio.com/team_images/"):
+                    errors.append(f"data/swpl-overrides.json: {side} team is missing its official crest")
+    except (OSError, json.JSONDecodeError) as error:
+        errors.append(f"data/swpl-overrides.json: {error}")
+
+    try:
         nccsf = json.loads((ROOT / "data" / "nccsf.json").read_text(encoding="utf-8"))
         if nccsf.get("schemaVersion") != 1:
             errors.append("data/nccsf.json: unsupported schemaVersion")

@@ -75,10 +75,15 @@
     const meta = document.createElement('span');
     const link = document.createElement('a');
 
-    item.className = `season-fixture${index === 0 ? ' is-next' : ''}`;
+    const isCup = fixture.competition.toLowerCase().includes('abronzino');
+    item.className = `season-fixture${index === 0 ? ' is-next' : ''}${isCup ? ' is-cup' : ''}`;
     date.className = 'season-fixture-date';
     date.dateTime = fixture.startsAt || fixture.date;
-    marker.textContent = index === 0 ? 'Next match' : (fixture.round || 'Fixture');
+    marker.textContent = isCup
+      ? `Cup date · ${fixture.round || 'Details TBA'}`
+      : fixture.provisional
+        ? 'Preview · League fixture'
+        : index === 0 ? 'Next match' : (fixture.round || 'League fixture');
     dateText.textContent = formatDate(fixture, { month: 'short', day: 'numeric' });
     timeText.textContent = formatDate(fixture, { weekday: 'long' });
     date.append(marker, dateText, timeText);
@@ -125,8 +130,11 @@
         empty.textContent = 'No upcoming fixtures are currently published.';
         list.append(empty);
       }
-      count.textContent = `${fixtures.length} upcoming match${fixtures.length === 1 ? '' : 'es'}`;
-      status.textContent = 'Synced from the official schedule';
+      count.textContent = `${fixtures.length} upcoming date${fixtures.length === 1 ? '' : 's'}`;
+      const previewCount = Number(data.diagnostics?.editorialOverrides || 0);
+      status.textContent = previewCount
+        ? `${previewCount} preview date${previewCount === 1 ? '' : 's'} · official updates take priority`
+        : 'Synced from the official schedule';
       if (data.checkedAt) {
         checked.textContent = `Last checked ${new Intl.DateTimeFormat('en-US', {
           timeZone: 'America/Los_Angeles', month: 'short', day: 'numeric',
