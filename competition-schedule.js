@@ -40,8 +40,6 @@
 
   const createTeam = (team, role) => {
     const row = document.createElement('div');
-    const image = document.createElement('img');
-    const placeholder = document.createElement('span');
     const name = document.createElement('strong');
     const label = document.createElement('span');
     const logo = isCalBlue(team.name) ? 'assets/calblue-logo-web.jpg' : safeHttpsUrl(team.logo);
@@ -49,17 +47,27 @@
     row.className = `season-team${isCalBlue(team.name) ? ' is-calblue' : ''}`;
     name.textContent = team.name;
     label.textContent = role;
-    placeholder.className = 'season-team-placeholder';
-    placeholder.textContent = team.name.slice(0, 1).toUpperCase() || '?';
-    placeholder.hidden = Boolean(logo);
-    image.alt = `${team.name} crest`;
-    image.hidden = !logo;
-    if (logo) image.src = logo;
-    image.addEventListener('error', () => {
-      image.hidden = true;
-      placeholder.hidden = false;
-    });
-    row.append(image, placeholder, name, label);
+    if (logo) {
+      const image = document.createElement('img');
+      image.src = logo;
+      image.alt = `${team.name} crest`;
+      image.loading = 'lazy';
+      image.addEventListener('error', () => {
+        const fallback = document.createElement('span');
+        fallback.className = 'season-team-placeholder';
+        fallback.textContent = '?';
+        image.replaceWith(fallback);
+      });
+      row.append(image);
+    } else {
+      const placeholder = document.createElement('span');
+      placeholder.className = 'season-team-placeholder';
+      placeholder.textContent = /tba|unknown|undecided/i.test(team.name)
+        ? '?'
+        : team.name.slice(0, 1).toUpperCase() || '?';
+      row.append(placeholder);
+    }
+    row.append(name, label);
     return row;
   };
 

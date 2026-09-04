@@ -130,6 +130,8 @@ def main() -> int:
         errors.append("index.html: missing SWPL schedule integration")
     if "data-nccsf-source" not in homepage:
         errors.append("index.html: missing NCCSF schedule integration")
+    if "data-fixture-toggle" not in homepage or "fixture-row-crest" not in (ROOT / "swpl-schedule.js").read_text(encoding="utf-8"):
+        errors.append("index.html: missing expandable fixture list with opponent crests")
     for page_name, feed in (
         ("competition-swpl.html", "data/swpl.json"),
         ("competition-nccsf.html", "data/nccsf.json"),
