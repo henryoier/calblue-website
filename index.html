@@ -22,10 +22,10 @@
     <link rel="preload" as="image" href="assets/hero/match-penalty.jpg" fetchpriority="high" />
     <link rel="stylesheet" href="styles.css?v=20260826c" data-site-stylesheet />
     <link rel="stylesheet" href="designs/switcher.css?v=20260826a" />
-    <script src="designs/registry.js?v=20260903b"></script>
+    <script src="designs/registry.js?v=20260904a"></script>
     <script src="designs/switcher.js?v=20260826a"></script>
     <script defer src="home-gallery.js?v=20260826e"></script>
-    <script defer src="swpl-schedule.js?v=20260903b"></script>
+    <script defer src="swpl-schedule.js?v=20260904a"></script>
     <script defer src="script.js?v=20260903a"></script>
     <script type="application/ld+json">
       {
@@ -247,7 +247,11 @@
           </div>
 
           <div class="upcoming-fixtures" data-upcoming-fixtures hidden>
-            <div><span>On deck</span><h3>Next five matches</h3></div>
+            <div>
+              <span>On deck</span>
+              <h3>Upcoming matches</h3>
+              <button class="fixture-list-toggle" type="button" data-fixture-toggle aria-expanded="false" hidden>View all</button>
+            </div>
             <ol data-fixture-list></ol>
           </div>
 

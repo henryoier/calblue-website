@@ -14,8 +14,11 @@
   const detailsLink = schedule.querySelector('[data-match-link]');
   const fixturePanel = schedule.querySelector('[data-upcoming-fixtures]');
   const fixtureList = schedule.querySelector('[data-fixture-list]');
+  const fixtureToggle = schedule.querySelector('[data-fixture-toggle]');
   const checkedElement = schedule.querySelector('[data-swpl-checked]');
   const matchdayPoster = document.querySelector('[data-matchday-poster]');
+  let upcomingExpanded = false;
+  let upcomingSchedule = [];
 
   const pacificDateParts = (value = new Date()) => {
     const parts = new Intl.DateTimeFormat('en-US', {
@@ -94,10 +97,38 @@
       placeholder.hidden = true;
     } else {
       image.onerror = null;
+      image.removeAttribute('src');
       image.hidden = true;
       placeholder.hidden = false;
-      placeholder.textContent = team.name.slice(0, 1).toUpperCase() || '?';
+      placeholder.textContent = /tba|unknown|undecided/i.test(team.name)
+        ? '?'
+        : team.name.slice(0, 1).toUpperCase() || '?';
     }
+  };
+
+  const opponentFor = (fixture) => (
+    isCalBlue(fixture.home.name) ? fixture.away : fixture.home
+  );
+
+  const createFixtureCrest = (team) => {
+    const crest = document.createElement('span');
+    const logo = safeHttpsUrl(team.logo);
+    crest.className = 'fixture-row-crest';
+    if (!logo) {
+      crest.textContent = /tba|unknown|undecided/i.test(team.name)
+        ? '?'
+        : team.name.slice(0, 1).toUpperCase() || '?';
+      return crest;
+    }
+    const image = document.createElement('img');
+    image.src = logo;
+    image.alt = `${team.name} crest`;
+    image.loading = 'lazy';
+    image.addEventListener('error', () => {
+      crest.replaceChildren(document.createTextNode('?'));
+    });
+    crest.append(image);
+    return crest;
   };
 
   const fixtureSummary = (fixture) => {
@@ -121,11 +152,15 @@
   };
 
   const renderUpcoming = (fixtures) => {
+    upcomingSchedule = fixtures;
     fixtureList.replaceChildren();
-    fixtures.slice(1, 5).forEach((fixture) => {
+    const remaining = fixtures.slice(1);
+    const visible = upcomingExpanded ? remaining : remaining.slice(0, 4);
+    visible.forEach((fixture) => {
       const item = document.createElement('li');
       const date = document.createElement('time');
       const details = document.createElement('a');
+      const copy = document.createElement('div');
       const opponent = document.createElement('strong');
       const meta = document.createElement('span');
 
@@ -135,15 +170,29 @@
       date.textContent = formatDate(fixture, { month: 'short', day: 'numeric' });
       opponent.textContent = fixtureSummary(fixture);
       const destination = competitionDestination(fixture);
+      details.className = 'fixture-row-link';
       details.href = destination.href;
       details.setAttribute('aria-label', `${fixtureSummary(fixture)} — view ${destination.label} schedule`);
       meta.textContent = `${fixture.competition} · ${fixture.timeLabel} · ${fixture.venue.name} · View schedule →`;
-      details.append(opponent, meta);
+      copy.append(opponent, meta);
+      details.append(createFixtureCrest(opponentFor(fixture)), copy);
       item.append(date, details);
       fixtureList.append(item);
     });
+    if (fixtureToggle) {
+      fixtureToggle.hidden = remaining.length <= 4;
+      fixtureToggle.textContent = upcomingExpanded
+        ? 'Show next five'
+        : `View all ${fixtures.length} dates`;
+      fixtureToggle.setAttribute('aria-expanded', String(upcomingExpanded));
+    }
     fixturePanel.hidden = fixtures.length < 2;
   };
+
+  fixtureToggle?.addEventListener('click', () => {
+    upcomingExpanded = !upcomingExpanded;
+    renderUpcoming(upcomingSchedule);
+  });
 
   const renderNextMatch = (fixture) => {
     const days = dayDifference(fixture.date);

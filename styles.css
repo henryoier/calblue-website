@@ -163,6 +163,8 @@ h2 { font-size: clamp(52px, 6.8vw, 88px); line-height: .9; letter-spacing: -.025
 .upcoming-fixtures { display: grid; grid-template-columns: .45fr 1.55fr; gap: 40px; margin-top: 24px; padding: 30px 34px; color: white; background: var(--navy); }
 .upcoming-fixtures > div > span { color: var(--cyan); font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
 .upcoming-fixtures h3 { margin-top: 8px; font-size: 28px; }
+.fixture-list-toggle { margin-top: 18px; padding: 8px 0 5px; color: var(--cyan); background: transparent; border: 0; border-bottom: 1px solid currentColor; font: 700 11px/1 var(--body); cursor: pointer; }
+.fixture-list-toggle:hover { color: white; }
 .upcoming-fixtures ol { margin: 0; padding: 0; list-style: none; }
 .upcoming-fixtures li { display: grid; grid-template-columns: 74px 1fr; gap: 18px; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,.14); }
 .upcoming-fixtures li:first-child { padding-top: 0; }
@@ -172,6 +174,9 @@ h2 { font-size: clamp(52px, 6.8vw, 88px); line-height: .9; letter-spacing: -.025
 .upcoming-fixtures strong, .upcoming-fixtures li span { display: block; }
 .upcoming-fixtures li a { color: inherit; }
 .upcoming-fixtures li a:hover strong { text-decoration: underline; }
+.fixture-row-link { display: grid; grid-template-columns: 40px 1fr; align-items: center; gap: 14px; }
+.upcoming-fixtures .fixture-row-crest { display: grid; place-items: center; width: 40px; height: 40px; margin: 0; overflow: hidden; color: var(--navy); background: white; border-radius: 50%; font: 800 16px/1 var(--display); }
+.fixture-row-crest img { width: 100%; height: 100%; object-fit: contain; }
 .upcoming-fixtures strong { font: 700 18px/1.1 var(--display); text-transform: uppercase; }
 .upcoming-fixtures li span { margin-top: 5px; color: rgba(255,255,255,.6); font-size: 11px; }
 .schedule-source { display: flex; flex-wrap: wrap; gap: 5px; margin: 18px 0 0; color: var(--muted); font-size: 11px; }

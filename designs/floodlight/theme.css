@@ -447,6 +447,25 @@ h1 em { color: transparent; -webkit-text-stroke: 1.5px rgba(255, 255, 255, .8); 
 .competition-links a { padding: 8px 15px; color: var(--midnight); background: #fff; border-bottom: 3px solid var(--blue); font-weight: 700; transition: color .2s ease, background .2s ease; }
 .competition-links a:hover { color: #fff; background: var(--blue); }
 
+.upcoming-fixtures { display: grid; grid-template-columns: .42fr 1.58fr; gap: 38px; margin-top: 26px; padding: 34px 40px; color: #fff; background: var(--midnight); border-left: 5px solid var(--blue); }
+.upcoming-fixtures > div > span { color: var(--gold); font-family: var(--label); font-size: 13px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+.upcoming-fixtures h3 { margin-top: 8px; font-size: 34px; }
+.fixture-list-toggle { margin-top: 20px; padding: 8px 0 5px; color: var(--gold); background: transparent; border: 0; border-bottom: 2px solid currentColor; font-family: var(--label); font-size: 14px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
+.fixture-list-toggle:hover { color: #fff; }
+.upcoming-fixtures ol { margin: 0; padding: 0; list-style: none; }
+.upcoming-fixtures li { display: grid; grid-template-columns: 76px 1fr; gap: 18px; padding: 16px 0; border-bottom: 1px solid var(--line-light); }
+.upcoming-fixtures li:first-child { padding-top: 0; }
+.upcoming-fixtures li:last-child { padding-bottom: 0; border-bottom: 0; }
+.upcoming-fixtures li.is-cup { padding-left: 12px; border-left: 3px solid var(--gold); }
+.upcoming-fixtures time { color: var(--gold); font-family: var(--label); font-size: 15px; font-weight: 800; text-transform: uppercase; }
+.fixture-row-link { display: grid; grid-template-columns: 42px 1fr; align-items: center; gap: 14px; color: inherit; }
+.fixture-row-link:hover strong { text-decoration: underline; }
+.upcoming-fixtures .fixture-row-crest { display: grid; place-items: center; width: 42px; height: 42px; margin: 0; overflow: hidden; color: var(--midnight); background: #fff; border-radius: 50%; font: italic 800 18px/1 var(--display); }
+.fixture-row-crest img { width: 100%; height: 100%; object-fit: contain; }
+.fixture-row-link strong, .fixture-row-link span { display: block; }
+.fixture-row-link strong { font: italic 800 22px/1.05 var(--display); text-transform: uppercase; }
+.fixture-row-link span { margin-top: 6px; color: rgba(255,255,255,.62); font-size: 12px; }
+
 /* --------------------------------------------------------------- values */
 
 .values {
@@ -741,6 +760,7 @@ footer > .shell { position: relative; }
   .team-cards { grid-template-columns: 1fr; }
   .league-banner { grid-template-columns: 1fr; gap: 12px; padding: 30px 34px; }
   .league-action { white-space: normal; }
+  .upcoming-fixtures { grid-template-columns: 1fr; gap: 26px; }
   .footer-top { flex-wrap: wrap; gap: 40px; }
   .footer-links { grid-template-columns: repeat(3, 1fr); width: 100%; }
   .gallery-grid { grid-template-columns: repeat(2, 1fr); }
