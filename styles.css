@@ -5,6 +5,7 @@
   --navy-soft: #0c2857;
   --blue: #1268e8;
   --cyan: #ffc51b;
+  --yellow: #ffc51b;
   --cream: #f3f0e9;
   --white: #fff;
   --ink: #0b1730;
@@ -158,6 +159,7 @@ h2 { font-size: clamp(52px, 6.8vw, 88px); line-height: .9; letter-spacing: -.025
 .club-side img { padding: 4px; background: white; border-radius: 50%; object-fit: contain; object-position: center; }
 .club-side .team-role { display: none; }
 .crest-placeholder { display: grid; place-items: center; width: 68px; height: 68px; color: #9ba4b2; background: #edf0f4; border-radius: 50%; font: 700 25px/1 var(--display); }
+.crest-placeholder[hidden], [data-team-crest][hidden] { display: none; }
 .opponent { color: #7d8795; }
 .versus { display: flex; flex-direction: column; align-items: center; gap: 7px; }
 .versus span { color: var(--muted); font: 700 14px/1 var(--display); }
@@ -212,7 +214,8 @@ h2 { font-size: clamp(52px, 6.8vw, 88px); line-height: .9; letter-spacing: -.025
 .poster-details dd { margin: 0; font-size: 13px; font-weight: 700; line-height: 1.4; }
 .matchday-poster-copy > p:not(.section-tag):not(.poster-matchup) { max-width: 500px; color: rgba(255,255,255,.67); line-height: 1.7; }
 .poster-actions { display: flex; align-items: center; gap: 25px; margin-top: 30px; }
-.poster-actions .button { color: var(--navy); background: var(--yellow); border-color: var(--yellow); }
+.matchday-poster .poster-actions .button { color: #071b3f; background: #ffc51b; border: 2px solid #fff; box-shadow: 0 8px 28px rgba(0,0,0,.32); }
+.matchday-poster .poster-actions .button:hover { color: #071b3f; background: #fff; border-color: #ffc51b; }
 .poster-actions .text-link { color: white; }
 
 .values { color: white; background-image: linear-gradient(105deg, rgba(5,25,58,.98) 12%, rgba(7,27,63,.92) 58%, rgba(7,27,63,.78)), url('https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/tiger/full/025.jpg'); background-position: center, center 46%; background-size: cover; }
