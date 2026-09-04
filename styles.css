@@ -172,8 +172,8 @@ h2 { font-size: clamp(52px, 6.8vw, 88px); line-height: .9; letter-spacing: -.025
 .fixture-list-toggle:hover { color: white; }
 .upcoming-fixtures ol { margin: 0; padding: 0; list-style: none; }
 .upcoming-fixtures li { display: grid; grid-template-columns: 74px 1fr; gap: 18px; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,.14); }
-.upcoming-fixtures li:first-child { padding-top: 0; }
-.upcoming-fixtures li:last-child { padding-bottom: 0; border-bottom: 0; }
+.upcoming-fixtures li:first-child { padding-top: 15px; }
+.upcoming-fixtures li:last-child { padding-bottom: 15px; border-bottom: 0; }
 .upcoming-fixtures li.is-swpl, .upcoming-fixtures li.is-nccsf, .upcoming-fixtures li.is-cup { padding-left: 12px; }
 .upcoming-fixtures li.is-swpl { background: linear-gradient(90deg, rgba(18,104,232,.16), transparent 62%); border-left: 3px solid #62a2ff; }
 .upcoming-fixtures li.is-nccsf { background: linear-gradient(90deg, rgba(44,195,174,.15), transparent 62%); border-left: 3px solid #4bd0bc; }
