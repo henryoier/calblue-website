@@ -237,7 +237,7 @@ footer { padding: 56px 0 20px; color: #fff; background: #04091a; border-top: 3px
 .photo-subpage-hero { background-position: center; background-size: cover; }
 .photo-subpage-hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(3,15,37,.97), rgba(3,15,37,.78) 58%, rgba(3,15,37,.48)); }
 .photo-subpage-hero > .shell { position: relative; z-index: 1; }
-.gallery-hero { background-image: url('https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/tiger/full/127.jpg'); background-position: center 50%; }
+.gallery-hero { background-image: url('https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/kylin-dallas-third/full/005.jpg'); background-position: center 43%; }
 
 /* Roster */
 .roster-section { background: var(--cream); }

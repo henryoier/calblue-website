@@ -21,6 +21,10 @@ ALBUMS = {
     "upsl-athletico": 34,
     "upsl-bay-area": 32,
     "upsl-san-ramon": 51,
+    "kylin-aurora": 44,
+    "kylin-dallas-group": 41,
+    "kylin-kirin": 28,
+    "kylin-dallas-third": 14,
 }
 DESIGN_PAGES = tuple(page for page in PAGES if page.name != "design-preview.html")
 THEME_ASSETS = {
