@@ -33,6 +33,8 @@ Repeat with `sfu`, `hehe`, and `nbh`, using expected counts of 24, 66, and 58. T
 
 The 2026 UPSL California Cup albums use `upsl-athletico`, `upsl-bay-area`, and `upsl-san-ramon`, with expected counts of 34, 32, and 51 unique photos. The San Ramon Drive folder contains duplicate `(1)` copies, so remove exact duplicates from the build input before generating that album. Generated files are placed under `.media-build/gallery/<slug>/{thumb,full}/` and excluded from Git.
 
+The 2026 Kylin Cup albums use `kylin-aurora`, `kylin-dallas-group`, `kylin-kirin`, and `kylin-dallas-third`, with expected counts of 44, 41, 28, and 14 photos. The 30 source videos remain linked from Drive; only still photographs are processed for the web gallery.
+
 ## Configure R2 credentials locally
 
 Create an R2 API token limited to Object Read & Write access for the media bucket. Copy the provided example and fill it in locally; never commit or share this file:

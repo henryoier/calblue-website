@@ -32,9 +32,33 @@
   </url>
   <url>
     <loc>https://calbluefc.com/gallery.html</loc>
-    <lastmod>2026-08-26</lastmod>
+    <lastmod>2026-09-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://calbluefc.com/gallery-kylin-aurora.html</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://calbluefc.com/gallery-kylin-dallas-group.html</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://calbluefc.com/gallery-kylin-kirin.html</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://calbluefc.com/gallery-kylin-dallas-third.html</loc>
+    <lastmod>2026-09-08</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://calbluefc.com/gallery-upsl-athletico.html</loc>

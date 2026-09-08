@@ -94,7 +94,7 @@ roster.html              Public Kylin Cup roster
 competitions.html        League and tournament directory
 competition-swpl.html    Complete upcoming SWPL schedule
 competition-nccsf.html   Complete upcoming NCCSF Fall schedule
-gallery.html             2026 NCCSF Tournament photo gallery
+gallery.html             2026 match gallery across four competitions
 gallery-*.html           Individual match albums backed by Cloudflare R2
 styles.css                         Classic responsive visual system
 designs/codex-pro.css              Codex Stadium design layer
