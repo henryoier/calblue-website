@@ -4,6 +4,36 @@ const nav = document.querySelector('[data-nav]');
 const mobileNavigation = window.matchMedia('(max-width: 900px)');
 
 if (nav) {
+  const galleryLink = nav.querySelector('a[href$="gallery.html"]');
+  if (galleryLink) {
+    const wrapper = document.createElement('div');
+    const menu = document.createElement('div');
+    wrapper.className = 'nav-competitions nav-gallery';
+    menu.className = 'nav-competition-menu nav-gallery-menu';
+    menu.setAttribute('aria-label', 'Latest match galleries');
+    galleryLink.setAttribute('aria-haspopup', 'true');
+    galleryLink.parentNode.insertBefore(wrapper, galleryLink);
+    wrapper.append(galleryLink, menu);
+
+    [
+      ['gallery-kylin-dallas-third.html', 'Sep 6 · Kylin Cup', 'Dallas Dragon · Third place'],
+      ['gallery-kylin-kirin.html', 'Sep 6 · Kylin Cup', 'Los Angeles Kirin'],
+      ['gallery-kylin-dallas-group.html', 'Sep 5 · Kylin Cup', 'Dallas Dragon · Group stage'],
+      ['gallery-kylin-aurora.html', 'Sep 5 · Kylin Cup', 'New York Aurora'],
+      ['gallery-btg.html', 'Jun 28 · Beyond the Game', 'Real Santa Clara'],
+      ['gallery.html', 'Complete archive', 'View all galleries'],
+    ].forEach(([href, context, opponent]) => {
+      const link = document.createElement('a');
+      const contextLabel = document.createElement('span');
+      const opponentLabel = document.createElement('strong');
+      link.href = href;
+      contextLabel.textContent = context;
+      opponentLabel.textContent = opponent;
+      link.append(contextLabel, opponentLabel);
+      menu.append(link);
+    });
+  }
+
   const competitionsLink = nav.querySelector('a[href$="competitions.html"]');
   if (competitionsLink) {
     const wrapper = document.createElement('div');

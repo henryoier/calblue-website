@@ -185,6 +185,20 @@ def main() -> int:
         if configured_albums.get(album) != expected_count:
             errors.append(f"album.js: {album} should contain {expected_count} photos")
 
+    site_script = (ROOT / "script.js").read_text(encoding="utf-8")
+    latest_gallery_links = (
+        "gallery-kylin-dallas-third.html",
+        "gallery-kylin-kirin.html",
+        "gallery-kylin-dallas-group.html",
+        "gallery-kylin-aurora.html",
+        "gallery-btg.html",
+    )
+    if "Latest match galleries" not in site_script or "View all galleries" not in site_script:
+        errors.append("script.js: missing the latest-gallery navigation menu")
+    for gallery_link in latest_gallery_links:
+        if gallery_link not in site_script:
+            errors.append(f"script.js: latest-gallery navigation is missing {gallery_link}")
+
     if (ROOT / "assets" / "gallery").exists():
         errors.append("assets/gallery: local gallery copies should not be committed")
 

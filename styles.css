@@ -365,7 +365,7 @@ footer { padding: 72px 0 24px; color: white; background: #04112a; }
 @media (max-width: 900px) {
   .section { padding: 85px 0; }
   .menu-toggle { display: block; cursor: pointer; }
-  .site-nav { position: fixed; inset: 70px 0 auto; display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 22px 24px 28px; color: white; background: var(--navy); transform: translateY(-130%); transition: transform .25s; }
+  .site-nav { position: fixed; inset: 70px 0 auto; display: flex; flex-direction: column; align-items: stretch; gap: 0; max-height: calc(100svh - 70px); overflow-y: auto; padding: 22px 24px 28px; color: white; background: var(--navy); transform: translateY(-130%); transition: transform .25s; }
   .site-nav.open { transform: translateY(0); }
   .site-nav > a:not(.button) { padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,.12); }
   .nav-competitions { display: block; }
