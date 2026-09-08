@@ -759,6 +759,8 @@ footer > .shell { position: relative; }
     flex-direction: column;
     align-items: stretch;
     gap: 0;
+    max-height: calc(100svh - 78px);
+    overflow-y: auto;
     padding: 24px 24px 30px;
     background: var(--midnight);
     border-bottom: 3px solid var(--gold);

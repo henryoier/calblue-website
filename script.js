@@ -4,6 +4,39 @@ const nav = document.querySelector('[data-nav]');
 const mobileNavigation = window.matchMedia('(max-width: 900px)');
 
 if (nav) {
+  const galleryLink = nav.querySelector('a[href$="gallery.html"]');
+  if (galleryLink) {
+    const wrapper = document.createElement('div');
+    const menu = document.createElement('div');
+    wrapper.className = 'nav-competitions nav-gallery';
+    menu.className = 'nav-competition-menu nav-gallery-menu';
+    menu.setAttribute('aria-label', 'Latest gallery competitions');
+    galleryLink.setAttribute('aria-haspopup', 'true');
+    galleryLink.parentNode.insertBefore(wrapper, galleryLink);
+    wrapper.append(galleryLink, menu);
+
+    const galleryCategories = [
+      ['gallery.html#kylin-cup-2026', 'Tournament · 2026', 'Kylin Cup'],
+      ['gallery.html#btg-2026', 'League · 2026', 'Beyond the Game'],
+      ['gallery.html#nccsf-2026', 'Tournament · 2026', 'NCCSF Tournament'],
+      ['gallery.html#upsl-california-cup-2026', 'Tournament · 2026', 'UPSL California Cup'],
+    ];
+
+    [
+      ...galleryCategories.slice(0, 5),
+      ['gallery.html', 'Complete archive', 'View all galleries'],
+    ].forEach(([href, context, competition]) => {
+      const link = document.createElement('a');
+      const contextLabel = document.createElement('span');
+      const competitionLabel = document.createElement('strong');
+      link.href = href;
+      contextLabel.textContent = context;
+      competitionLabel.textContent = competition;
+      link.append(contextLabel, competitionLabel);
+      menu.append(link);
+    });
+  }
+
   const competitionsLink = nav.querySelector('a[href$="competitions.html"]');
   if (competitionsLink) {
     const wrapper = document.createElement('div');
