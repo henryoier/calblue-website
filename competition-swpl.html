@@ -19,6 +19,8 @@
     <script src="designs/registry.js?v=20260904f"></script>
     <script src="designs/switcher.js?v=20260826a"></script>
     <script defer src="competition-schedule.js?v=20260904b"></script>
+    <link rel="stylesheet" href="rosters.css?v=20260909a" />
+    <script defer src="rosters.js?v=20260909a"></script>
     <script defer src="script.js?v=20260908b"></script>
   </head>
   <body>
@@ -28,7 +30,7 @@
         <a class="brand" href="index.html" aria-label="CalBlue home"><img src="assets/calblue-logo-web.jpg" alt="" width="52" height="52" /><span>CAL<span>BLUE</span></span></a>
         <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="site-nav" data-menu-toggle><span></span><span></span><span></span></button>
         <nav class="site-nav" id="site-nav" data-nav aria-label="Main navigation">
-          <a href="index.html#club">Club</a><a href="index.html#teams">Teams</a><a href="roster.html">Roster</a><a href="gallery.html">Gallery</a><a href="competitions.html" aria-current="page">Competitions</a><a class="button button-small" href="index.html#join">Join CalBlue</a>
+          <a href="index.html#club">Club</a><a href="index.html#teams">Teams</a><a href="players.html">Players</a><a href="gallery.html">Gallery</a><a href="competitions.html" aria-current="page">Competitions</a><a class="button button-small" href="index.html#join">Join CalBlue</a>
         </nav>
       </div>
     </header>
@@ -52,12 +54,19 @@
           <div class="competition-page-links"><div><a href="competition-nccsf.html">2026 NCCSF Fall schedule →</a><a href="index.html#schedule">Homepage match center →</a></div><a href="https://pacific.swplsoccer.com/teams/calblue-fc" target="_blank" rel="noopener">Official SWPL profile ↗</a></div>
         </div>
       </section>
+      <section class="section roster-section" id="roster" data-competition-roster="swpl">
+        <div class="shell">
+          <div class="roster-heading"><div><p class="section-tag">Competition roster</p><h2>Our squad.</h2></div><p data-roster-status>Loading the official competition roster…</p></div>
+          <div class="roster-grid" data-roster-grid></div>
+          <div class="competition-page-links"><a href="players.html">All CalBlue players →</a><a href="https://pacific.swplsoccer.com/teams/calblue-fc" target="_blank" rel="noopener">Official roster ↗</a></div>
+        </div>
+      </section>
     </main>
 
     <footer>
       <div class="shell footer-top">
         <a class="brand brand-footer" href="index.html" aria-label="CalBlue home"><img src="assets/calblue-logo-web.jpg" alt="" width="62" height="62" /><span>CAL<span>BLUE</span></span></a>
-        <div class="footer-links"><div><span>Navigate</span><a href="index.html#club">Club</a><a href="index.html#teams">Teams</a><a href="roster.html">Roster</a><a href="gallery.html">Gallery</a></div><div><span>Schedules</span><a href="competition-swpl.html">SWPL Pacific</a><a href="competition-nccsf.html">NCCSF Fall</a></div><div><span>Connect</span><a href="mailto:calblue1996@gmail.com">Email</a><a href="index.html#join">Join the team</a></div></div>
+        <div class="footer-links"><div><span>Navigate</span><a href="index.html#club">Club</a><a href="index.html#teams">Teams</a><a href="players.html">Players</a><a href="gallery.html">Gallery</a></div><div><span>Schedules</span><a href="competition-swpl.html">SWPL Pacific</a><a href="competition-nccsf.html">NCCSF Fall</a></div><div><span>Connect</span><a href="mailto:calblue1996@gmail.com">Email</a><a href="index.html#join">Join the team</a></div></div>
       </div>
       <div class="shell footer-bottom"><p>© <span data-year></span> CalBlue Soccer Club</p><p>Made for the Bay Area football community.</p></div>
     </footer>

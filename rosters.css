@@ -1,0 +1,3 @@
+.player-card > p { margin: 0; padding: 0 18px 18px; color: inherit; font-size: 14px; }
+[data-competition-roster] { scroll-margin-top: 110px; }
+[data-competition-roster] .roster-grid { margin-bottom: 36px; }

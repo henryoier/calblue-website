@@ -49,6 +49,8 @@ jobs:
           python3 scripts/sync_nccsf.py \
             --source-file "$nccsf_sync_dir/games.json" \
             --teams-file "$nccsf_sync_dir/teams.html"
+      - name: Sync official competition rosters
+        run: python3 scripts/sync_rosters.py
       - name: Validate site
         run: python3 scripts/check_site.py
       - name: Configure Pages

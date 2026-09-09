@@ -1,0 +1,379 @@
+{
+  "updatedAt": "2026-09-09T22:07:57.078813+00:00",
+  "competitions": {
+    "swpl": {
+      "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
+      "players": [
+        {
+          "name": "Suhau Kuo",
+          "number": "",
+          "position": "Forward",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16138/securefiles/1788366370_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/suhau-kuo"
+        },
+        {
+          "name": "Sheng Qin",
+          "number": "31",
+          "position": "Defender",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16141/securefiles/1788406918_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/sheng-qin"
+        },
+        {
+          "name": "Yuran Wang",
+          "number": "",
+          "position": "Midfielder",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16140/securefiles/1788467135_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/yuran-wang"
+        },
+        {
+          "name": "Rui Zhang",
+          "number": "29",
+          "position": "Defender",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16170/securefiles/1788545078_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/rui-zhang"
+        },
+        {
+          "name": "Zizhou Liu",
+          "number": "28",
+          "position": "Defender",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16171/securefiles/1788547056_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/zizhou-liu"
+        },
+        {
+          "name": "Matthew Li",
+          "number": "",
+          "position": "Midfielder",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16173/securefiles/1788567534_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/matthew-li"
+        },
+        {
+          "name": "Chengzhe Feng",
+          "number": "",
+          "position": "Defender",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16189/securefiles/1788743112_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/shawn-feng"
+        },
+        {
+          "name": "Wilson Duan",
+          "number": "",
+          "position": "Midfielder",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16194/securefiles/1788760219_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/wilson-duan"
+        },
+        {
+          "name": "Huanghao Zhang",
+          "number": "",
+          "position": "Defender",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16204/securefiles/1788828113_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/huanghao-zhang"
+        },
+        {
+          "name": "Yuan Feng",
+          "number": "",
+          "position": "Forward",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16206/securefiles/1788832700_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/yuan-feng"
+        },
+        {
+          "name": "Justin Wang",
+          "number": "19",
+          "position": "Defender",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16214/securefiles/1788839747_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/justin-wang"
+        },
+        {
+          "name": "Xinghang Sun",
+          "number": "18",
+          "position": "Defender",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16217/securefiles/1788845503_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/xinghang-sun"
+        },
+        {
+          "name": "Elshad Kadeer",
+          "number": "",
+          "position": "Defender",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16223/securefiles/1788920142_hs.png",
+          "profile": "https://pacific.swplsoccer.com/roster/elshad-kadeer"
+        },
+        {
+          "name": "Yongjie Fu",
+          "number": "",
+          "position": "Defender",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16229/securefiles/1788919977_hs.png",
+          "profile": "https://pacific.swplsoccer.com/roster/yongjie-fu"
+        },
+        {
+          "name": "Elzat Kadeer",
+          "number": "6",
+          "position": "Midfielder",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16215/securefiles/1788843140_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/elzat-kadeer"
+        },
+        {
+          "name": "Qibang Zhu",
+          "number": "16",
+          "position": "Defender",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16246/securefiles/1788988004_hs.png",
+          "profile": "https://pacific.swplsoccer.com/roster/qibang-zhu"
+        },
+        {
+          "name": "Haorui Zhu",
+          "number": "",
+          "position": "Forward",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16247/securefiles/1788935661_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/haorui-zhu"
+        },
+        {
+          "name": "Siyu Chen",
+          "number": "",
+          "position": "Midfielder",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/5614/securefiles/1788988073_hs.png",
+          "profile": "https://pacific.swplsoccer.com/roster/siyu-chen"
+        },
+        {
+          "name": "Kevin Gao",
+          "number": "",
+          "position": "Midfielder",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16252/securefiles/1788988232_hs.png",
+          "profile": "https://pacific.swplsoccer.com/roster/kevin-gao"
+        }
+      ]
+    },
+    "nccsf": {
+      "sourceUrl": "https://nccsf.org/en/league/team?a=tp&tid=621&tab=player",
+      "players": [
+        {
+          "name": "Nutao Jiang",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/11/thumb-1122.jpg",
+          "profile": ""
+        },
+        {
+          "name": "Suhau Kuo",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/11/thumb-1137.jpg",
+          "profile": ""
+        },
+        {
+          "name": "Yu Li",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/11/thumb-1145.jpg",
+          "profile": ""
+        },
+        {
+          "name": "Sheng Qin",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/18/thumb-1838.jpg",
+          "profile": ""
+        },
+        {
+          "name": "Yang He",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/20/thumb-2063.jpg",
+          "profile": ""
+        },
+        {
+          "name": "Yulin Guo",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/20/thumb-2072.jpg",
+          "profile": ""
+        },
+        {
+          "name": "Elshad Kadeer",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/23/thumb-2397.jpg",
+          "profile": ""
+        },
+        {
+          "name": "Chenge Yang",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/25/thumb-2544.jpg",
+          "profile": ""
+        },
+        {
+          "name": "Justin Wang",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/26/thumb-2692.jpg",
+          "profile": ""
+        },
+        {
+          "name": "Elzat Kadeer",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/27/thumb-2763.jpg",
+          "profile": ""
+        },
+        {
+          "name": "Dakai Kang",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/211/thumb-21105.jpeg",
+          "profile": ""
+        },
+        {
+          "name": "Yuan Feng",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/211/thumb-21125.jpg",
+          "profile": ""
+        },
+        {
+          "name": "Yuanpu Liang",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/211/thumb-21181.jpeg",
+          "profile": ""
+        },
+        {
+          "name": "Zizhou Liu",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/213/thumb-21320.jpg",
+          "profile": ""
+        },
+        {
+          "name": "Kevin Gao",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/215/thumb-21576.jpeg",
+          "profile": ""
+        },
+        {
+          "name": "Rui Zhang",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/215/thumb-21583.jpeg",
+          "profile": ""
+        },
+        {
+          "name": "Lan An",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/216/thumb-21641.jpeg",
+          "profile": ""
+        },
+        {
+          "name": "Chengzhe Feng",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/216/thumb-21694.jpeg",
+          "profile": ""
+        },
+        {
+          "name": "Xinghang Sun",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/217/thumb-21714.jpg",
+          "profile": ""
+        },
+        {
+          "name": "Qibang Zhu",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/217/thumb-21756.jpeg",
+          "profile": ""
+        },
+        {
+          "name": "Zhening Zhang",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/217/thumb-21799.jpeg",
+          "profile": ""
+        },
+        {
+          "name": "Kevin Yu",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/218/thumb-21830.jpeg",
+          "profile": ""
+        },
+        {
+          "name": "Wilson Duan",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/219/thumb-21942.jpeg",
+          "profile": ""
+        },
+        {
+          "name": "Zachary Zhang",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/219/thumb-21948.jpeg",
+          "profile": ""
+        },
+        {
+          "name": "Yue Ning Lim",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/220/thumb-22025.jpg",
+          "profile": ""
+        },
+        {
+          "name": "Sohrab Rashid",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/220/thumb-22086.jpeg",
+          "profile": ""
+        },
+        {
+          "name": "Bennett Lee",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/220/thumb-22087.jpeg",
+          "profile": ""
+        },
+        {
+          "name": "Robert Peng",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/220/thumb-22099.jpeg",
+          "profile": ""
+        },
+        {
+          "name": "Yuran Wang",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/221/thumb-22194.jpeg",
+          "profile": ""
+        },
+        {
+          "name": "Yujie Miao",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/223/thumb-22361.png",
+          "profile": ""
+        },
+        {
+          "name": "Bryan Peltier",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/223/thumb-22382.jpeg",
+          "profile": ""
+        },
+        {
+          "name": "Haorui Zhu",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/224/thumb-22494.jpeg",
+          "profile": ""
+        },
+        {
+          "name": "William Peng",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/224/thumb-22495.jpeg",
+          "profile": ""
+        }
+      ]
+    }
+  }
+}
