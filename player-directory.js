@@ -17,7 +17,7 @@ window.CALBLUE_PLAYERS = (() => {
       for (const player of source.players) {
         const id = identity(player.name);
         const previous = people.get(id) || {};
-        const photos = [...new Set([player.photo, ...(previous.photos || [])].filter(Boolean))];
+        const photos = [...new Set([player.photo, ...(player.photos || []), ...(previous.photos || [])].filter(Boolean))];
         people.set(id, { ...previous, ...Object.fromEntries(Object.entries(player).filter(([, value]) => value)), photos });
       }
     }

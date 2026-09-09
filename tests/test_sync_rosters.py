@@ -1,5 +1,5 @@
 import unittest
-from scripts.sync_rosters import parse_roster, safe_url
+from scripts.sync_rosters import enrich_nccsf_photos, parse_roster, safe_url
 
 
 class RosterTests(unittest.TestCase):
@@ -25,6 +25,20 @@ class RosterTests(unittest.TestCase):
 
     def test_reject_unsafe_url(self):
         self.assertEqual(safe_url('https://example.com', 'javascript:alert(1)'), '')
+
+    def test_original_photo_matches_id_and_retains_thumbnail(self):
+        thumbnail = 'https://nccsf.org/en/img/player/photo/216/thumb-21641.jpeg'
+        original = 'https://nccsf.org/en/img/player/photo//216/21641_lcysaqTB4x.jpeg'
+        source = {'name': 'Lan An', 'photo': thumbnail}
+        player, = enrich_nccsf_photos([source], {'21641': original})
+        self.assertEqual(player['photos'], [original, thumbnail])
+        self.assertEqual(player['photo'], original)
+        self.assertIn('a=atpf&tid=621&pid=21641', player['profile'])
+        self.assertEqual(source['photo'], thumbnail)
+        unchanged, = enrich_nccsf_photos([source], {})
+        self.assertEqual(unchanged['photo'], thumbnail)
+        with self.assertRaises(ValueError):
+            enrich_nccsf_photos([source], {'21641': original.replace('21641_', '1122_')})
 
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-09T22:14:11.477895+00:00",
+  "updatedAt": "2026-09-09T22:27:44.939850+00:00",
   "competitions": {
     "swpl": {
       "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
@@ -148,232 +148,364 @@
           "name": "Nutao Jiang",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/11/thumb-1122.jpg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/11/1122_RHqXPbJEGI.jpg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1122",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/11/1122_RHqXPbJEGI.jpg",
+            "https://nccsf.org/en/img/player/photo/11/thumb-1122.jpg"
+          ]
         },
         {
           "name": "Suhau Kuo",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/11/thumb-1137.jpg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/11/1137_DFksXPmwEo.jpg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1137",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/11/1137_DFksXPmwEo.jpg",
+            "https://nccsf.org/en/img/player/photo/11/thumb-1137.jpg"
+          ]
         },
         {
           "name": "Yu Li",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/11/thumb-1145.jpg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/11/1145_Gf3eMncAkx.jpg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1145",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/11/1145_Gf3eMncAkx.jpg",
+            "https://nccsf.org/en/img/player/photo/11/thumb-1145.jpg"
+          ]
         },
         {
           "name": "Sheng Qin",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/18/thumb-1838.jpg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/18/1838_uvktNqDInA.jpg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1838",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/18/1838_uvktNqDInA.jpg",
+            "https://nccsf.org/en/img/player/photo/18/thumb-1838.jpg"
+          ]
         },
         {
           "name": "Yang He",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/20/thumb-2063.jpg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/20/2063_QeZNtb1TqD.jpg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=2063",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/20/2063_QeZNtb1TqD.jpg",
+            "https://nccsf.org/en/img/player/photo/20/thumb-2063.jpg"
+          ]
         },
         {
           "name": "Yulin Guo",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/20/thumb-2072.jpg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/20/2072_yDI1H7RUNc.jpg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=2072",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/20/2072_yDI1H7RUNc.jpg",
+            "https://nccsf.org/en/img/player/photo/20/thumb-2072.jpg"
+          ]
         },
         {
           "name": "Elshad Kadeer",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/23/thumb-2397.jpg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/23/2397_c6zMhOImfL.jpg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=2397",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/23/2397_c6zMhOImfL.jpg",
+            "https://nccsf.org/en/img/player/photo/23/thumb-2397.jpg"
+          ]
         },
         {
           "name": "Chenge Yang",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/25/thumb-2544.jpg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/25/2544_StNoMrzCk6.jpg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=2544",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/25/2544_StNoMrzCk6.jpg",
+            "https://nccsf.org/en/img/player/photo/25/thumb-2544.jpg"
+          ]
         },
         {
           "name": "Justin Wang",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/26/thumb-2692.jpg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/26/2692_qO8Hs2E5Uc.jpg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=2692",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/26/2692_qO8Hs2E5Uc.jpg",
+            "https://nccsf.org/en/img/player/photo/26/thumb-2692.jpg"
+          ]
         },
         {
           "name": "Elzat Kadeer",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/27/thumb-2763.jpg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/27/2763_zkS1Dj4HnO.jpg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=2763",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/27/2763_zkS1Dj4HnO.jpg",
+            "https://nccsf.org/en/img/player/photo/27/thumb-2763.jpg"
+          ]
         },
         {
           "name": "Dakai Kang",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/211/thumb-21105.jpeg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/211/21105_zOd9fD6FgX.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21105",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/211/21105_zOd9fD6FgX.jpeg",
+            "https://nccsf.org/en/img/player/photo/211/thumb-21105.jpeg"
+          ]
         },
         {
           "name": "Yuan Feng",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/211/thumb-21125.jpg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/211/21125_oqkIGzgK3r.jpg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21125",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/211/21125_oqkIGzgK3r.jpg",
+            "https://nccsf.org/en/img/player/photo/211/thumb-21125.jpg"
+          ]
         },
         {
           "name": "Yuanpu Liang",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/211/thumb-21181.jpeg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/211/21181_wMa3Sdpm7e.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21181",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/211/21181_wMa3Sdpm7e.jpeg",
+            "https://nccsf.org/en/img/player/photo/211/thumb-21181.jpeg"
+          ]
         },
         {
           "name": "Zizhou Liu",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/213/thumb-21320.jpg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/213/21320_18DSPNcbJg.jpg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21320",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/213/21320_18DSPNcbJg.jpg",
+            "https://nccsf.org/en/img/player/photo/213/thumb-21320.jpg"
+          ]
         },
         {
           "name": "Kevin Gao",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/215/thumb-21576.jpeg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/215/21576_1lgHfzZJIM.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21576",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/215/21576_1lgHfzZJIM.jpeg",
+            "https://nccsf.org/en/img/player/photo/215/thumb-21576.jpeg"
+          ]
         },
         {
           "name": "Rui Zhang",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/215/thumb-21583.jpeg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/215/21583_HiJcBMYOWT.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21583",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/215/21583_HiJcBMYOWT.jpeg",
+            "https://nccsf.org/en/img/player/photo/215/thumb-21583.jpeg"
+          ]
         },
         {
           "name": "Lan An",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/216/thumb-21641.jpeg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/216/21641_lcysaqTB4x.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21641",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/216/21641_lcysaqTB4x.jpeg",
+            "https://nccsf.org/en/img/player/photo/216/thumb-21641.jpeg"
+          ]
         },
         {
           "name": "Chengzhe Feng",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/216/thumb-21694.jpeg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/216/21694_Yp4tVlOH8U.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21694",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/216/21694_Yp4tVlOH8U.jpeg",
+            "https://nccsf.org/en/img/player/photo/216/thumb-21694.jpeg"
+          ]
         },
         {
           "name": "Xinghang Sun",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/217/thumb-21714.jpg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/217/21714_mVWRfoOavG.jpg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21714",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/217/21714_mVWRfoOavG.jpg",
+            "https://nccsf.org/en/img/player/photo/217/thumb-21714.jpg"
+          ]
         },
         {
           "name": "Qibang Zhu",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/217/thumb-21756.jpeg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/217/21756_UzP7CrvlAZ.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21756",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/217/21756_UzP7CrvlAZ.jpeg",
+            "https://nccsf.org/en/img/player/photo/217/thumb-21756.jpeg"
+          ]
         },
         {
           "name": "Zhening Zhang",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/217/thumb-21799.jpeg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/217/21799_HY0ZX31IVk.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21799",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/217/21799_HY0ZX31IVk.jpeg",
+            "https://nccsf.org/en/img/player/photo/217/thumb-21799.jpeg"
+          ]
         },
         {
           "name": "Kevin Yu",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/218/thumb-21830.jpeg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/218/21830_4KQNPMOFHf.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21830",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/218/21830_4KQNPMOFHf.jpeg",
+            "https://nccsf.org/en/img/player/photo/218/thumb-21830.jpeg"
+          ]
         },
         {
           "name": "Wilson Duan",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/219/thumb-21942.jpeg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/219/21942_eKUB92fONy.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21942",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/219/21942_eKUB92fONy.jpeg",
+            "https://nccsf.org/en/img/player/photo/219/thumb-21942.jpeg"
+          ]
         },
         {
           "name": "Zachary Zhang",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/219/thumb-21948.jpeg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/219/21948_0Jc3gzq7Ht.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21948",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/219/21948_0Jc3gzq7Ht.jpeg",
+            "https://nccsf.org/en/img/player/photo/219/thumb-21948.jpeg"
+          ]
         },
         {
           "name": "Yue Ning Lim",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/220/thumb-22025.jpg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/220/22025_VlIMor1hOg.jpg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22025",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/220/22025_VlIMor1hOg.jpg",
+            "https://nccsf.org/en/img/player/photo/220/thumb-22025.jpg"
+          ]
         },
         {
           "name": "Sohrab Rashid",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/220/thumb-22086.jpeg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/220/22086_EtqSzkGLfJ.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22086",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/220/22086_EtqSzkGLfJ.jpeg",
+            "https://nccsf.org/en/img/player/photo/220/thumb-22086.jpeg"
+          ]
         },
         {
           "name": "Bennett Lee",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/220/thumb-22087.jpeg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/220/22087_57Rrjcgv4G.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22087",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/220/22087_57Rrjcgv4G.jpeg",
+            "https://nccsf.org/en/img/player/photo/220/thumb-22087.jpeg"
+          ]
         },
         {
           "name": "Robert Peng",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/220/thumb-22099.jpeg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/220/22099_lrw2detQYu.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22099",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/220/22099_lrw2detQYu.jpeg",
+            "https://nccsf.org/en/img/player/photo/220/thumb-22099.jpeg"
+          ]
         },
         {
           "name": "Yuran Wang",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/221/thumb-22194.jpeg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/221/22194_OsV8FZDn05.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22194",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/221/22194_OsV8FZDn05.jpeg",
+            "https://nccsf.org/en/img/player/photo/221/thumb-22194.jpeg"
+          ]
         },
         {
           "name": "Yujie Miao",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/223/thumb-22361.png",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/223/22361_84mOgYWkhD.png",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22361",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/223/22361_84mOgYWkhD.png",
+            "https://nccsf.org/en/img/player/photo/223/thumb-22361.png"
+          ]
         },
         {
           "name": "Bryan Peltier",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/223/thumb-22382.jpeg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/223/22382_DE9XfVzPJh.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22382",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/223/22382_DE9XfVzPJh.jpeg",
+            "https://nccsf.org/en/img/player/photo/223/thumb-22382.jpeg"
+          ]
         },
         {
           "name": "Haorui Zhu",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/224/thumb-22494.jpeg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/224/22494_kFEj7yL1R6.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22494",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/224/22494_kFEj7yL1R6.jpeg",
+            "https://nccsf.org/en/img/player/photo/224/thumb-22494.jpeg"
+          ]
         },
         {
           "name": "William Peng",
           "number": "",
           "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/224/thumb-22495.jpeg",
-          "profile": ""
+          "photo": "https://nccsf.org/en/img/player/photo/224/22495_Zjn9QXNDsg.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22495",
+          "photos": [
+            "https://nccsf.org/en/img/player/photo/224/22495_Zjn9QXNDsg.jpeg",
+            "https://nccsf.org/en/img/player/photo/224/thumb-22495.jpeg"
+          ]
         }
       ]
     }
