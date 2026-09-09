@@ -13,6 +13,7 @@ SOURCES = {
     'swpl': 'https://pacific.swplsoccer.com/teams/calblue-fc',
     'nccsf': 'https://nccsf.org/en/league/team?a=tp&tid=621&tab=player',
 }
+SEASON_STARTS = {'swpl': '2026-09-13', 'nccsf': '2026-09-12'}
 
 
 def safe_url(base, value):
@@ -121,7 +122,7 @@ def main():
                 raise ValueError('Official roster response too large')
             html = raw.decode('utf-8')
         players = parse_roster(source, html)
-        result['competitions'][source] = {'sourceUrl': url, 'players': players}
+        result['competitions'][source] = {'sourceUrl': url, 'seasonStartsOn': SEASON_STARTS[source], 'players': players}
         print(f'{source}: {len(players)} players')
     options.output.parent.mkdir(parents=True, exist_ok=True)
     temporary = options.output.with_suffix('.tmp')
