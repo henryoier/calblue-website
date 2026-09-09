@@ -27,6 +27,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Test schedule importers
         run: python3 -m unittest discover -s tests -v
+      - name: Test player directory merging
+        run: node tests/test_player_directory.js
       - name: Sync official SWPL schedule
         run: |
           curl --fail --silent --show-error --location \

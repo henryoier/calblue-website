@@ -2,15 +2,16 @@
   const competition = document.querySelector('[data-competition-roster]');
   const directory = document.querySelector('[data-club-players]');
   if (!competition && !directory) return;
-  const key = name => name.normalize('NFKC').trim().toLocaleLowerCase().replace(/\s+/g, ' ');
   function card(player) {
     const article = document.createElement('article');
     article.className = 'player-card';
     const image = document.createElement('img');
     image.alt = player.name;
     image.loading = 'lazy';
-    image.src = /^https:\/\//.test(player.photo || '') ? player.photo : 'assets/calblue-logo-web.jpg';
-    image.addEventListener('error', () => { image.src = 'assets/calblue-logo-web.jpg'; }, { once: true });
+    const photos = (player.photos || [player.photo]).filter(url => /^https:\/\//.test(url || '') || /^assets\/roster\/[\w-]+\.jpg$/.test(url || ''));
+    photos.push('assets/calblue-logo-web.jpg');
+    image.src = photos.shift();
+    image.addEventListener('error', () => { if (photos.length) image.src = photos.shift(); });
     const heading = document.createElement('h2');
     heading.textContent = player.name;
     article.append(image, heading);
@@ -34,15 +35,13 @@
       competition.querySelector('[data-roster-status]').textContent = `${roster.players.length} players listed by the competition. Updated ${updated}.`;
     }
     if (directory) {
-      const names = new Set([...directory.querySelectorAll('h2')].map(node => key(node.textContent)));
-      for (const roster of Object.values(data.competitions)) {
-        for (const player of roster.players) {
-          if (!names.has(key(player.name))) {
-            directory.append(card({ name: player.name, photo: player.photo }));
-            names.add(key(player.name));
-          }
-        }
-      }
+      const existing = [...directory.querySelectorAll('.player-card')].map(node => ({
+        name: node.querySelector('h2').textContent,
+        photo: node.querySelector('img').getAttribute('src'),
+      }));
+      const players = window.CALBLUE_PLAYERS.merge(existing, data.competitions);
+      directory.replaceChildren(...players.map(({ name, photo, photos }) => card({ name, photo, photos })));
+      document.querySelector('[data-player-count]').textContent = `${players.length} CalBlue players`;
     }
   }).catch(() => {
     if (competition) competition.querySelector('[data-roster-status]').textContent = 'The roster is temporarily unavailable. Visit the official roster below.';
