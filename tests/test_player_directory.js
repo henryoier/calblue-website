@@ -25,4 +25,5 @@ const existing = [...html.matchAll(/<article class="player-card"><img src="([^"]
 const actual = window.CALBLUE_PLAYERS.merge(existing, JSON.parse(read('data/rosters.json')).competitions);
 assert(actual.filter(p => p.name === 'Qibang Zhu').length === 1, 'Live Qibang duplicate resolved');
 assert(actual.find(p => p.name === 'Sheng Qin').photo.includes('sportzstudio.com'), 'Live newer SWPL photo takes precedence');
+assert(actual.find(p => p.name === 'Lan An').photos[1].includes('thumb-21641'), 'Preserve official thumbnail fallback behind the full-size photo');
 console.log(`Player directory checks passed: ${actual.length} unique players`);

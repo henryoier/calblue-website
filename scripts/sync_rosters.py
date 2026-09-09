@@ -104,12 +104,35 @@ def parse_roster(source, html):
     return parser.players
 
 
+def enrich_nccsf_photos(players, photos):
+    """Use confirmed original URLs keyed by NCCSF player ID, retaining thumbnails."""
+    result = []
+    for player in players:
+        player = dict(player)
+        thumbnail = player['photo']
+        match = re.search(r'/thumb-(\d+)\.[a-zA-Z]+$', urlparse(thumbnail).path)
+        if match:
+            player_id = match[1]
+            player['profile'] = SOURCES['nccsf'].replace('&tab=player', f'&pid={player_id}').replace('a=tp&', 'a=atpf&')
+            original = photos.get(player_id)
+            if original:
+                parsed = urlparse(original)
+                if (parsed.scheme != 'https' or parsed.netloc != 'nccsf.org'
+                        or not re.fullmatch(rf'/en/img/player/photo/+\d+/{player_id}_[\w-]+\.(?:jpeg|jpg|png)', parsed.path)):
+                    raise ValueError(f'Invalid NCCSF original photo for player {player_id}')
+                player['photo'] = original
+                player['photos'] = [original, thumbnail]
+        result.append(player)
+    return result
+
+
 def main():
     args = argparse.ArgumentParser()
     args.add_argument('--swpl-file', type=Path)
     args.add_argument('--nccsf-file', type=Path)
     args.add_argument('--output', type=Path, default=Path('data/rosters.json'))
     options = args.parse_args()
+    photo_map = json.loads((Path(__file__).resolve().parent.parent / 'data/nccsf-player-photos.json').read_text())
     result = {'updatedAt': datetime.now(timezone.utc).isoformat(), 'competitions': {}}
     for source, url in SOURCES.items():
         path = getattr(options, source + '_file')
@@ -122,6 +145,8 @@ def main():
                 raise ValueError('Official roster response too large')
             html = raw.decode('utf-8')
         players = parse_roster(source, html)
+        if source == 'nccsf':
+            players = enrich_nccsf_photos(players, photo_map)
         result['competitions'][source] = {'sourceUrl': url, 'seasonStartsOn': SEASON_STARTS[source], 'players': players}
         print(f'{source}: {len(players)} players')
     options.output.parent.mkdir(parents=True, exist_ok=True)
