@@ -26,7 +26,7 @@ ALBUMS = {
     "kylin-kirin": 28,
     "kylin-dallas-third": 14,
 }
-DESIGN_PAGES = tuple(page for page in PAGES if page.name != "design-preview.html")
+DESIGN_PAGES = tuple(page for page in PAGES if page.name not in {"design-preview.html", "roster.html"})
 THEME_ASSETS = {
     "classic": "styles.css",
     "codex-pro": "designs/codex-pro.css",

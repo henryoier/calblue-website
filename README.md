@@ -90,7 +90,8 @@ The deploy workflow runs both syncs every six hours and before every Pages deplo
 
 ```text
 index.html               Main one-page site
-roster.html              Public Kylin Cup roster
+players.html             Club-wide public player directory
+roster.html              Redirect for existing roster links
 competitions.html        League and tournament directory
 competition-swpl.html    Complete upcoming SWPL schedule
 competition-nccsf.html   Complete upcoming NCCSF Fall schedule
@@ -125,5 +126,7 @@ serve.sh                 Local preview helper
 ```
 
 Gallery images are stored in Cloudflare R2 rather than in the Git repository. See [R2_MEDIA.md](R2_MEDIA.md) for the media build and upload workflow.
+
+Competition rosters are refreshed every six hours and before deployment with `python3 scripts/sync_rosters.py`. SWPL and NCCSF pages display their official CalBlue roster snapshots from `data/rosters.json`. The Players directory combines the existing approved club players with those public competition lists, matching exact normalized names and retaining existing club photos. This is a public directory; account registration will be a separate future feature. The importer retains the previous snapshot if a source is missing or malformed. Only public names, photos, positions, and shirt numbers are imported; NCCSF departed players are excluded. Existing roster URLs redirect to Players.
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for ownership, access, DNS, publishing, maintenance, and future CMS/database guidance.
