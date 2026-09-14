@@ -175,8 +175,8 @@ class PreviewScheduleTest(unittest.TestCase):
     def test_preview_contains_the_transcribed_league_and_cup_dates(self) -> None:
         path = Path(__file__).resolve().parent.parent / "data" / "swpl-overrides.json"
         fixtures = json.loads(path.read_text(encoding="utf-8"))["fixtures"]
-        league = [fixture for fixture in fixtures if not fixture.get("eventOnly")]
-        cup = [fixture for fixture in fixtures if fixture.get("eventOnly")]
+        league = [fixture for fixture in fixtures if fixture["competition"] != "Abronzino Cup"]
+        cup = [fixture for fixture in fixtures if fixture["competition"] == "Abronzino Cup"]
 
         self.assertEqual(
             [(fixture["date"], fixture["timeLabel"]) for fixture in league],
@@ -193,13 +193,21 @@ class PreviewScheduleTest(unittest.TestCase):
             ],
         )
         self.assertEqual(
-            [(fixture["date"], fixture["round"]) for fixture in cup],
+            [(fixture["date"], fixture["startsAt"], fixture["timeLabel"], fixture["round"],
+              fixture["home"]["name"], fixture["away"]["name"], fixture["venue"]["name"]) for fixture in cup],
             [
-                ("2026-09-26", "Group Stage 1"),
-                ("2026-10-24", "Group Stage 2"),
-                ("2026-11-21", "Group Stage 3"),
+                ("2026-10-25", "2026-10-25T19:00:00-07:00", "7:00 PM PT", "Group C",
+                 "JSC JASA", "CalBlue FC", "Red Morton Park - Bechet Field"),
+                ("2026-11-22", "2026-11-22T19:30:00-08:00", "7:30 PM PT", "Group C",
+                 "CalBlue FC", "South San Francisco AC", "Fair Oaks Park Field 3"),
             ],
         )
+        self.assertFalse(any(fixture.get("eventOnly") for fixture in cup))
+        self.assertTrue(all(fixture[side]["logo"] for fixture in cup for side in ("home", "away")))
+        self.assertFalse(any(fixture["date"] in {"2026-09-26", "2026-09-27"} for fixture in cup))
+        for fixture in cup:
+            local = datetime.fromisoformat(fixture["startsAt"])
+            self.assertEqual(local.utcoffset(), local.astimezone(ZoneInfo("America/Los_Angeles")).utcoffset())
         self.assertTrue(all(fixture.get("provisional") for fixture in fixtures))
 
 
