@@ -54,7 +54,7 @@ The deploy workflow runs both syncs every six hours and before every Pages deplo
 
 ## Content to confirm before launch
 
-Official schedule imports also retain completed games in each feed's `results` array, with numeric `score.home` and `score.away` fields. Only published scorelines on or before the check date become results; elapsed dates without scores are not treated as completed matches. Competition pages show the full published results and the homepage shows the latest three across SWPL and NCCSF. Results use the existing six-hour deployment sync, including score corrections. Completed SWPL rows suppress matching provisional fixtures.
+Official schedule imports also retain completed games in each feed's `results` array, with numeric `score.home` and `score.away` fields. Only published scorelines on or before the check date become results; elapsed dates without scores are not treated as completed matches. Competition pages show published final scores inline on each completed fixture, alongside upcoming games in chronological order. The homepage remains focused on upcoming games. Results use the existing six-hour deployment sync, including score corrections. Completed SWPL rows suppress matching provisional fixtures.
 
 - Confirm that `calblue1996@gmail.com` is the approved public contact address.
 - Add confirmed league, team, training, and fixture information.

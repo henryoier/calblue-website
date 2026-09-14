@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="CalBlue's complete upcoming SWPL Pacific League schedule." />
+    <meta name="description" content="CalBlue's complete season SWPL Pacific League schedule." />
     <meta name="theme-color" content="#071b3f" />
     <meta property="og:title" content="SWPL Pacific League | CalBlue" />
     <meta property="og:description" content="Officially synced CalBlue fixtures for the SWPL Pacific League." />
@@ -14,16 +14,14 @@
     <title>SWPL Pacific League | CalBlue</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css?v=20260913a" data-site-stylesheet />
-    <link rel="stylesheet" href="competition.css?v=20260904a" />
+    <link rel="stylesheet" href="competition.css?v=20260913b" />
     <link rel="stylesheet" href="designs/switcher.css?v=20260826a" />
     <script src="designs/registry.js?v=20260913a"></script>
     <script src="designs/switcher.js?v=20260826a"></script>
-    <script defer src="competition-schedule.js?v=20260904b"></script>
+    <script defer src="competition-schedule.js?v=20260913b"></script>
     <link rel="stylesheet" href="rosters.css?v=20260909a" />
     <script defer src="rosters.js?v=20260909b"></script>
     <script defer src="script.js?v=20260913a"></script>
-    <link rel="stylesheet" href="results.css?v=20260913a" />
-    <script defer src="results.js?v=20260913a"></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -42,29 +40,20 @@
         <div class="shell">
           <p class="eyebrow">League • Pacific Division</p>
           <h1>SWPL<br />Pacific.</h1>
-          <p>CalBlue’s complete upcoming Pacific League schedule, synchronized from the club’s official SWPL profile.</p>
+          <p>CalBlue’s complete season Pacific League schedule, synchronized from the club’s official SWPL profile.</p>
         </div>
       </section>
 
       <section class="competition-schedule-section section" data-competition-schedule data-feed="data/swpl.json" data-source="https://pacific.swplsoccer.com/teams/calblue-fc">
         <div class="shell">
           <div class="competition-schedule-heading">
-            <div><p class="section-tag">SWPL Pacific League + Abronzino Cup</p><h2>Season fixtures.</h2><p>League fixtures come from the supplied schedule preview; Abronzino Cup dates are highlighted separately. Any fixture published on CalBlue’s official SWPL profile automatically takes priority during the next deployment.</p></div>
+            <div><p class="section-tag">SWPL Pacific League + Abronzino Cup</p><h2>Season fixtures.</h2><p>Completed games show the official final score beside each team. League fixtures come from the supplied schedule preview; Abronzino Cup dates are highlighted separately. Any fixture published on CalBlue’s official SWPL profile automatically takes priority during the next deployment.</p></div>
             <div class="competition-sync"><p class="status-pill"><span class="status-dot" aria-hidden="true"></span><b data-competition-status>Loading official schedule</b></p><strong data-competition-count>Loading fixtures…</strong><small data-competition-checked>Updates are checked automatically.</small></div>
           </div>
           <ol class="season-fixtures" data-competition-fixtures aria-live="polite"><li class="season-empty">Loading fixtures…</li></ol>
           <div class="competition-page-links"><div><a href="competition-nccsf.html">2026 NCCSF Fall schedule →</a><a href="index.html#schedule">Homepage match center →</a></div><a href="https://pacific.swplsoccer.com/teams/calblue-fc" target="_blank" rel="noopener">Official SWPL profile ↗</a></div>
         </div>
       </section>
-      <section class="section results-section" id="results" data-results-feeds="swpl">
-        <div class="shell">
-          <p class="section-tag">Completed games</p><h2>Season results.</h2>
-          <p data-results-status aria-live="polite">Loading official results…</p>
-          <ol class="results-list" data-results-list></ol>
-          <p><a href="index.html#results">Latest club results →</a></p>
-        </div>
-      </section>
-
       <section class="section roster-section" id="roster" data-competition-roster="swpl">
         <div class="shell">
           <div class="roster-heading"><div><p class="section-tag">Competition roster</p><h2>Our squad.</h2></div><p data-roster-status>Loading the official competition roster…</p></div>

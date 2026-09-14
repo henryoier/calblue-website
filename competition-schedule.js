@@ -38,7 +38,7 @@
     }).format(instant);
   };
 
-  const createTeam = (team, role) => {
+  const createTeam = (team, role, score) => {
     const row = document.createElement('div');
     const name = document.createElement('strong');
     const label = document.createElement('span');
@@ -68,10 +68,18 @@
       row.append(placeholder);
     }
     row.append(name, label);
+    if (Number.isInteger(score)) {
+      const goals = document.createElement('b');
+      row.className += ' has-score';
+      goals.className = 'season-team-score';
+      goals.textContent = String(score);
+      goals.setAttribute('aria-label', `${score} goals`);
+      row.append(goals);
+    }
     return row;
   };
 
-  const createFixture = (fixture, index) => {
+  const createFixture = (fixture, isNext) => {
     const item = document.createElement('li');
     const date = document.createElement('time');
     const marker = document.createElement('em');
@@ -85,7 +93,8 @@
 
     const isCup = fixture.competition.toLowerCase().includes('abronzino');
     const isNccsf = fixture.competition.toLowerCase().includes('nccsf');
-    item.className = `season-fixture${index === 0 ? ' is-next' : ''}${isCup ? ' is-cup' : ''}`;
+    const completed = fixture.status === 'completed';
+    item.className = `season-fixture${isNext ? ' is-next' : ''}${isCup ? ' is-cup' : ''}${completed ? ' is-completed' : ''}`;
     date.className = 'season-fixture-date';
     date.dateTime = fixture.startsAt || fixture.date;
     marker.textContent = isCup ? 'Abronzino Cup' : isNccsf ? 'NCCSF League' : 'SWPL League';
@@ -94,7 +103,10 @@
     date.append(marker, dateText, timeText);
 
     matchup.className = 'season-fixture-matchup';
-    matchup.append(createTeam(fixture.home, 'Home'), createTeam(fixture.away, 'Away'));
+    matchup.append(
+      createTeam(fixture.home, 'Home', completed ? fixture.score.home : undefined),
+      createTeam(fixture.away, 'Away', completed ? fixture.score.away : undefined),
+    );
 
     details.className = 'season-fixture-details';
     venue.textContent = fixture.venue.name;
@@ -106,6 +118,12 @@
     link.rel = 'noopener';
     link.textContent = 'Official details ↗';
     details.append(venue, meta, link);
+    if (completed) {
+      const final = document.createElement('span');
+      final.className = 'season-fixture-final';
+      final.textContent = 'Final';
+      details.prepend(final);
+    }
     item.append(date, matchup, details);
     return item;
   };
@@ -117,27 +135,40 @@
     })
     .then((data) => {
       const today = pacificToday();
-      const fixtures = Array.isArray(data.fixtures)
-        ? data.fixtures.filter((fixture) => (
-          /^\d{4}-\d{2}-\d{2}$/.test(fixture.date)
-          && fixture.date >= today
-          && fixture.home?.name
-          && fixture.away?.name
-          && fixture.venue?.name
+      const validFixture = (fixture) => (
+        /^\d{4}-\d{2}-\d{2}$/.test(fixture.date)
+        && fixture.home?.name && fixture.away?.name && fixture.venue?.name
+      );
+      const results = Array.isArray(data.results)
+        ? data.results.filter((fixture) => (
+          validFixture(fixture) && fixture.date <= today && fixture.status === 'completed'
+          && Number.isInteger(fixture.score?.home) && fixture.score.home >= 0
+          && Number.isInteger(fixture.score?.away) && fixture.score.away >= 0
         ))
         : [];
+      const completedIds = new Set(results.map((fixture) => fixture.id).filter(Boolean));
+      const upcoming = Array.isArray(data.fixtures)
+        ? data.fixtures.filter((fixture) => (
+          validFixture(fixture)
+          && fixture.date >= today
+          && fixture.status !== 'completed'
+          && !completedIds.has(fixture.id)
+        ))
+        : [];
+      const fixtures = [...results, ...upcoming];
       fixtures.sort((left, right) => (
         (left.startsAt || left.date).localeCompare(right.startsAt || right.date)
       ));
       list.replaceChildren();
-      fixtures.forEach((fixture, index) => list.append(createFixture(fixture, index)));
+      const nextFixture = fixtures.find((fixture) => fixture.status !== 'completed');
+      fixtures.forEach((fixture) => list.append(createFixture(fixture, fixture === nextFixture)));
       if (!fixtures.length) {
         const empty = document.createElement('li');
         empty.className = 'season-empty';
-        empty.textContent = 'No upcoming fixtures are currently published.';
+        empty.textContent = 'No fixtures are currently published.';
         list.append(empty);
       }
-      count.textContent = `${fixtures.length} upcoming date${fixtures.length === 1 ? '' : 's'}`;
+      count.textContent = `${upcoming.length} upcoming · ${results.length} completed`;
       const previewCount = Number(data.diagnostics?.editorialOverrides || 0);
       status.textContent = previewCount
         ? `${previewCount} preview date${previewCount === 1 ? '' : 's'} · official updates take priority`
