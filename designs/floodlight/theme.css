@@ -567,7 +567,7 @@ footer > .shell { position: relative; }
 .subpage-hero .shell > p:last-of-type { max-width: 620px; margin: 30px 0 0; color: rgba(255, 255, 255, .72); font-size: 17px; line-height: 1.75; }
 .photo-subpage-hero { background-position: center; background-size: cover; }
 .photo-subpage-hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(95deg, rgba(3, 8, 22, .96), rgba(3, 8, 22, .8) 55%, rgba(3, 8, 22, .45)); }
-.gallery-hero { background-image: url('https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/kylin-dallas-third/full/005.jpg'); background-position: center 43%; }
+.gallery-hero { background-image: url('https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/swpl-sf-glens/full/026.jpg'); background-position: center 43%; }
 .album-hero { background-position: center; background-size: cover; }
 .album-hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(95deg, rgba(3, 8, 22, .96), rgba(3, 8, 22, .78) 55%, rgba(3, 8, 22, .4)); }
 .album-hero > .shell { position: relative; z-index: 1; }
@@ -884,3 +884,5 @@ footer > .shell { position: relative; }
   .hero-slide:first-child { opacity: 1; }
   [data-fl-anim] { opacity: 1; transform: none; }
 }
+
+.album-hero-swpl-sf-glens { background-image: url('https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/swpl-sf-glens/full/026.jpg'); background-position: center 43%; }
