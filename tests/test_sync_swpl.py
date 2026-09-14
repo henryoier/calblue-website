@@ -53,6 +53,22 @@ EMPTY_CALBLUE_SCHEDULE = """
 
 
 class BuildSnapshotTest(unittest.TestCase):
+    def test_results_preserve_scores_and_suppress_same_day_preview(self):
+        checked = datetime(2026, 9, 5, 23, tzinfo=ZoneInfo("America/Los_Angeles"))
+        source = SAMPLE.replace('<td class="schedule_result">-</td>', '<td class="schedule_result">10 - 0</td>')
+        preview = {"id": "preview", "date": "2026-09-05", "home": {"name": "CalBlue FC"}, "away": {"name": "SF Glens"}, "venue": {"name": "Ground"}, "status": "scheduled"}
+        snapshot = build_snapshot(source, checked, [preview])
+        self.assertEqual(snapshot["results"][0]["score"], {"home": 10, "away": 0})
+        self.assertEqual(snapshot["results"][1]["score"], {"home": 2, "away": 1})
+        self.assertEqual(snapshot["results"][0]["status"], "completed")
+        self.assertFalse(any(game["away"]["name"] == "SF Glens" for game in snapshot["fixtures"]))
+
+    def test_past_unscored_game_is_not_a_result(self):
+        checked = datetime(2026, 9, 6, tzinfo=ZoneInfo("America/Los_Angeles"))
+        snapshot = build_snapshot(SAMPLE, checked)
+        self.assertEqual(len(snapshot["results"]), 1)
+        self.assertEqual(snapshot["results"][0]["away"]["name"], "Past FC")
+
     def test_extracts_only_upcoming_calblue_fixtures(self) -> None:
         checked_at = datetime(2026, 9, 2, 12, tzinfo=ZoneInfo("America/Los_Angeles"))
         snapshot = build_snapshot(SAMPLE, checked_at)

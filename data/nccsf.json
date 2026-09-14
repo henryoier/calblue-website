@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://nccsf.org/en/league/game?a=ag&lid=36",
   "sourcePage": "https://nccsf.org/en/league/game?a=games&lid=36",
-  "checkedAt": "2026-09-03T01:15:00-07:00",
+  "checkedAt": "2026-09-13T23:41:33-07:00",
   "season": {
     "name": "2026 NCCSF Fall League",
     "year": 2026,
@@ -15,31 +15,6 @@
     "logo": "https://nccsf.org/en/img/team/logo/621.jpeg"
   },
   "fixtures": [
-    {
-      "id": "nccsf-3388",
-      "date": "2026-09-12",
-      "startsAt": "2026-09-12T19:00:00-07:00",
-      "timeLabel": "7:00 PM PT",
-      "competition": "2026 NCCSF Fall League",
-      "round": "Sat-1",
-      "home": {
-        "name": "GSF United",
-        "url": "https://nccsf.org/en/league/team?a=tp&tid=623",
-        "logo": "https://nccsf.org/en/img/team/logo/623.jpeg"
-      },
-      "away": {
-        "name": "CalBlue",
-        "url": "https://nccsf.org/en/league/team?a=tp&tid=621",
-        "logo": "https://nccsf.org/en/img/team/logo/621.jpeg"
-      },
-      "venue": {
-        "name": "Nordvik Park",
-        "mapUrl": "https://maps.app.goo.gl/fVo5PbJ5cvf1WsUc9"
-      },
-      "conference": "Open",
-      "sourceUrl": "https://nccsf.org/en/league/game?a=games&lid=36",
-      "status": "scheduled"
-    },
     {
       "id": "nccsf-3399",
       "date": "2026-09-20",
@@ -248,7 +223,7 @@
       "competition": "2026 NCCSF Fall League",
       "round": "Sun-10",
       "home": {
-        "name": "Shoreline",
+        "name": "Deep Shoreline",
         "url": "https://nccsf.org/en/league/team?a=tp&tid=631",
         "logo": "https://nccsf.org/en/img/team/logo/631.png"
       },
@@ -341,8 +316,39 @@
       "status": "scheduled"
     }
   ],
+  "results": [
+    {
+      "id": "nccsf-3388",
+      "date": "2026-09-12",
+      "startsAt": "2026-09-12T19:00:00-07:00",
+      "timeLabel": "7:00 PM PT",
+      "competition": "2026 NCCSF Fall League",
+      "round": "Sat-1",
+      "home": {
+        "name": "GSF United",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=623",
+        "logo": "https://nccsf.org/en/img/team/logo/623.jpeg"
+      },
+      "away": {
+        "name": "CalBlue",
+        "url": "https://nccsf.org/en/league/team?a=tp&tid=621",
+        "logo": "https://nccsf.org/en/img/team/logo/621.jpeg"
+      },
+      "venue": {
+        "name": "Nordvik Park",
+        "mapUrl": "https://maps.app.goo.gl/fVo5PbJ5cvf1WsUc9"
+      },
+      "conference": "Open",
+      "sourceUrl": "https://nccsf.org/en/league/game?a=games&lid=36",
+      "status": "completed",
+      "score": {
+        "home": 1,
+        "away": 6
+      }
+    }
+  ],
   "diagnostics": {
     "publishedCalBlueFixtures": 13,
-    "upcomingCalBlueFixtures": 13
+    "upcomingCalBlueFixtures": 12
   }
 }

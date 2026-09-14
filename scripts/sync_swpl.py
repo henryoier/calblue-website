@@ -184,9 +184,10 @@ def team_from_cell(cell: dict[str, object]) -> dict[str, str | None]:
     }
 
 
-def parse_fixtures(parser: SWPLTeamParser, today: date) -> tuple[list[dict[str, object]], int]:
+def parse_fixtures(parser: SWPLTeamParser, today: date) -> tuple[list[dict[str, object]], list[dict[str, object]], int]:
     current_date = ""
     fixtures: list[dict[str, object]] = []
+    results: list[dict[str, object]] = []
     ignored_rows = 0
 
     for row in parser.rows:
@@ -206,15 +207,17 @@ def parse_fixtures(parser: SWPLTeamParser, today: date) -> tuple[list[dict[str, 
 
         game_date, starts_at = parse_start(current_date, str(cells[0]["text"]))
         result = clean_text(str(cells[3]["text"]))
-        status = "completed" if re.search(r"\d\s*-\s*\d", result) else "scheduled"
-        if date.fromisoformat(game_date) < today or status == "completed":
+        score = re.fullmatch(r"(\d+)\s*[-–:]\s*(\d+)", result)
+        completed = bool(score) and date.fromisoformat(game_date) <= today
+        status = "completed" if completed else "scheduled"
+        if date.fromisoformat(game_date) < today and not completed:
             continue
 
         venue_links = cells[5].get("links", [])
         source = "|".join(
             [game_date, str(cells[0]["text"]), str(home["name"]), str(away["name"])]
         )
-        fixtures.append(
+        (results if completed else fixtures).append(
             {
                 "id": sha256(source.encode("utf-8")).hexdigest()[:16],
                 "date": game_date,
@@ -230,11 +233,13 @@ def parse_fixtures(parser: SWPLTeamParser, today: date) -> tuple[list[dict[str, 
                 "conference": clean_text(str(cells[6]["text"])),
                 "sourceUrl": SOURCE_URL,
                 "status": status,
+                **({"score": {"home": int(score[1]), "away": int(score[2])}} if completed else {}),
             }
         )
 
     fixtures.sort(key=lambda fixture: (fixture["date"], fixture["startsAt"] or ""))
-    return fixtures, ignored_rows
+    results.sort(key=lambda fixture: (fixture["date"], fixture["startsAt"] or ""), reverse=True)
+    return fixtures, results, ignored_rows
 
 
 def fixture_key(fixture: dict[str, object]) -> tuple[str, tuple[str, str]]:
@@ -309,8 +314,9 @@ def build_snapshot(
         raise ValueError("SWPL schedule table was not found; the upstream page may have changed")
 
     checked_at = checked_at.astimezone(PACIFIC)
-    fixtures, ignored_rows = parse_fixtures(parser, checked_at.date())
-    fixtures = merge_overrides(fixtures, overrides or [], checked_at.date())
+    fixtures, results, ignored_rows = parse_fixtures(parser, checked_at.date())
+    merged = merge_overrides(fixtures + results, overrides or [], checked_at.date())
+    fixtures = [fixture for fixture in merged if fixture.get("status") != "completed"]
     meta_parts = [part.strip() for part in parser.team_meta.split("-") if part.strip()]
     return {
         "schemaVersion": 1,
@@ -323,6 +329,7 @@ def build_snapshot(
             "logo": parser.team_logo,
         },
         "fixtures": fixtures,
+        "results": results,
         "diagnostics": {
             "ignoredNonCalBlueRows": ignored_rows,
             "editorialOverrides": sum(bool(fixture.get("editorial")) for fixture in fixtures),

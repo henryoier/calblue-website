@@ -54,6 +54,22 @@ TEAMS = """
 
 
 class BuildSnapshotTest(unittest.TestCase):
+    def test_completed_away_result_and_zero_draw_are_retained(self):
+        payload = json.loads(SAMPLE)
+        checked = datetime(2026, 9, 26, 23, tzinfo=ZoneInfo("America/Los_Angeles"))
+        payload["data"][0]["score"] = "1:6"
+        payload["data"][1]["score"] = "0 : 0"
+        snapshot = build_snapshot(json.dumps(payload), TEAMS, checked)
+        self.assertEqual(snapshot["fixtures"], [])
+        self.assertEqual(snapshot["results"][0]["score"], {"home": 0, "away": 0})
+        self.assertEqual(snapshot["results"][1]["score"], {"home": 1, "away": 6})
+        self.assertEqual(snapshot["results"][1]["away"]["name"], "CalBlue")
+
+    def test_elapsed_date_without_score_is_not_a_result(self):
+        checked = datetime(2026, 9, 20, tzinfo=ZoneInfo("America/Los_Angeles"))
+        snapshot = build_snapshot(SAMPLE, TEAMS, checked)
+        self.assertEqual(snapshot["results"], [])
+
     def test_extracts_only_upcoming_calblue_fixtures(self) -> None:
         checked_at = datetime(2026, 9, 3, 12, tzinfo=ZoneInfo("America/Los_Angeles"))
         snapshot = build_snapshot(SAMPLE, TEAMS, checked_at)

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "https://pacific.swplsoccer.com/teams/calblue-fc",
-  "checkedAt": "2026-09-03T23:55:41-07:00",
+  "checkedAt": "2026-09-13T23:41:33-07:00",
   "team": {
     "name": "CalBlue FC",
     "competition": "Mens Open Pacific",
@@ -9,30 +9,6 @@
     "logo": "https://nisa.sportzstudio.com/team_images/1786032806_a.png"
   },
   "fixtures": [
-    {
-      "id": "8f13fdff6b321e8e",
-      "date": "2026-09-13",
-      "startsAt": "2026-09-13T19:00:00-07:00",
-      "timeLabel": "7:00 pm PT",
-      "competition": "League",
-      "home": {
-        "name": "CalBlue FC",
-        "url": "https://pacific.swplsoccer.com/teams/calblue-fc",
-        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_thumb_a.png"
-      },
-      "away": {
-        "name": "SF Glens",
-        "url": "https://pacific.swplsoccer.com/teams/sf-glens",
-        "logo": "https://nisa.sportzstudio.com/team_images/1788196248_thumb_a.png"
-      },
-      "venue": {
-        "name": "Central Park Soccer Field",
-        "mapUrl": "https://www.google.com/maps/dir//1110+Stevenson+Blvd,+Fremont,+CA+94538/"
-      },
-      "conference": "Mens Open Pacific1st PPL",
-      "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
-      "status": "scheduled"
-    },
     {
       "id": "preview-2026-09-19-bay-area-united",
       "date": "2026-09-19",
@@ -324,6 +300,36 @@
       "status": "scheduled",
       "editorial": true,
       "provisional": true
+    }
+  ],
+  "results": [
+    {
+      "id": "8f13fdff6b321e8e",
+      "date": "2026-09-13",
+      "startsAt": "2026-09-13T19:00:00-07:00",
+      "timeLabel": "7:00 pm PT",
+      "competition": "League",
+      "home": {
+        "name": "CalBlue FC",
+        "url": "https://pacific.swplsoccer.com/teams/calblue-fc",
+        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_thumb_a.png"
+      },
+      "away": {
+        "name": "SF Glens",
+        "url": "https://pacific.swplsoccer.com/teams/sf-glens",
+        "logo": "https://nisa.sportzstudio.com/team_images/1788196248_thumb_a.png"
+      },
+      "venue": {
+        "name": "Central Park Soccer Field",
+        "mapUrl": "https://www.google.com/maps/dir//1110+Stevenson+Blvd,+Fremont,+CA+94538/"
+      },
+      "conference": "Mens Open Pacific1st PPL",
+      "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
+      "status": "completed",
+      "score": {
+        "home": 3,
+        "away": 2
+      }
     }
   ],
   "diagnostics": {

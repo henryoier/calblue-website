@@ -186,6 +186,7 @@ def build_snapshot(
     checked_at = checked_at.astimezone(PACIFIC)
     competition = f"{season_year} NCCSF Fall League"
     fixtures: list[dict[str, object]] = []
+    results: list[dict[str, object]] = []
     calblue_rows = 0
     for row in rows:
         if not isinstance(row, dict):
@@ -210,12 +211,14 @@ def build_snapshot(
 
         fixture_date, starts_at, time_label = parse_start(row.get("date"), season_year)
         score = clean_text(str(row.get("score") or ""))
-        if date.fromisoformat(fixture_date) < checked_at.date() or re.search(r"\d\s*:\s*\d", score):
+        score_match = re.fullmatch(r"(\d+)\s*[:–-]\s*(\d+)", score)
+        completed = bool(score_match) and date.fromisoformat(fixture_date) <= checked_at.date()
+        if date.fromisoformat(fixture_date) < checked_at.date() and not completed:
             continue
         venue_name, map_url = parse_fragment(row.get("field"))
         round_name, _ = parse_fragment(row.get("game"))
         gid = game_id(row.get("game"))
-        fixtures.append(
+        (results if completed else fixtures).append(
             {
                 "id": f"nccsf-{gid}" if gid else f"nccsf-{fixture_date}-{home_id}-{away_id}",
                 "date": fixture_date,
@@ -239,13 +242,15 @@ def build_snapshot(
                 },
                 "conference": clean_text(str(row.get("division") or "")),
                 "sourceUrl": f"https://nccsf.org/en/league/game?a=games&lid={league_id}",
-                "status": "scheduled",
+                "status": "completed" if completed else "scheduled",
+                **({"score": {"home": int(score_match[1]), "away": int(score_match[2])}} if completed else {}),
             }
         )
 
     if not calblue_rows:
         raise ValueError("NCCSF game list did not identify CalBlue; refusing unknown data")
     fixtures.sort(key=lambda fixture: str(fixture["startsAt"]))
+    results.sort(key=lambda fixture: str(fixture["startsAt"]), reverse=True)
     return {
         "schemaVersion": 1,
         "source": f"https://nccsf.org/en/league/game?a=ag&lid={league_id}",
@@ -263,6 +268,7 @@ def build_snapshot(
             "logo": teams[calblue_team_id]["logo"],
         },
         "fixtures": fixtures,
+        "results": results,
         "diagnostics": {
             "publishedCalBlueFixtures": calblue_rows,
             "upcomingCalBlueFixtures": len(fixtures),
