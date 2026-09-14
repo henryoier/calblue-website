@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "https://pacific.swplsoccer.com/teams/calblue-fc",
-  "checkedAt": "2026-09-14T14:14:12-07:00",
+  "checkedAt": "2026-09-14T14:58:47-07:00",
   "team": {
     "name": "CalBlue FC",
     "competition": "Mens Open Pacific",
@@ -34,240 +34,220 @@
       "status": "scheduled"
     },
     {
-      "id": "preview-2026-10-03-albion-silicon-valley",
+      "id": "fd243df03dfbfd48",
       "date": "2026-10-03",
       "startsAt": "2026-10-03T20:00:00-07:00",
-      "timeLabel": "8:00 PM PT",
-      "competition": "SWPL Pacific Premier League",
+      "timeLabel": "8:00 pm PT",
+      "competition": "League",
       "home": {
         "name": "Albion SC Silicon Valley",
         "url": "https://pacific.swplsoccer.com/teams/albion-sc-silicon-valley",
-        "logo": "https://nisa.sportzstudio.com/team_images/1787248766_a.png"
+        "logo": "https://nisa.sportzstudio.com/team_images/1787248766_thumb_a.png"
       },
       "away": {
         "name": "CalBlue FC",
         "url": "https://pacific.swplsoccer.com/teams/calblue-fc",
-        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_a.png"
+        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_thumb_a.png"
       },
       "venue": {
-        "name": "Red Morton Park · Bechet Field",
-        "mapUrl": "https://www.google.com/maps/search/?api=1&query=Bechet+Field+Red+Morton+Park"
+        "name": "Red Morton Park - Bechet Field",
+        "mapUrl": "https://www.google.com/maps/dir//1400+Roosevelt+Ave,+Redwood City,+CA+94061/"
       },
-      "conference": "Mens Open Pacific · 1st PPL",
+      "conference": "Mens Open Pacific1st PPL",
       "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
-      "status": "scheduled",
-      "editorial": true,
-      "provisional": true
+      "status": "scheduled"
     },
     {
-      "id": "preview-2026-10-10-in-motion-fc",
+      "id": "5409a50731f24f00",
       "date": "2026-10-10",
       "startsAt": "2026-10-10T19:30:00-07:00",
-      "timeLabel": "7:30 PM PT",
-      "competition": "SWPL Pacific Premier League",
+      "timeLabel": "7:30 pm PT",
+      "competition": "League",
       "home": {
         "name": "CalBlue FC",
         "url": "https://pacific.swplsoccer.com/teams/calblue-fc",
-        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_a.png"
+        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_thumb_a.png"
       },
       "away": {
         "name": "In Motion FC",
         "url": "https://pacific.swplsoccer.com/teams/in-motion-fc",
-        "logo": "https://nisa.sportzstudio.com/team_images/1725643596_a.png"
+        "logo": "https://nisa.sportzstudio.com/team_images/1725643596_thumb_a.png"
       },
       "venue": {
         "name": "Fair Oaks Park Field 3",
-        "mapUrl": "https://www.google.com/maps/search/?api=1&query=Fair+Oaks+Park+Field+3"
+        "mapUrl": "https://www.google.com/maps/dir//540+N+Fair+Oaks+Ave,+Sunnyvale ,+CA+94085/"
       },
-      "conference": "Mens Open Pacific · 1st PPL",
+      "conference": "Mens Open Pacific1st PPL",
       "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
-      "status": "scheduled",
-      "editorial": true,
-      "provisional": true
+      "status": "scheduled"
     },
     {
-      "id": "preview-2026-10-17-club-deportivo-oakland",
+      "id": "48cf6ddb5fb14eea",
       "date": "2026-10-17",
-      "startsAt": "2026-10-17T18:00:00-07:00",
-      "timeLabel": "6:00 PM PT",
-      "competition": "SWPL Pacific Premier League",
+      "startsAt": null,
+      "timeLabel": "TBA PT",
+      "competition": "League",
       "home": {
         "name": "Club Deportivo Oakland",
         "url": "https://pacific.swplsoccer.com/teams/club-deportivo-oakland",
-        "logo": "https://nisa.sportzstudio.com/team_images/1786892084_a.png"
+        "logo": "https://nisa.sportzstudio.com/team_images/1786892084_thumb_a.png"
       },
       "away": {
         "name": "CalBlue FC",
         "url": "https://pacific.swplsoccer.com/teams/calblue-fc",
-        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_a.png"
+        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_thumb_a.png"
       },
       "venue": {
-        "name": "International Community School Soccer Field",
-        "mapUrl": "https://www.google.com/maps/search/?api=1&query=International+Community+School+Soccer+Field"
+        "name": "Albany Middle School - Cougar Field",
+        "mapUrl": "https://www.google.com/maps/dir//1259+Brighton+Ave,+Albany,+CA+94706/"
       },
-      "conference": "Mens Open Pacific · 1st PPL",
+      "conference": "Mens Open Pacific1st PPL",
       "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
-      "status": "scheduled",
-      "editorial": true,
-      "provisional": true
+      "status": "scheduled"
     },
     {
-      "id": "preview-2026-10-25-abronzino-jsc-jasa",
+      "id": "5d802175467117e9",
       "date": "2026-10-25",
       "startsAt": "2026-10-25T19:00:00-07:00",
-      "timeLabel": "7:00 PM PT",
-      "competition": "Abronzino Cup",
-      "round": "Group C",
+      "timeLabel": "7:00 pm PT",
+      "competition": "Abronzino Cup Group Stage",
       "home": {
         "name": "JSC JASA",
         "url": "https://pacific.swplsoccer.com/teams/jsc-jasa",
-        "logo": "https://nisa.sportzstudio.com/team_images/1758051912_a.png"
+        "logo": "https://nisa.sportzstudio.com/team_images/1758051912_thumb_a.png"
       },
       "away": {
         "name": "CalBlue FC",
         "url": "https://pacific.swplsoccer.com/teams/calblue-fc",
-        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_a.png"
+        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_thumb_a.png"
       },
       "venue": {
         "name": "Red Morton Park - Bechet Field",
-        "mapUrl": "https://www.google.com/maps/search/?api=1&query=Bechet+Field+Red+Morton+Park"
+        "mapUrl": "https://www.google.com/maps/dir//1400+Roosevelt+Ave,+Redwood City,+CA+94061/"
       },
-      "conference": "SWPL Cup · Group C",
+      "conference": "Mens Open Pacific1st PPL",
       "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
-      "status": "scheduled",
-      "editorial": true,
-      "provisional": true
+      "status": "scheduled"
     },
     {
-      "id": "preview-2026-11-01-jsc-jasa",
+      "id": "dd58a8facc37e6bf",
       "date": "2026-11-01",
       "startsAt": "2026-11-01T19:00:00-08:00",
-      "timeLabel": "7:00 PM PT",
-      "competition": "SWPL Pacific Premier League",
+      "timeLabel": "7:00 pm PT",
+      "competition": "League",
       "home": {
         "name": "JSC JASA",
         "url": "https://pacific.swplsoccer.com/teams/jsc-jasa",
-        "logo": "https://nisa.sportzstudio.com/team_images/1758051912_a.png"
+        "logo": "https://nisa.sportzstudio.com/team_images/1758051912_thumb_a.png"
       },
       "away": {
         "name": "CalBlue FC",
         "url": "https://pacific.swplsoccer.com/teams/calblue-fc",
-        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_a.png"
+        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_thumb_a.png"
       },
       "venue": {
-        "name": "Red Morton Park · Bechet Field",
-        "mapUrl": "https://www.google.com/maps/search/?api=1&query=Bechet+Field+Red+Morton+Park"
+        "name": "Red Morton Park - Bechet Field",
+        "mapUrl": "https://www.google.com/maps/dir//1400+Roosevelt+Ave,+Redwood City,+CA+94061/"
       },
-      "conference": "Mens Open Pacific · 1st PPL",
+      "conference": "Mens Open Pacific1st PPL",
       "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
-      "status": "scheduled",
-      "editorial": true,
-      "provisional": true
+      "status": "scheduled"
     },
     {
-      "id": "preview-2026-11-07-south-san-francisco",
-      "date": "2026-11-07",
-      "startsAt": null,
-      "timeLabel": "Time TBA",
-      "competition": "SWPL Pacific Premier League",
+      "id": "2ddf53df04f65ccb",
+      "date": "2026-11-08",
+      "startsAt": "2026-11-08T11:00:00-08:00",
+      "timeLabel": "11:00 am PT",
+      "competition": "League",
       "home": {
         "name": "South San Francisco AC",
         "url": "https://pacific.swplsoccer.com/teams/south-san-francisco-ac",
-        "logo": "https://nisa.sportzstudio.com/team_images/1663784092_a.png"
+        "logo": "https://nisa.sportzstudio.com/team_images/1663784092_thumb_a.png"
       },
       "away": {
         "name": "CalBlue FC",
         "url": "https://pacific.swplsoccer.com/teams/calblue-fc",
-        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_a.png"
+        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_thumb_a.png"
       },
       "venue": {
-        "name": "Venue TBA",
-        "mapUrl": null
+        "name": "El Camino High School Stadium",
+        "mapUrl": "https://www.google.com/maps/dir//1320+Mission+Rd,+South San Francisco,+CA+94080/"
       },
-      "conference": "Mens Open Pacific · 1st PPL",
+      "conference": "Mens Open Pacific1st PPL",
       "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
-      "status": "scheduled",
-      "editorial": true,
-      "provisional": true
+      "status": "scheduled"
     },
     {
-      "id": "preview-2026-11-14-legends-sc",
+      "id": "5934e86dd95bfdbf",
       "date": "2026-11-14",
       "startsAt": "2026-11-14T19:30:00-08:00",
-      "timeLabel": "7:30 PM PT",
-      "competition": "SWPL Pacific Premier League",
+      "timeLabel": "7:30 pm PT",
+      "competition": "League",
       "home": {
         "name": "CalBlue FC",
         "url": "https://pacific.swplsoccer.com/teams/calblue-fc",
-        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_a.png"
+        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_thumb_a.png"
       },
       "away": {
         "name": "Legends SC",
         "url": "https://pacific.swplsoccer.com/teams/legends-sc",
-        "logo": "https://nisa.sportzstudio.com/team_images/1788196268_a.png"
+        "logo": "https://nisa.sportzstudio.com/team_images/1788196268_thumb_a.png"
       },
       "venue": {
         "name": "Fair Oaks Park Field 3",
-        "mapUrl": "https://www.google.com/maps/search/?api=1&query=Fair+Oaks+Park+Field+3"
+        "mapUrl": "https://www.google.com/maps/dir//540+N+Fair+Oaks+Ave,+Sunnyvale ,+CA+94085/"
       },
-      "conference": "Mens Open Pacific · 1st PPL",
+      "conference": "Mens Open Pacific1st PPL",
       "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
-      "status": "scheduled",
-      "editorial": true,
-      "provisional": true
+      "status": "scheduled"
     },
     {
-      "id": "preview-2026-11-22-abronzino-south-san-francisco",
+      "id": "2a35a2799dc97eea",
       "date": "2026-11-22",
       "startsAt": "2026-11-22T19:30:00-08:00",
-      "timeLabel": "7:30 PM PT",
-      "competition": "Abronzino Cup",
-      "round": "Group C",
+      "timeLabel": "7:30 pm PT",
+      "competition": "Abronzino Cup Group Stage",
       "home": {
         "name": "CalBlue FC",
         "url": "https://pacific.swplsoccer.com/teams/calblue-fc",
-        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_a.png"
+        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_thumb_a.png"
       },
       "away": {
         "name": "South San Francisco AC",
         "url": "https://pacific.swplsoccer.com/teams/south-san-francisco-ac",
-        "logo": "https://nisa.sportzstudio.com/team_images/1663784092_a.png"
+        "logo": "https://nisa.sportzstudio.com/team_images/1663784092_thumb_a.png"
       },
       "venue": {
         "name": "Fair Oaks Park Field 3",
-        "mapUrl": "https://www.google.com/maps/search/?api=1&query=Fair+Oaks+Park+Field+3"
+        "mapUrl": "https://www.google.com/maps/dir//540+N+Fair+Oaks+Ave,+Sunnyvale ,+CA+94085/"
       },
-      "conference": "SWPL Cup · Group C",
+      "conference": "Mens Open Pacific1st PPL",
       "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
-      "status": "scheduled",
-      "editorial": true,
-      "provisional": true
+      "status": "scheduled"
     },
     {
-      "id": "preview-2026-12-06-afghan-premier-fc",
+      "id": "2b8619a6b0fc36d4",
       "date": "2026-12-06",
       "startsAt": "2026-12-06T18:30:00-08:00",
-      "timeLabel": "6:30 PM PT",
-      "competition": "SWPL Pacific Premier League",
+      "timeLabel": "6:30 pm PT",
+      "competition": "League",
       "home": {
         "name": "Afghan Premier FC",
         "url": "https://pacific.swplsoccer.com/teams/afghan-premier-fc",
-        "logo": "https://nisa.sportzstudio.com/team_images/1785862242_a.png"
+        "logo": "https://nisa.sportzstudio.com/team_images/1785862242_thumb_a.png"
       },
       "away": {
         "name": "CalBlue FC",
         "url": "https://pacific.swplsoccer.com/teams/calblue-fc",
-        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_a.png"
+        "logo": "https://nisa.sportzstudio.com/team_images/1786032806_thumb_a.png"
       },
       "venue": {
         "name": "Fallon Sports Park Field 1",
-        "mapUrl": "https://www.google.com/maps/search/?api=1&query=Fallon+Sports+Park+Field+1"
+        "mapUrl": "https://www.google.com/maps/dir//4605+Lockhart+St,+Dublin,+CA+94568/"
       },
-      "conference": "Mens Open Pacific · 1st PPL",
+      "conference": "Mens Open Pacific1st PPL",
       "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
-      "status": "scheduled",
-      "editorial": true,
-      "provisional": true
+      "status": "scheduled"
     }
   ],
   "results": [
@@ -302,6 +282,6 @@
   ],
   "diagnostics": {
     "ignoredNonCalBlueRows": 0,
-    "editorialOverrides": 9
+    "editorialOverrides": 0
   }
 }
