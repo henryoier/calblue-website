@@ -16,6 +16,7 @@ if (nav) {
     wrapper.append(galleryLink, menu);
 
     const galleryCategories = [
+      ['gallery.html#swpl-2026', 'League · 2026', 'SWPL Pacific Premier League'],
       ['gallery.html#kylin-cup-2026', 'Tournament · 2026', 'Kylin Cup'],
       ['gallery.html#btg-2026', 'League · 2026', 'Beyond the Game'],
       ['gallery.html#nccsf-2026', 'Tournament · 2026', 'NCCSF Tournament'],

@@ -37,6 +37,8 @@ The 2026 Kylin Cup albums use `kylin-aurora`, `kylin-dallas-group`, `kylin-kirin
 
 ## Configure R2 credentials locally
 
+The September 13, 2026 SWPL season opener against SF Glens uses `swpl-sf-glens` with 61 photos. The source is [the shared Drive album](https://drive.google.com/drive/folders/13ABmOL8_1zxd6nJBmlN2sKnrf3S-F5dp). Confirm the complete Drive listing before downloading: its initial folder view exposes only 50 of the 61 files. Build with `--expected 61`.
+
 Create an R2 API token limited to Object Read & Write access for the media bucket. Copy the provided example and fill it in locally; never commit or share this file:
 
 ```bash
