@@ -51,6 +51,28 @@ EMPTY_CALBLUE_SCHEDULE = """
 <table id="scheduleTable"></table>
 """
 
+OFFICIAL_SCHEDULE_UPDATES = """
+<div class="teamPageName">CalBlue FC</div>
+<div class="teamPageConference">Mens Open Pacific - Sunnyvale, CA</div>
+<table id="scheduleTable">
+  <tr class="dayRow"><td>Sat 10/17/2026</td></tr>
+  <tr class="dataRow">
+    <td>TBA</td><td>Regular Season</td><td>Club Deportivo Oakland</td><td>-</td>
+    <td>CalBlue FC</td><td>Albany Middle School - Cougar Field</td><td>Mens Open Pacific</td>
+  </tr>
+  <tr class="dayRow"><td>Sun 11/08/2026</td></tr>
+  <tr class="dataRow">
+    <td>11:00 am PT</td><td>Regular Season</td><td>South San Francisco AC</td><td>-</td>
+    <td>CalBlue FC</td><td>El Camino High School Stadium</td><td>Mens Open Pacific</td>
+  </tr>
+  <tr class="dayRow"><td>Sun 11/22/2026</td></tr>
+  <tr class="dataRow">
+    <td>7:30 pm PT</td><td>Abronzino Cup</td><td>CalBlue FC</td><td>-</td>
+    <td>South San Francisco AC</td><td>Fair Oaks Park Field 3</td><td>Group C</td>
+  </tr>
+</table>
+"""
+
 
 class BuildSnapshotTest(unittest.TestCase):
     def test_results_preserve_scores_and_suppress_same_day_preview(self):
@@ -170,45 +192,62 @@ class BuildSnapshotTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "schedule table was not found"):
             build_snapshot('<div class="teamPageName">CalBlue FC</div>', checked_at)
 
+    def test_official_tba_kickoff_keeps_date_and_updated_venue(self) -> None:
+        checked_at = datetime(2026, 9, 14, 12, tzinfo=ZoneInfo("America/Los_Angeles"))
+        snapshot = build_snapshot(OFFICIAL_SCHEDULE_UPDATES, checked_at)
+        fixture = snapshot["fixtures"][0]
 
-class PreviewScheduleTest(unittest.TestCase):
-    def test_preview_contains_the_transcribed_league_and_cup_dates(self) -> None:
+        self.assertEqual(fixture["date"], "2026-10-17")
+        self.assertIsNone(fixture["startsAt"])
+        self.assertEqual(fixture["timeLabel"], "TBA")
+        self.assertEqual(fixture["venue"]["name"], "Albany Middle School - Cougar Field")
+
+    def test_official_rescheduled_league_game_and_same_opponent_cup_are_retained(self) -> None:
+        checked_at = datetime(2026, 9, 14, 12, tzinfo=ZoneInfo("America/Los_Angeles"))
+        snapshot = build_snapshot(OFFICIAL_SCHEDULE_UPDATES, checked_at)
+        league, cup = snapshot["fixtures"][1:]
+
+        self.assertEqual(league["competition"], "Regular Season")
+        self.assertEqual(league["date"], "2026-11-08")
+        self.assertEqual(league["startsAt"], "2026-11-08T11:00:00-08:00")
+        self.assertEqual(league["home"]["name"], "South San Francisco AC")
+        self.assertEqual(league["away"]["name"], "CalBlue FC")
+        self.assertEqual(league["venue"]["name"], "El Camino High School Stadium")
+        self.assertEqual(cup["competition"], "Abronzino Cup")
+        self.assertEqual(cup["date"], "2026-11-22")
+        self.assertEqual(cup["startsAt"], "2026-11-22T19:30:00-08:00")
+        self.assertEqual(cup["home"]["name"], "CalBlue FC")
+        self.assertEqual(cup["away"]["name"], "South San Francisco AC")
+        self.assertEqual(cup["venue"]["name"], "Fair Oaks Park Field 3")
+        self.assertNotIn("2026-11-07", [fixture["date"] for fixture in snapshot["fixtures"]])
+
+
+class OfficialScheduleConfigurationTest(unittest.TestCase):
+    def setUp(self) -> None:
         path = Path(__file__).resolve().parent.parent / "data" / "swpl-overrides.json"
-        fixtures = json.loads(path.read_text(encoding="utf-8"))["fixtures"]
-        league = [fixture for fixture in fixtures if fixture["competition"] != "Abronzino Cup"]
-        cup = [fixture for fixture in fixtures if fixture["competition"] == "Abronzino Cup"]
+        self.overrides = json.loads(path.read_text(encoding="utf-8"))["fixtures"]
+
+    def test_complete_official_schedule_has_no_active_preview_overrides(self) -> None:
+        self.assertEqual(self.overrides, [])
+
+    def test_empty_official_schedule_does_not_restore_retired_preview_games(self) -> None:
+        checked_at = datetime(2026, 9, 2, 12, tzinfo=ZoneInfo("America/Los_Angeles"))
+        snapshot = build_snapshot(EMPTY_CALBLUE_SCHEDULE, checked_at, self.overrides)
+
+        self.assertEqual(snapshot["fixtures"], [])
+        self.assertEqual(snapshot["results"], [])
+        self.assertEqual(snapshot["diagnostics"]["editorialOverrides"], 0)
+
+    def test_repository_configuration_does_not_reintroduce_old_dates(self) -> None:
+        checked_at = datetime(2026, 9, 14, 12, tzinfo=ZoneInfo("America/Los_Angeles"))
+        snapshot = build_snapshot(OFFICIAL_SCHEDULE_UPDATES, checked_at, self.overrides)
 
         self.assertEqual(
-            [(fixture["date"], fixture["timeLabel"]) for fixture in league],
-            [
-                ("2026-09-13", "7:00 PM PT"),
-                ("2026-09-19", "7:30 PM PT"),
-                ("2026-10-03", "8:00 PM PT"),
-                ("2026-10-10", "7:30 PM PT"),
-                ("2026-10-17", "6:00 PM PT"),
-                ("2026-11-01", "7:00 PM PT"),
-                ("2026-11-07", "Time TBA"),
-                ("2026-11-14", "7:30 PM PT"),
-                ("2026-12-06", "6:30 PM PT"),
-            ],
+            [fixture["date"] for fixture in snapshot["fixtures"]],
+            ["2026-10-17", "2026-11-08", "2026-11-22"],
         )
-        self.assertEqual(
-            [(fixture["date"], fixture["startsAt"], fixture["timeLabel"], fixture["round"],
-              fixture["home"]["name"], fixture["away"]["name"], fixture["venue"]["name"]) for fixture in cup],
-            [
-                ("2026-10-25", "2026-10-25T19:00:00-07:00", "7:00 PM PT", "Group C",
-                 "JSC JASA", "CalBlue FC", "Red Morton Park - Bechet Field"),
-                ("2026-11-22", "2026-11-22T19:30:00-08:00", "7:30 PM PT", "Group C",
-                 "CalBlue FC", "South San Francisco AC", "Fair Oaks Park Field 3"),
-            ],
-        )
-        self.assertFalse(any(fixture.get("eventOnly") for fixture in cup))
-        self.assertTrue(all(fixture[side]["logo"] for fixture in cup for side in ("home", "away")))
-        self.assertFalse(any(fixture["date"] in {"2026-09-26", "2026-09-27"} for fixture in cup))
-        for fixture in cup:
-            local = datetime.fromisoformat(fixture["startsAt"])
-            self.assertEqual(local.utcoffset(), local.astimezone(ZoneInfo("America/Los_Angeles")).utcoffset())
-        self.assertTrue(all(fixture.get("provisional") for fixture in fixtures))
+        self.assertEqual(snapshot["diagnostics"]["editorialOverrides"], 0)
+        self.assertFalse(any(fixture.get("provisional") for fixture in snapshot["fixtures"]))
 
 
 if __name__ == "__main__":

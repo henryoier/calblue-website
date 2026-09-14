@@ -96,17 +96,21 @@ def main() -> int:
         errors.append(f"data/swpl.json: {error}")
 
     try:
-        swpl_preview = json.loads((ROOT / "data" / "swpl-overrides.json").read_text(encoding="utf-8"))
-        preview_fixtures = swpl_preview.get("fixtures", [])
-        cup_fixtures = [fixture for fixture in preview_fixtures if fixture.get("competition") == "Abronzino Cup"]
-        if len(preview_fixtures) != 11 or len(cup_fixtures) != 2:
-            errors.append("data/swpl-overrides.json: expected 9 league fixtures and 2 Cup Group C fixtures")
-        if any(fixture.get("eventOnly") for fixture in cup_fixtures):
-            errors.append("data/swpl-overrides.json: Cup fixtures must have named opponents, not date placeholders")
-        for fixture in preview_fixtures:
+        swpl_overrides = json.loads((ROOT / "data" / "swpl-overrides.json").read_text(encoding="utf-8"))
+        override_fixtures = swpl_overrides.get("fixtures")
+        if not isinstance(override_fixtures, list):
+            errors.append("data/swpl-overrides.json: fixtures must be a list (empty when no overrides are needed)")
+            override_fixtures = []
+        for fixture in override_fixtures:
+            if not isinstance(fixture, dict):
+                errors.append("data/swpl-overrides.json: each fixture must be an object")
+                continue
+            if "abronzino" in str(fixture.get("competition", "")).lower() and fixture.get("eventOnly"):
+                errors.append("data/swpl-overrides.json: Cup fixtures must have named opponents, not date placeholders")
             for side in ("home", "away"):
-                logo = fixture.get(side, {}).get("logo", "")
-                if not logo.startswith("https://nisa.sportzstudio.com/team_images/"):
+                team = fixture.get(side)
+                logo = team.get("logo") if isinstance(team, dict) else None
+                if not isinstance(logo, str) or not logo.startswith("https://nisa.sportzstudio.com/team_images/"):
                     errors.append(f"data/swpl-overrides.json: {side} team is missing its official crest")
     except (OSError, json.JSONDecodeError) as error:
         errors.append(f"data/swpl-overrides.json: {error}")
