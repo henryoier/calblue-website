@@ -2,7 +2,10 @@
   "source": {
     "type": "schedule-preview",
     "reference": "749.jpg",
-    "note": "Provisional SWPL schedule supplied September 3, 2026; official profile rows replace matching preview entries automatically."
+    "note": "League fixtures use the September 3, 2026 preview; Abronzino Cup fixtures use the updated September 14 group-stage schedule. Official profile rows replace matching entries within the same competition automatically.",
+    "cupReference": "4a07243c9bceb3e7e44759b7b0abf080.jpg",
+    "cupGroup": "C",
+    "cupNote": "CalBlue has two listed Group C fixtures. No CalBlue Cup game is listed for September 26–27. Kickoff times are interpreted as Pacific Time."
   },
   "fixtures": [
     {
@@ -32,23 +35,6 @@
       "conference": "Mens Open Pacific · 1st PPL",
       "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
       "status": "scheduled",
-      "editorial": true,
-      "provisional": true
-    },
-    {
-      "id": "preview-2026-09-26-abronzino-group-1",
-      "date": "2026-09-26",
-      "startsAt": null,
-      "timeLabel": "Time TBA",
-      "competition": "Abronzino Cup",
-      "round": "Group Stage 1",
-      "home": { "name": "CalBlue FC", "url": "https://pacific.swplsoccer.com/teams/calblue-fc", "logo": "https://nisa.sportzstudio.com/team_images/1786032806_a.png" },
-      "away": { "name": "Opponent TBA", "url": null, "logo": null },
-      "venue": { "name": "Venue TBA", "mapUrl": null },
-      "conference": "SWPL Cup",
-      "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
-      "status": "scheduled",
-      "eventOnly": true,
       "editorial": true,
       "provisional": true
     },
@@ -98,19 +84,18 @@
       "provisional": true
     },
     {
-      "id": "preview-2026-10-24-abronzino-group-2",
-      "date": "2026-10-24",
-      "startsAt": null,
-      "timeLabel": "Time TBA",
+      "id": "preview-2026-10-25-abronzino-jsc-jasa",
+      "date": "2026-10-25",
+      "startsAt": "2026-10-25T19:00:00-07:00",
+      "timeLabel": "7:00 PM PT",
       "competition": "Abronzino Cup",
-      "round": "Group Stage 2",
-      "home": { "name": "CalBlue FC", "url": "https://pacific.swplsoccer.com/teams/calblue-fc", "logo": "https://nisa.sportzstudio.com/team_images/1786032806_a.png" },
-      "away": { "name": "Opponent TBA", "url": null, "logo": null },
-      "venue": { "name": "Venue TBA", "mapUrl": null },
-      "conference": "SWPL Cup",
+      "round": "Group C",
+      "home": { "name": "JSC JASA", "url": "https://pacific.swplsoccer.com/teams/jsc-jasa", "logo": "https://nisa.sportzstudio.com/team_images/1758051912_a.png" },
+      "away": { "name": "CalBlue FC", "url": "https://pacific.swplsoccer.com/teams/calblue-fc", "logo": "https://nisa.sportzstudio.com/team_images/1786032806_a.png" },
+      "venue": { "name": "Red Morton Park - Bechet Field", "mapUrl": "https://www.google.com/maps/search/?api=1&query=Bechet+Field+Red+Morton+Park" },
+      "conference": "SWPL Cup · Group C",
       "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
       "status": "scheduled",
-      "eventOnly": true,
       "editorial": true,
       "provisional": true
     },
@@ -160,19 +145,18 @@
       "provisional": true
     },
     {
-      "id": "preview-2026-11-21-abronzino-group-3",
-      "date": "2026-11-21",
-      "startsAt": null,
-      "timeLabel": "Time TBA",
+      "id": "preview-2026-11-22-abronzino-south-san-francisco",
+      "date": "2026-11-22",
+      "startsAt": "2026-11-22T19:30:00-08:00",
+      "timeLabel": "7:30 PM PT",
       "competition": "Abronzino Cup",
-      "round": "Group Stage 3",
+      "round": "Group C",
       "home": { "name": "CalBlue FC", "url": "https://pacific.swplsoccer.com/teams/calblue-fc", "logo": "https://nisa.sportzstudio.com/team_images/1786032806_a.png" },
-      "away": { "name": "Opponent TBA", "url": null, "logo": null },
-      "venue": { "name": "Venue TBA", "mapUrl": null },
-      "conference": "SWPL Cup",
+      "away": { "name": "South San Francisco AC", "url": "https://pacific.swplsoccer.com/teams/south-san-francisco-ac", "logo": "https://nisa.sportzstudio.com/team_images/1663784092_a.png" },
+      "venue": { "name": "Fair Oaks Park Field 3", "mapUrl": "https://www.google.com/maps/search/?api=1&query=Fair+Oaks+Park+Field+3" },
+      "conference": "SWPL Cup · Group C",
       "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
       "status": "scheduled",
-      "eventOnly": true,
       "editorial": true,
       "provisional": true
     },

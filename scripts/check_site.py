@@ -98,12 +98,12 @@ def main() -> int:
     try:
         swpl_preview = json.loads((ROOT / "data" / "swpl-overrides.json").read_text(encoding="utf-8"))
         preview_fixtures = swpl_preview.get("fixtures", [])
-        cup_dates = [fixture for fixture in preview_fixtures if fixture.get("eventOnly")]
-        if len(preview_fixtures) != 12 or len(cup_dates) != 3:
-            errors.append("data/swpl-overrides.json: expected 9 league fixtures and 3 cup dates")
+        cup_fixtures = [fixture for fixture in preview_fixtures if fixture.get("competition") == "Abronzino Cup"]
+        if len(preview_fixtures) != 11 or len(cup_fixtures) != 2:
+            errors.append("data/swpl-overrides.json: expected 9 league fixtures and 2 Cup Group C fixtures")
+        if any(fixture.get("eventOnly") for fixture in cup_fixtures):
+            errors.append("data/swpl-overrides.json: Cup fixtures must have named opponents, not date placeholders")
         for fixture in preview_fixtures:
-            if fixture.get("eventOnly"):
-                continue
             for side in ("home", "away"):
                 logo = fixture.get(side, {}).get("logo", "")
                 if not logo.startswith("https://nisa.sportzstudio.com/team_images/"):

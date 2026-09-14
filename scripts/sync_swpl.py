@@ -261,12 +261,22 @@ def matchup_key(fixture: dict[str, object]) -> tuple[str, str]:
     )
 
 
+def competition_key(fixture: dict[str, object]) -> str:
+    """Keep Cup fixtures separate while allowing official/preview label variants."""
+    if "abronzino" in str(fixture.get("competition", "")).lower():
+        return "abronzino-cup"
+    # Official league rows say "Regular Season"; older previews may omit a label.
+    return "swpl-league"
+
+
 def merge_overrides(
     fixtures: list[dict[str, object]], overrides: list[dict[str, object]], today: date
 ) -> list[dict[str, object]]:
     merged = list(fixtures)
-    existing = {fixture_key(fixture) for fixture in fixtures}
-    official_matchups = {matchup_key(fixture) for fixture in fixtures}
+    existing = {(competition_key(fixture), fixture_key(fixture)) for fixture in fixtures}
+    official_matchups = {
+        (competition_key(fixture), matchup_key(fixture)) for fixture in fixtures
+    }
     for override in overrides:
         if not isinstance(override, dict):
             raise ValueError("SWPL override fixtures must be JSON objects")
@@ -291,9 +301,9 @@ def merge_overrides(
             )
             if official_cup_on_date:
                 continue
-        elif matchup_key(override) in official_matchups:
+        elif (competition_key(override), matchup_key(override)) in official_matchups:
             continue
-        key = fixture_key(override)
+        key = (competition_key(override), fixture_key(override))
         if key not in existing:
             merged.append(override)
             existing.add(key)

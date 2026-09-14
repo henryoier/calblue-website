@@ -29,6 +29,10 @@ jobs:
         run: python3 -m unittest discover -s tests -v
       - name: Test player directory merging
         run: node tests/test_player_directory.js
+      - name: Test competition and homepage schedules
+        run: |
+          node tests/test_competition_schedule.js
+          node tests/test_homepage_schedule.js
       - name: Sync official SWPL schedule
         run: |
           curl --fail --silent --show-error --location \

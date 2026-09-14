@@ -132,7 +132,7 @@
   };
 
   const fixtureSummary = (fixture) => {
-    if (fixture.eventOnly || fixture.competition.toLowerCase().includes('abronzino')) {
+    if (fixture.eventOnly) {
       return `Abronzino Cup · ${fixture.round || 'Fixture TBA'}`;
     }
     const opponent = isCalBlue(fixture.home.name) ? fixture.away.name : fixture.home.name;
@@ -180,7 +180,7 @@
       details.className = 'fixture-row-link';
       details.href = destination.href;
       details.setAttribute('aria-label', `${fixtureSummary(fixture)} — view ${destination.label} schedule`);
-      meta.textContent = `${fixture.competition} · ${fixture.timeLabel} · ${fixture.venue.name} · View schedule →`;
+      meta.textContent = `${fixture.competition}${fixture.round ? ` · ${fixture.round}` : ''} · ${fixture.timeLabel} · ${fixture.venue.name} · View schedule →`;
       copy.append(opponent, meta);
       details.append(createFixtureCrest(opponentFor(fixture)), copy);
       item.append(date, details);
