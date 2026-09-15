@@ -20,12 +20,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, default=Path(".media-build"), help="Generated media root")
     parser.add_argument("--expected", type=int, help="Fail unless this many images are found")
     parser.add_argument("--limit", type=int, help="Build only the first N images after filename sorting")
+    parser.add_argument("--start-index", type=int, default=1, help="First output image number (use when appending to an album)")
     parser.add_argument("--thumbnail-max", type=int, default=1200)
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
+    if args.start_index < 1:
+        raise SystemExit("--start-index must be at least 1")
     register_heif_opener()
 
     source_files = sorted(
@@ -48,7 +51,8 @@ def main() -> int:
     thumbnail_dir.mkdir(parents=True, exist_ok=True)
     full_dir.mkdir(parents=True, exist_ok=True)
 
-    for index, source_path in enumerate(source_files, 1):
+    for offset, source_path in enumerate(source_files):
+        index = args.start_index + offset
         number = f"{index:03d}"
         with Image.open(source_path) as source_image:
             full_image = ImageOps.exif_transpose(source_image).convert("RGB")
@@ -70,7 +74,7 @@ def main() -> int:
                 subsampling=1,
             )
 
-        print(f"{args.slug}: {number}/{len(source_files)} {source_path.name}")
+        print(f"{args.slug}: {number} ({offset + 1}/{len(source_files)}) {source_path.name}")
 
     print(f"Built {len(source_files)} images for {args.slug} in {args.output}")
     return 0

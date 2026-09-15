@@ -37,7 +37,19 @@ The 2026 Kylin Cup albums use `kylin-aurora`, `kylin-dallas-group`, `kylin-kirin
 
 ## Configure R2 credentials locally
 
-The September 13, 2026 SWPL season opener against SF Glens uses `swpl-sf-glens` with 61 photos. The source is [the shared Drive album](https://drive.google.com/drive/folders/13ABmOL8_1zxd6nJBmlN2sKnrf3S-F5dp). Confirm the complete Drive listing before downloading: its initial folder view exposes only 50 of the 61 files. Build with `--expected 61`.
+The September 13, 2026 SWPL season opener against SF Glens uses `swpl-sf-glens` with 99 photos. The [original Drive album](https://drive.google.com/drive/folders/13ABmOL8_1zxd6nJBmlN2sKnrf3S-F5dp) supplies photos `001`–`061`; confirm its complete listing because the initial folder view exposes only 50 of the 61 files. The [additional photo source](https://drive.google.com/drive/folders/1oVoJz4RIPLmQNDp4gOO4v9sr9u5SK_dv) supplies 38 HEIC still photos, appended as `062`–`099`. Its seven MOV videos are excluded from the website.
+
+Keep the existing `001`–`061` thumbnail and full-resolution URLs unchanged. Build additional still photos in an isolated staging directory, number them starting at `062`, and upload only the new objects; do not rebuild or overwrite the first batch. Deduplicate against the original photos before assigning new numbers. The archive now contains 654 still photographs across 13 albums.
+
+```bash
+.venv-media/bin/python scripts/build_r2_album.py \
+  --slug swpl-sf-glens --source "/path/to/additional-still-photos" \
+  --output .media-build/swpl-glens-additions --expected 38 --start-index 62
+.venv-media/bin/python scripts/upload_r2_media.py \
+  --source .media-build/swpl-glens-additions --dry-run
+```
+
+After checking that the upload lists only `062`–`099`, repeat the upload command without `--dry-run`. The builder accepts still-image extensions only and strips original metadata when encoding web JPEGs.
 
 Create an R2 API token limited to Object Read & Write access for the media bucket. Copy the provided example and fill it in locally; never commit or share this file:
 
