@@ -1,0 +1,24 @@
+name: Check app foundation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Enforce the no-build convention
+        run: python3 scripts/check_no_build.py
+      - name: Test Python checks and public-site logic
+        run: python3 -m unittest discover -s tests -v
+      - name: Test app JavaScript logic (existing Node, no packages)
+        run: python3 scripts/run_js_tests.py
+      - name: Validate the public site
+        run: python3 scripts/check_site.py

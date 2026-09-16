@@ -2,7 +2,7 @@
 //
 // Kept free of DOM so the same suite runs in two places: in the browser via app/tests/, and on the
 // command line via scripts/run_js_tests.py, which executes it under JavaScriptCore (osascript).
-// There is no node on this machine, so that CLI path is the only way these actually get run in CI.
+// The CLI uses Node when available (CI), or macOS JavaScriptCore without installing packages.
 //
 // DOM-dependent behaviour (toFragment, mount, attribute parsing) lives in dom.test.js and is
 // browser-only by necessity.

@@ -1,6 +1,6 @@
 import * as dom from "../js/dom.js";
 import { domLogicTests } from "./dom.logic.js";
-import { test, equal, assert } from "./runner.js";
+import { test, equal, assert, report } from "./runner.js";
 
 // The pure-logic suite, shared with scripts/run_js_tests.py.
 domLogicTests(dom, { test, equal, assert });
@@ -44,4 +44,11 @@ test("[dom] el throws instead of returning null", () => {
   let threw = false;
   try { dom.el("#definitely-not-there"); } catch (_) { threw = true; }
   assert(threw, "el should throw on a missing selector");
+});
+
+test("[dom] report renders <img> examples as text", () => {
+  const host = document.createElement("div");
+  report(host);
+  equal(host.querySelector("img"), null, "test descriptions must not create HTML elements");
+  assert(host.textContent.includes("<img>"), "the original description should remain readable");
 });

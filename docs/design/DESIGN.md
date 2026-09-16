@@ -36,6 +36,8 @@ Nothing here has been built. The point of writing it down first is that the part
 
 Firebase or a hand-rolled API would both work. The schema in `schema.sql` is standard Postgres, so this is a reversible decision — but the row-level-security story is materially better here, and for a volunteer-run club "the database enforces it" is worth more than it would be at a company with a security review process.
 
+The client-stack decision is recorded in [ADR 0001 — plain ES modules, no build step](adr/0001-client-stack.md) (issue #23). Source for the member app lives in `/app/`, separate from the public pages, and uses relative JavaScript imports plus an exactly pinned Supabase CDN client. The first PR establishes only that skeleton; authentication, database policies and production app-origin configuration follow in their own issues. Static frontend files are public: private data must be protected by Supabase Auth and row-level security, not by the directory name.
+
 ---
 
 ## 3. Eight decisions that shape everything else
