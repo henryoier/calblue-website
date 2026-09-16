@@ -9,6 +9,8 @@ from pathlib import Path
 import re
 import sys
 
+from check_secrets import check_repository
+
 
 ROOT = Path(__file__).resolve().parent.parent
 PAGES = tuple(ROOT.glob("*.html"))
@@ -83,6 +85,9 @@ def check_page(path: Path) -> list[str]:
 
 def main() -> int:
     errors = [error for page in PAGES for error in check_page(page)]
+
+    for path, finding in check_repository(ROOT):
+        errors.append(f"{path.relative_to(ROOT)}: {finding}")
 
     try:
         swpl = json.loads((ROOT / "data" / "swpl.json").read_text(encoding="utf-8"))
