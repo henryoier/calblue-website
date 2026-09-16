@@ -18,6 +18,10 @@ jobs:
         run: python3 scripts/check_no_build.py
       - name: Reject Supabase service credentials
         run: python3 scripts/check_secrets.py
+      - name: Check core SQL structure and deny-by-default access
+        run: python3 scripts/check_sql.py
+      - name: Check generated migration matches its source
+        run: python3 scripts/build_migrations.py --check
       - name: Test Python checks and public-site logic
         run: python3 -m unittest discover -s tests -v
       - name: Test app JavaScript logic (existing Node, no packages)

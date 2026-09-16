@@ -10,6 +10,10 @@
 
 create extension if not exists pgcrypto;
 create extension if not exists citext;
+-- Supabase may already have citext in its extensions schema. This setup path
+-- applies only inside the generated migration transaction; helpers below use
+-- their own fixed empty search_path and fully qualified application objects.
+set local search_path = public, extensions;
 
 -- ---------------------------------------------------------------------
 -- 0. Conventions
@@ -19,10 +23,16 @@ create extension if not exists citext;
 --   * money is numeric(10,2); it is exact, and the client formats it
 --   * all instants are timestamptz (UTC); the *local* calendar date that
 --     matters for billing is stored separately (see games.game_date)
+-- Issue #25 extraction corrections are intentional: defer the players/clubs
+-- FK until both tables exist; complete mutable timestamps; derive game dates
+-- from the venue timezone; enforce one scope per role grant; serialize slot
+-- transitions and keep internal helpers/client table access closed by default.
+-- Core is installed atomically once. Later policy migrations must explicitly
+-- grant the minimum client privileges; creating a policy alone grants nothing.
 -- ---------------------------------------------------------------------
 
 create or replace function public.touch_updated_at() returns trigger
-language plpgsql as $$
+language plpgsql set search_path = '' as $$
 begin
   new.updated_at := now();
   return new;
@@ -53,7 +63,7 @@ create trigger profiles_touch before update on public.profiles
   for each row execute function public.touch_updated_at();
 
 create or replace function public.handle_new_user() returns trigger
-language plpgsql security definer set search_path = public as $$
+language plpgsql security definer set search_path = '' as $$
 begin
   insert into public.profiles (id, email, display_name)
   values (new.id, new.email,
@@ -70,7 +80,7 @@ create trigger on_auth_user_created after insert on auth.users
 -- recursive). NOTE: the claim only changes when the token is refreshed —
 -- after a promotion, the user must re-login or refresh.
 create or replace function public.sync_role_claim() returns trigger
-language plpgsql security definer set search_path = public, auth as $$
+language plpgsql security definer set search_path = '' as $$
 begin
   if tg_op = 'INSERT' or new.roles is distinct from old.roles then
     update auth.users
@@ -106,7 +116,7 @@ create table public.players (
   preferred_number        int check (preferred_number between 0 and 99),
   jersey_size             text,
   photo_url               text,
-  home_club_id            uuid references public.clubs(id) on delete set null,
+  home_club_id            uuid,  -- FK added below, after clubs exists
   emergency_contact_name  text,
   emergency_contact_phone text,
   medical_notes           text,                           -- restricted, see RLS
@@ -173,6 +183,11 @@ create table public.clubs (
   updated_at     timestamptz not null default now()
 );
 create unique index clubs_only_one_us on public.clubs(is_us) where is_us;
+create trigger clubs_touch before update on public.clubs
+  for each row execute function public.touch_updated_at();
+
+alter table public.players add constraint players_home_club_id_fkey
+  foreign key (home_club_id) references public.clubs(id) on delete set null;
 
 -- CalBlue currently fields one squad; this exists so that adding a B team, a
 -- veterans side, or a visiting club's team is a row rather than a migration.
@@ -183,10 +198,13 @@ create table public.teams (
   short_name  text,
   age_group   text,
   is_default  boolean not null default false,   -- our primary squad
-  created_at  timestamptz not null default now()
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
 );
 create index teams_by_club on public.teams(club_id);
 create unique index teams_one_default on public.teams(is_default) where is_default;
+create trigger teams_touch before update on public.teams
+  for each row execute function public.touch_updated_at();
 
 
 create table public.competitions (
@@ -294,13 +312,23 @@ create index games_published on public.games(status, start_time)
   where status in ('published','reg_closed');
 
 create or replace function public.set_game_date() returns trigger
-language plpgsql as $$
+language plpgsql security definer set search_path = '' as $$
+declare venue_timezone text;
 begin
+  -- A named venue is authoritative; venue-less games use their own timezone.
+  -- Run on every write so a direct game_date assignment cannot bypass derivation.
+  if new.venue_id is not null then
+    select timezone into venue_timezone from public.venues where id = new.venue_id;
+    if not found then
+      raise exception 'venue_not_found' using errcode = '23503';
+    end if;
+    new.timezone := venue_timezone;
+  end if;
   new.game_date := (new.start_time at time zone new.timezone)::date;
   return new;
 end $$;
 
-create trigger games_set_date before insert or update of start_time, timezone
+create trigger games_set_date before insert or update
   on public.games for each row execute function public.set_game_date();
 create trigger games_touch before update on public.games
   for each row execute function public.touch_updated_at();
@@ -319,14 +347,16 @@ create table public.role_grants (
   team_id        uuid references public.teams(id) on delete cascade,
   granted_by     uuid references public.profiles(id),
   created_at     timestamptz not null default now(),
+  updated_at     timestamptz not null default now(),
   constraint role_grant_allowed
     check (role in ('organiser','manager','captain','coach','treasurer')),
   constraint role_grant_scope_required
-    check (competition_id is not null or game_id is not null
-           or team_id is not null)
+    check (num_nonnulls(competition_id, game_id, team_id) = 1)
 );
 create index role_grants_by_account on public.role_grants(account_id);
 create index role_grants_by_comp    on public.role_grants(competition_id);
+create trigger role_grants_touch before update on public.role_grants
+  for each row execute function public.touch_updated_at();
 
 
 -- =====================================================================
@@ -403,15 +433,41 @@ create trigger greg_touch before update on public.game_registrations
 -- two people clicking "register" at the same moment cannot both get the last
 -- slot. The application catches 'game_full' and offers the waitlist instead.
 create or replace function public.enforce_game_capacity() returns trigger
-language plpgsql as $$
+language plpgsql security definer set search_path = '' as $$
 declare cap int; taken int;
 begin
+  -- The count must get a fresh snapshot after waiting for the advisory lock.
+  -- A REPEATABLE READ snapshot can predate another transaction's committed seat.
+  -- Support only this isolation contract; fail closed for other modes.
+  if current_setting('transaction_isolation') <> 'read committed' then
+    raise exception 'registration_requires_read_committed' using errcode = '0A000';
+  end if;
+  -- Serialize all row transitions, including waitlist cancellations and deletes.
+  -- Counting as the trusted function owner avoids undercounting rows hidden by RLS.
+  if tg_op = 'DELETE' then
+    perform pg_advisory_xact_lock(hashtextextended(old.game_id::text, 0));
+    return old;
+  end if;
+  if tg_op = 'UPDATE' then
+    if new.id is distinct from old.id
+       or new.game_id is distinct from old.game_id
+       or new.player_id is distinct from old.player_id then
+      raise exception 'registration_identity_is_immutable' using errcode = '23514';
+    end if;
+  end if;
+
+  perform pg_advisory_xact_lock(hashtextextended(new.game_id::text, 0));
   if new.status <> 'registered'
      or new.participation not in ('player','keeper') then
     return new;
   end if;
 
-  perform pg_advisory_xact_lock(hashtextextended(new.game_id::text, 0));
+  if tg_op = 'UPDATE' then
+    -- Editing a row that already occupies a slot does not take another slot.
+    if old.status = 'registered' and old.participation in ('player','keeper') then
+      return new;
+    end if;
+  end if;
 
   select capacity into cap from public.games where id = new.game_id;
   if cap is null then
@@ -423,7 +479,9 @@ begin
    where game_id = new.game_id
      and status = 'registered'
      and participation in ('player','keeper')
-     and id <> new.id;
+     -- The unique(game_id, player_id) constraint prevents another seat for this
+     -- player. Excluding it also permits an idempotent INSERT ... ON CONFLICT.
+     and player_id <> new.player_id;
 
   if taken >= cap then
     raise exception 'game_full' using errcode = '23514';
@@ -432,22 +490,28 @@ begin
 end $$;
 
 create trigger greg_capacity
-  before insert or update of status, participation on public.game_registrations
+  before insert or update or delete on public.game_registrations
   for each row execute function public.enforce_game_capacity();
 
 
--- When a slot frees up, promote the longest-waiting person. Guarded so the
--- cascade stops as soon as the game is full again.
+-- When a counted slot frees up, promote the earliest available player/keeper.
+-- Locked candidates are skipped to avoid row-lock/advisory-lock deadlocks with
+-- concurrent cancellations; status is rechecked so cancellations cannot be undone.
 create or replace function public.promote_from_waitlist(p_game uuid)
 returns uuid
-language plpgsql security definer set search_path = public as $$
-declare cap int; taken int; promoted uuid;
+language plpgsql security definer set search_path = '' as $$
+declare cap int; taken int; promoted uuid; game_status text; queue_enabled boolean;
 begin
+  if current_setting('transaction_isolation') <> 'read committed' then
+    raise exception 'registration_requires_read_committed' using errcode = '0A000';
+  end if;
   perform pg_advisory_xact_lock(hashtextextended(p_game::text, 0));
 
-  select capacity into cap from public.games where id = p_game;
-  if cap is null then
-    return null;                        -- unlimited: nobody is ever waitlisted
+  select capacity, status, waitlist_enabled into cap, game_status, queue_enabled
+    from public.games where id = p_game;
+  if not found or cap is null or not queue_enabled
+     or game_status not in ('published','reg_closed') then
+    return null;
   end if;
 
   select count(*) into taken
@@ -459,28 +523,65 @@ begin
     return null;
   end if;
 
-  update public.game_registrations
-     set status = 'registered'
-   where id = (select id from public.game_registrations
-                where game_id = p_game and status = 'waitlisted'
-                order by registered_at
-                limit 1)
-  returning id into promoted;
+  select id into promoted from public.game_registrations
+   where game_id = p_game and status = 'waitlisted'
+     and participation in ('player','keeper')
+   order by registered_at, id
+   limit 1 for update skip locked;
+
+  if promoted is not null then
+    update public.game_registrations set status = 'registered'
+     where id = promoted and game_id = p_game and status = 'waitlisted'
+       and participation in ('player','keeper')
+    returning id into promoted;
+  end if;
 
   return promoted;   -- caller (or a notification trigger) tells the player
 end $$;
 
 create or replace function public.on_slot_freed() returns trigger
-language plpgsql as $$
+language plpgsql security definer set search_path = '' as $$
 begin
-  if old.status = 'registered' and new.status <> 'registered' then
-    perform public.promote_from_waitlist(new.game_id);
+  if old.status = 'registered' and old.participation in ('player','keeper') then
+    if tg_op = 'DELETE' then
+      perform public.promote_from_waitlist(old.game_id);
+    elsif new.status <> 'registered' or new.participation not in ('player','keeper') then
+      perform public.promote_from_waitlist(old.game_id);
+    end if;
   end if;
   return null;
 end $$;
 
-create trigger greg_promote after update of status on public.game_registrations
+create trigger greg_promote after update or delete on public.game_registrations
   for each row execute function public.on_slot_freed();
+
+-- Core must be safe to install before issue #27's policy/grant design exists.
+-- RLS without policies denies row access; revoke table privileges too because
+-- operations such as TRUNCATE are not controlled by RLS. Internal trigger
+-- functions run under their owner where needed, not as public RPC endpoints.
+alter table public.profiles enable row level security;
+alter table public.players enable row level security;
+alter table public.venues enable row level security;
+alter table public.clubs enable row level security;
+alter table public.teams enable row level security;
+alter table public.competitions enable row level security;
+alter table public.games enable row level security;
+alter table public.role_grants enable row level security;
+alter table public.competition_registrations enable row level security;
+alter table public.game_registrations enable row level security;
+
+revoke all on table public.profiles, public.players, public.venues, public.clubs,
+  public.teams, public.competitions, public.games, public.role_grants,
+  public.competition_registrations, public.game_registrations
+  from public, anon, authenticated;
+
+revoke all on function public.touch_updated_at() from public, anon, authenticated;
+revoke all on function public.handle_new_user() from public, anon, authenticated;
+revoke all on function public.sync_role_claim() from public, anon, authenticated;
+revoke all on function public.set_game_date() from public, anon, authenticated;
+revoke all on function public.enforce_game_capacity() from public, anon, authenticated;
+revoke all on function public.promote_from_waitlist(uuid) from public, anon, authenticated;
+revoke all on function public.on_slot_freed() from public, anon, authenticated;
 
 
 -- =====================================================================
@@ -937,6 +1038,7 @@ $$;
 alter table public.profiles                  enable row level security;
 alter table public.players                   enable row level security;
 alter table public.role_grants               enable row level security;
+alter table public.clubs                     enable row level security;
 alter table public.venues                    enable row level security;
 alter table public.teams                     enable row level security;
 alter table public.competitions              enable row level security;
@@ -1003,6 +1105,10 @@ create policy games_write on public.games for all
 create policy competitions_read on public.competitions for select
   using (status <> 'draft' or public.is_admin());
 create policy competitions_write on public.competitions for all
+  using (public.is_admin()) with check (public.is_admin());
+
+create policy clubs_read on public.clubs for select using (true);
+create policy clubs_write on public.clubs for all
   using (public.is_admin()) with check (public.is_admin());
 
 create policy venues_read on public.venues for select using (true);
@@ -1304,16 +1410,11 @@ language sql stable security definer set search_path = public as $$
                           and rg.tournament_entry_id = te.id)))
 $$;
 
-alter table public.clubs               enable row level security;
 alter table public.tournament_entries  enable row level security;
 alter table public.competition_groups  enable row level security;
 alter table public.entry_roster        enable row level security;
 alter table public.game_results        enable row level security;
 alter table public.game_events         enable row level security;
-
-create policy clubs_read on public.clubs for select using (true);
-create policy clubs_write on public.clubs for all
-  using (public.is_admin()) with check (public.is_admin());
 
 -- an approved entry is public (it is on the fixture list); your own entry is
 -- visible to you at every status
