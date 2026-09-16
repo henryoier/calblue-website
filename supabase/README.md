@@ -84,26 +84,48 @@ of SQL structure and repository conventions; it cannot prove PostgreSQL executio
 trigger behavior, delivery of Auth emails or concurrency correctness.
 
 1. Use a **fresh, disposable Supabase scratch project**, not a project containing member data.
-   These files have not been applied to the configured CalBlue project. No database password is
-   needed when using the dashboard SQL Editor as the project administrator.
-2. Review the complete `migrations/0001_core.sql`, then run it once in the scratch SQL Editor.
-   Confirm there are no SQL errors. If it fails, report the error; do not drop tables or loosen
-   permissions to get past it.
-3. Run `tests/0001_core_smoke.sql` in that same scratch project. It uses synthetic accounts and
-   players inside a transaction, checks constraints/triggers and restricted access, then rolls
-   its test changes back. The success result is emitted before rollback, so an aborted test
-   cannot appear successful merely because rollback succeeded.
-   Separately run `tests/0001_core_isolation_smoke.sql` to verify that a `REPEATABLE READ`
-   transaction is rejected before a stale-snapshot capacity check can run. Both scripts must
-   finish without errors; passing one does not compensate for failure in the other.
-4. Record the scratch run outcome in PR #79. Confirm especially that a second player identity
-   for the same account is rejected. Do not paste passwords, private keys or real member data
-   into the PR.
+   Keep it separate from the configured CalBlue project; these files have not been applied there.
+   In the scratch dashboard, open **SQL Editor → New query** and use the `postgres` / database-owner
+   role, not an `anon` or `authenticated` session. No database password is needed in the editor.
+2. Review [migrations/0001_core.sql](migrations/0001_core.sql), copy the **complete file** into the
+   query, clear any partial text selection, and run it **once**. Confirm there are no SQL errors.
+   This commits the ten core tables and their restrictions to the scratch project. If it fails,
+   stop and report the exact error; do not drop tables or loosen permissions to get past it.
+3. Open another new query in the **same scratch project** and run the complete
+   [tests/0001_core_smoke.sql](tests/0001_core_smoke.sql). Then use a separate new query for the
+   complete [tests/0001_core_isolation_smoke.sql](tests/0001_core_isolation_smoke.sql).
+   Do not run just a selected statement or paste all three files into one query. The core script
+   checks synthetic accounts, constraints, triggers and restricted access; the isolation script
+   checks rejection of `REPEATABLE READ`. Expected failures, including the duplicate-account
+   identity check, are caught and asserted inside the scripts, so you should not see those as
+   unhandled SQL errors.
+
+   Both scripts must finish without errors; passing one does not compensate for failure in the
+   other. Each emits a success **notice** before its final `ROLLBACK`; the dashboard may not show
+   notices in its results pane. Do not mistake a standalone rollback or a generic no-rows message
+   for proof that the entire script ran. Stop on any SQL error and report it. Successful smoke
+   runs roll back synthetic users/data, temporary policies and grants; the schema installed in
+   step 2 remains. Do not rerun the migration just to repeat a smoke test.
+4. Record the tested commit and each run outcome in PR #79 using the template below. The scripts
+   are reviewed but **not yet executed against PostgreSQL by the coding agent**. Do not paste
+   passwords, private keys or real member data into the PR.
 5. Separately verify two-session races on the scratch project before enabling registration:
    two players competing for one remaining slot, simultaneous cancellation/promotion, and
    cancellation of a candidate selected for promotion. Verify no overbooking or resurrection
    of a cancelled registration. Use two independent transactions; sequential smoke tests do
    not prove these properties. Avoid assuming that separate SQL Editor runs retain a session.
+
+Copy this result template into the PR after testing and replace `not run` with the actual result:
+
+```text
+Tested PR commit: <full commit SHA>
+Environment: fresh disposable Supabase project; database-owner role
+0001_core.sql: not run
+0001_core_smoke.sql: not run
+0001_core_isolation_smoke.sql: not run
+SQL error, if any: <exact error text, with private information removed>
+Two-session concurrency: not tested
+```
 
 Until the scratch application and smoke checks are confirmed, PR #79 **addresses** issue #25
 rather than claiming it is fully verified. CI remains entirely offline with respect to Supabase.
