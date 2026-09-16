@@ -27,6 +27,12 @@ Validate the site before publishing:
 python3 scripts/check_site.py
 ```
 
+## Match-day posters
+
+The homepage poster block follows the next fixture that has artwork in `data/matchday-posters.json`. Each fixture ships two no-photo designs under `assets/matchday/2026-fall/` (a distinctive per-game style and the classic navy/gold/cream layout, both 1296×1616 WebP with the SWPL and Pacific Premier League marks). `swpl-schedule.js` picks one of the two at random on every visit; append `?poster=1` or `?poster=2` to the homepage URL to force a design for review. Fixtures without artwork (for example NCCSF games) are skipped, and the block hides itself when nothing upcoming has a poster.
+
+Manifest keys are `YYYY-MM-DD-<opponent-slug>`, so a fixture whose date or opponent changes in the official feed needs its posters regenerated and re-keyed. `tests/test_matchday_posters.py` fails when the manifest and `data/swpl.json` drift apart or a listed file is missing; `tests/test_matchday_poster.js` covers the rotation logic (run with `node` or `osascript -l JavaScript`). Posters are rendered outside this repository with the club's Pillow poster pipeline; the source scripts live with the poster review set.
+
 ## Official schedule sync
 
 The homepage match center merges CalBlue's official SWPL profile with its 2026 NCCSF Fall League schedule:
