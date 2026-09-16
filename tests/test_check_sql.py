@@ -102,6 +102,88 @@ def money_fixture():
     return "\n".join(sql)
 
 
+def policy_fixture():
+    """Independent policy/ACL shape, not an executable authorization model."""
+    tables = (
+        "profiles", "players", "venues", "clubs", "teams", "competitions", "games",
+        "role_grants", "competition_registrations", "game_registrations", "fee_schedules",
+        "billing_periods", "charges", "payments", "period_player_summaries",
+        "period_account_summaries", "audit_log",
+    )
+    helpers = (
+        ("app_roles", "", ""), ("has_role", "r text", "text"), ("is_admin", "", ""),
+        ("has_grant_on_competition", "c uuid, roles text[]", "uuid,text[]"),
+        ("owns_player", "p uuid", "uuid"), ("can_register_player", "p uuid", "uuid"),
+        ("manages_game", "g uuid", "uuid"),
+        ("can_register_for_game", "g uuid, p uuid", "uuid,uuid"),
+        ("read_game_emergency_contacts", "g uuid", "uuid"),
+        ("finalise_game_attendance", "p_game uuid", "uuid"),
+        ("close_billing_period", "p_period uuid", "uuid"),
+    )
+    sql = ["begin;"]
+    for name, arguments, types in helpers:
+        sql.append(f"""create function public.{name}({arguments}) returns boolean
+            language sql stable security definer set search_path = '' as $$ select true; $$;
+            revoke all on function public.{name}({types}) from public, anon, authenticated;
+            grant execute on function public.{name}({types}) to authenticated;""")
+    sql.append("""create function public.read_public_roster()
+        returns table(id uuid, display_name text, preferred_number integer,
+                      default_positions text[], photo_url text)
+        language sql stable security definer set search_path = '' as $$
+        select p.id, p.display_name, p.preferred_number, p.default_positions, p.photo_url
+          from public.players p where p.is_public and p.verification_status = 'verified';
+        $$;
+        revoke all on function public.read_public_roster() from public, anon, authenticated;
+        grant execute on function public.read_public_roster() to anon, authenticated;
+        create or replace view public.v_public_roster with (security_invoker = true) as
+          select id, display_name, preferred_number, default_positions, photo_url
+          from public.read_public_roster();""")
+    for table, helper in (
+        ("profiles", "guard_role_change"), ("players", "guard_verification"),
+        ("game_registrations", "guard_attendance"),
+    ):
+        sql.append(f"""create function public.{helper}() returns trigger
+            language plpgsql security invoker set search_path = '' as $$ begin return new; end $$;
+            revoke all on function public.{helper}() from public, anon, authenticated;
+            create trigger {table}_guard before insert or update on public.{table}
+              for each row execute function public.{helper}();""")
+    for table in tables:
+        sql.append(f"""alter table public.{table} enable row level security;
+            create policy {table}_read on public.{table} for select to authenticated
+              using (public.is_admin());""")
+    sql.append("""grant usage on schema public to anon, authenticated;
+        grant select on table public.profiles, public.players, public.teams,
+          public.competitions, public.games, public.role_grants,
+          public.competition_registrations, public.game_registrations,
+          public.fee_schedules, public.billing_periods, public.charges, public.payments,
+          public.period_player_summaries, public.period_account_summaries, public.audit_log,
+          public.v_account_balance, public.v_account_ledger, public.v_public_roster
+          to authenticated;
+        grant select on table public.competitions, public.teams,
+          public.fee_schedules, public.v_public_roster to anon;
+        grant select(id,competition_id,team_id,game_type,title,opponent,home_away,
+          home_team_id,away_team_id,stage_label,round_number,venue_id,field_label,
+          timezone,gather_time,start_time,end_time,game_date,capacity,min_players,
+          waitlist_enabled,registration_opens_at,registration_closes_at,kit_color,
+          fee_override,no_show_fee_override,status,cancellation_reason,
+          attendance_locked_at,created_at,updated_at) on table public.games to anon;
+        grant select(id,name,short_name,crest_url,city,is_us,created_at,updated_at)
+          on table public.clubs to anon, authenticated;
+        grant select(id,name,address,map_url,surface,timezone,created_at,updated_at)
+          on table public.venues to anon, authenticated;
+        grant insert, update on table public.players, public.competitions, public.games,
+          public.competition_registrations, public.game_registrations, public.clubs,
+          public.venues, public.teams, public.fee_schedules, public.billing_periods to authenticated;
+        grant update(display_name,phone,locale,roles) on table public.profiles to authenticated;
+        grant insert on table public.payments to authenticated;
+        grant insert(id,player_id,account_id,game_id,competition_id,billing_period_id,
+          kind,description,amount,charge_date,source) on table public.charges to authenticated;
+        grant update(voided_at,void_reason) on table public.charges to authenticated;
+        grant insert, delete on table public.role_grants to authenticated;
+        commit;""")
+    return "\n".join(sql)
+
+
 class LexerTest(unittest.TestCase):
     def test_noise_preserves_offsets_and_newlines(self):
         sql = "-- $$ (\n/* outer\n /* inner */ end */\nselect 'it''s $$)', E'escaped\\\' quote';"
@@ -275,7 +357,8 @@ revoke execute on function public.on_slot_freed() from anon, authenticated;""")
 
 class MoneyMigrationCheckTest(unittest.TestCase):
     def findings(self, sql):
-        return check_sql.check_migrations({check_sql.CORE: core_fixture(), check_sql.MONEY: sql})
+        return check_sql.check_migrations({check_sql.CORE: core_fixture(), check_sql.MONEY: sql},
+                                          required_targets=(check_sql.CORE, check_sql.MONEY))
 
     def assert_problem(self, sql, fragment):
         self.assertTrue(any(fragment in problem for problem in self.findings(sql)), fragment)
@@ -299,14 +382,14 @@ class MoneyMigrationCheckTest(unittest.TestCase):
             {check_sql.CORE: core_fixture()}, required_targets=(check_sql.CORE,),
         ), [])
 
-    def test_cli_accepts_both_complete_installations(self):
+    def test_cli_requires_rls_after_both_complete_installations(self):
         with tempfile.TemporaryDirectory() as directory:
             for name, source in ((check_sql.CORE, core_fixture()), (check_sql.MONEY, money_fixture())):
                 (Path(directory) / name).write_text(source, encoding="utf-8")
             with mock.patch.object(check_sql, "MIG_DIR", Path(directory)), \
                     mock.patch("sys.argv", ["check_sql.py"]), redirect_stdout(io.StringIO()) as output:
-                self.assertEqual(check_sql.main(), 0)
-            self.assertIn("2 migration(s); structural checks only", output.getvalue())
+                self.assertEqual(check_sql.main(), 1)
+            self.assertIn("0003_rls.sql: required RLS migration is missing", output.getvalue())
 
     def test_money_is_one_atomic_installation(self):
         self.assert_problem(money_fixture().replace("begin;", "", 1), "money installation must start with BEGIN")
@@ -446,6 +529,250 @@ class MoneyMigrationCheckTest(unittest.TestCase):
                 where source = 'auto' and voided_at is null and game_id is not null;
             return; end $money$""")
         self.assert_problem(source, "missing charges_auto_once unique index")
+
+
+class PolicyMigrationCheckTest(unittest.TestCase):
+    def findings(self, source):
+        return check_sql.check_migrations({
+            check_sql.CORE: core_fixture(), check_sql.MONEY: money_fixture(),
+            check_sql.POLICIES: source,
+        })
+
+    def assert_problem(self, source, fragment):
+        self.assertTrue(any(fragment in finding for finding in self.findings(source)), fragment)
+
+    def test_independent_policy_contract_passes(self):
+        self.assertEqual(self.findings(policy_fixture()), [])
+
+    def test_cli_accepts_three_complete_installations(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for name, source in ((check_sql.CORE, core_fixture()),
+                                 (check_sql.MONEY, money_fixture()),
+                                 (check_sql.POLICIES, policy_fixture())):
+                (Path(directory) / name).write_text(source, encoding="utf-8")
+            with mock.patch.object(check_sql, "MIG_DIR", Path(directory)), \
+                    mock.patch("sys.argv", ["check_sql.py"]), redirect_stdout(io.StringIO()) as output:
+                self.assertEqual(check_sql.main(), 0)
+            self.assertIn("3 migration(s); structural checks only", output.getvalue())
+
+    def test_missing_third_is_required_by_default(self):
+        self.assertIn("0003_rls.sql: required RLS migration is missing",
+                      check_sql.check_migrations({check_sql.CORE: core_fixture(),
+                                                  check_sql.MONEY: money_fixture()}))
+
+    def test_policy_installation_is_atomic(self):
+        self.assert_problem(policy_fixture().replace("begin;", "", 1), "RLS installation must start with BEGIN")
+        self.assert_problem(policy_fixture().removesuffix("commit;"), "RLS installation must end with COMMIT")
+        self.assert_problem(policy_fixture().replace("commit;", "commit; begin; commit;"),
+                            "transaction boundaries cannot appear inside")
+
+    def test_all_seventeen_tables_need_real_policies(self):
+        for table in check_sql.CORE_TABLES | check_sql.MONEY_TABLES:
+            with self.subTest(table=table):
+                source = policy_fixture().replace(f"create policy {table}_read on public.{table}",
+                                                  f"create policy {table}_read on public.unrelated")
+                self.assert_problem(source, f"public.{table} needs at least one real policy")
+
+    def test_comment_or_string_cannot_supply_policy_coverage(self):
+        statement = "create policy players_read on public.players for select to authenticated\n              using (public.is_admin());"
+        for replacement in ("/* " + statement + " */", "select '" + statement + "';"):
+            with self.subTest(replacement=replacement):
+                self.assert_problem(policy_fixture().replace(statement, replacement),
+                                    "public.players needs at least one real policy")
+
+    def test_dropped_policy_and_late_rls_disable_fail(self):
+        self.assert_problem(policy_fixture().replace("commit;", "drop policy players_read on public.players; commit;"),
+                            "public.players needs at least one real policy")
+        self.assert_problem(policy_fixture().replace("commit;", "alter table public.payments disable row level security; commit;"),
+                            "public.payments must keep RLS enabled")
+
+    def test_profile_queries_in_any_policy_are_rejected(self):
+        for query in (
+            "select 1 from public.profiles", "select 1 from profiles",
+            "select 1 from public.players p join public.profiles a on true",
+            "select 1 from public.players p, public.profiles a",
+        ):
+            with self.subTest(query=query):
+                source = policy_fixture().replace("using (public.is_admin());", f"using (exists({query}));", 1)
+                self.assert_problem(source, "policy queries profiles")
+        source = policy_fixture().replace("using (public.is_admin());",
+                                          "using (public.is_admin() /* from public.profiles */ and 'from public.profiles' <> '');", 1)
+        self.assertFalse(any("policy queries profiles" in issue for issue in self.findings(source)))
+
+    def test_policy_roles_must_be_explicit_and_not_public(self):
+        for roles in ("to public", "to postgres", ""):
+            self.assert_problem(policy_fixture().replace("for select to authenticated", "for select " + roles),
+                                "must explicitly target anon/authenticated and supply a predicate")
+
+    def test_broad_grants_and_grant_options_are_rejected(self):
+        for grant in (
+            "grant all on table public.players to authenticated;",
+            "grant all privileges on public.profiles to public;",
+            "grant execute on all functions in schema public to authenticated;",
+            "grant select on all tables in schema public to anon;",
+            "grant authenticated to anon;",
+            "grant select on table public.games to authenticated with grant option;",
+        ):
+            with self.subTest(grant=grant):
+                self.assert_problem(policy_fixture().replace("commit;", grant + "commit;"), "unsupported or broad GRANT")
+
+    def test_public_and_private_base_table_grants_are_forbidden(self):
+        for grant in (
+            "grant select on table public.games to public;",
+            "grant select on table public.players to anon;",
+            "grant select on table public.profiles to anon;",
+            "grant select on table public.games to anon;",
+            "grant select on table public.v_account_ledger to anon;",
+            "grant select on table public.clubs to authenticated;",
+            "grant select on table public.venues to anon;",
+        ):
+            with self.subTest(grant=grant):
+                self.assert_problem(policy_fixture().replace("commit;", grant + "commit;"), "unapproved client grant")
+
+    def test_column_and_operation_allowlist_is_narrow(self):
+        for grant in (
+            "grant update on table public.profiles to authenticated;",
+            "grant update(email) on table public.profiles to authenticated;",
+            "grant update(amount) on table public.charges to authenticated;",
+            "grant insert on table public.charges to authenticated;",
+            "grant insert(entry_id) on table public.charges to authenticated;",
+            "grant select(notes) on table public.games to anon;",
+            "grant select(created_by) on table public.games to anon;",
+            "grant update on table public.payments to authenticated;",
+            "grant update on table public.role_grants to authenticated;",
+            "grant select(contact_email) on table public.clubs to anon;",
+            "grant delete on table public.games to authenticated;",
+            "grant usage on sequence public.audit_log_id_seq to authenticated;",
+        ):
+            with self.subTest(grant=grant):
+                self.assert_problem(policy_fixture().replace("commit;", grant + "commit;"), "unapproved client grant")
+
+    def test_private_money_and_trigger_helpers_cannot_be_client_rpc(self):
+        for helper in (
+            "write_game_attendance_charges(uuid)", "write_billing_period_summaries(uuid)",
+            "finalise_game_attendance_internal(uuid)", "close_billing_period_internal(uuid)",
+            "assign_to_periods()", "lock_billing()", "handle_new_user()",
+            "guard_role_change()", "promote_from_waitlist(uuid)",
+        ):
+            with self.subTest(helper=helper):
+                grant = f"grant execute on function public.{helper} to authenticated;"
+                self.assert_problem(policy_fixture().replace("commit;", grant + "commit;"), "unapproved client grant")
+        self.assert_problem(policy_fixture().replace("commit;", "grant execute on function public.is_admin() to anon; commit;"),
+                            "unapproved client grant")
+        self.assert_problem(policy_fixture().replace("commit;", "grant execute on function public.read_public_roster() to public; commit;"),
+                            "unapproved client grant")
+
+    def test_default_privilege_regrants_are_not_hidden_from_allowlist(self):
+        source = policy_fixture().replace("commit;",
+            "alter default privileges in schema public grant execute on functions to public; commit;")
+        self.assert_problem(source, "default privilege changes are outside the explicit client allowlist")
+
+    def test_client_grants_must_exist_at_end(self):
+        source = policy_fixture().replace("grant execute on function public.can_register_player(uuid) to authenticated;", "")
+        self.assert_problem(source, "missing explicit client grant: authenticated EXECUTE on function public.can_register_player(uuid)")
+        source = policy_fixture().replace("commit;", "revoke select on table public.players from authenticated; commit;")
+        self.assert_problem(source, "missing explicit client grant: authenticated SELECT on table public.players")
+        source = policy_fixture().replace("commit;", "revoke all on function public.read_public_roster() from anon; commit;")
+        self.assert_problem(source, "missing explicit client grant: anon EXECUTE on function public.read_public_roster()")
+
+    def test_each_function_requires_fixed_empty_path_and_exact_revocations(self):
+        self.assert_problem(policy_fixture().replace("set search_path = ''", "set search_path = public"),
+                            "needs a fixed empty search_path")
+        self.assert_problem(policy_fixture().replace("set search_path = ''", "/* set search_path = '' */"),
+                            "needs a fixed empty search_path")
+        source = policy_fixture().replace("revoke all on function public.has_grant_on_competition(uuid,text[])",
+                                          "revoke all on function public.has_grant_on_competition(uuid,text)")
+        self.assert_problem(source, "public.has_grant_on_competition(uuid,text[]) must revoke EXECUTE")
+        source = policy_fixture().replace("from public, anon, authenticated", "from anon, authenticated")
+        self.assert_problem(source, "must revoke EXECUTE from public")
+        source = policy_fixture().replace("commit;", "create function public.new_policy_helper() returns bool language sql as $$ select true; $$; commit;")
+        self.assert_problem(source, "public.new_policy_helper() needs a fixed empty search_path")
+        self.assert_problem(source, "public.new_policy_helper() must revoke EXECUTE")
+
+    def test_required_function_overloads_cannot_be_substituted(self):
+        source = policy_fixture().replace("function public.can_register_for_game(g uuid, p uuid)",
+                                          "function public.can_register_for_game(g uuid, p text)")
+        self.assert_problem(source, "required client helper public.can_register_for_game(uuid,uuid) is missing")
+
+    def test_late_function_alterations_cannot_weaken_checked_headers(self):
+        for statement in (
+            "alter function public.read_public_roster() set search_path=public;",
+            "alter function read_public_roster() set search_path=public;",
+            "alter function public.guard_role_change() security definer;",
+            "alter function public.is_admin() reset all;",
+            "alter function public.read_public_roster() rename to unsafe_projection;",
+        ):
+            with self.subTest(statement=statement):
+                self.assert_problem(policy_fixture().replace("commit;", statement + "commit;"),
+                                    "function alterations must not bypass checked search paths/privileges")
+        source = policy_fixture().replace("begin;", """begin;
+            alter function public.finalise_game_attendance(uuid) rename to finalise_game_attendance_internal;
+            alter function public.close_billing_period(uuid) rename to close_billing_period_internal;""", 1)
+        self.assertEqual(self.findings(source), [])
+
+    def test_catalog_owner_lookup_cannot_resolve_temporary_pg_class(self):
+        for relation in ("pg_class", "pg_temp.pg_class", "public.pg_class"):
+            with self.subTest(relation=relation):
+                source = policy_fixture().replace("begin return new; end",
+                    f"begin perform relowner from {relation} where oid=tg_relid; return new; end")
+                self.assert_problem(source, "must qualify pg_class as pg_catalog.pg_class")
+        source = policy_fixture().replace("begin return new; end",
+            "begin perform relowner from pg_catalog.pg_class where oid=tg_relid; return new; end")
+        self.assertEqual(self.findings(source), [])
+
+    def test_guards_cover_insert_and_update_at_row_level(self):
+        for table, helper in check_sql.GUARD_FUNCTIONS.items():
+            for replacement in ("before update", "before insert", "after insert or update"):
+                with self.subTest(table=table, replacement=replacement):
+                    source = policy_fixture().replace(f"before insert or update on public.{table}",
+                                                       f"{replacement} on public.{table}")
+                    self.assert_problem(source, f"public.{table} needs row BEFORE INSERT and UPDATE protection using {helper}()")
+        source = policy_fixture().replace("for each row execute function public.guard_role_change()",
+                                          "for each statement execute function public.guard_role_change()")
+        self.assert_problem(source, "public.profiles needs row BEFORE INSERT and UPDATE protection")
+
+    def test_guard_context_wrong_target_and_late_drop_are_detected(self):
+        source = policy_fixture().replace("security invoker", "security definer")
+        self.assert_problem(source, "public.guard_role_change() must keep SECURITY INVOKER caller context")
+        source = policy_fixture().replace("execute function public.guard_verification()", "execute function public.guard_role_change()")
+        self.assert_problem(source, "public.players needs row BEFORE INSERT and UPDATE protection using guard_verification()")
+        source = policy_fixture().replace("commit;", "drop trigger game_registrations_guard on public.game_registrations; commit;")
+        self.assert_problem(source, "public.game_registrations needs row BEFORE INSERT and UPDATE protection")
+
+    def test_public_roster_function_cannot_return_private_columns(self):
+        source = policy_fixture().replace("photo_url text)", "photo_url text, emergency_contact_phone text)")
+        self.assert_problem(source, "SECURITY DEFINER projection of the five safe roster columns")
+        source = policy_fixture().replace("p.photo_url\n", "p.emergency_contact_phone\n")
+        self.assert_problem(source, "select only the five safe columns of opt-in verified players")
+        source = policy_fixture().replace("p.id, p.display_name, p.preferred_number, p.default_positions, p.photo_url", "p.*")
+        self.assert_problem(source, "select only the five safe columns of opt-in verified players")
+
+    def test_public_roster_projection_filter_cannot_be_widened(self):
+        for original, replacement in (
+            ("p.is_public and p.verification_status = 'verified'", "p.is_public or p.verification_status = 'verified'"),
+            ("p.is_public and p.verification_status = 'verified'", "p.is_public"),
+            ("p.verification_status = 'verified'", "p.verification_status = 'pending'"),
+        ):
+            with self.subTest(replacement=replacement):
+                self.assert_problem(policy_fixture().replace(original, replacement),
+                                    "select only the five safe columns of opt-in verified players")
+
+    def test_public_roster_view_is_only_an_invoker_of_safe_projection(self):
+        self.assert_problem(policy_fixture().replace("with (security_invoker = true)", "with (security_invoker = false)"),
+                            "v_public_roster must be an invoker view")
+        self.assert_problem(policy_fixture().replace("from public.read_public_roster();", "from public.players;"),
+                            "v_public_roster must be an invoker view")
+
+    def test_later_policy_or_view_mutations_cannot_bypass_checked_definitions(self):
+        for statement, expected in (
+            ("alter policy players_read on public.players using (true);", "ALTER POLICY is outside"),
+            ("alter view public.v_public_roster set (security_invoker=false);", "view alterations/drops are outside"),
+            ("drop view public.v_public_roster;", "view alterations/drops are outside"),
+            ("create or replace view public.v_account_balance as select * from public.charges;", "only the public roster view may be replaced"),
+            ("create or replace view public.v_public_roster as select * from public.players;", "every v_public_roster replacement must preserve"),
+        ):
+            with self.subTest(statement=statement):
+                self.assert_problem(policy_fixture().replace("commit;", statement + "commit;"), expected)
 
 
 if __name__ == "__main__":
