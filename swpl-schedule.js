@@ -38,19 +38,58 @@
     return Math.round((targetUtc - todayUtc) / 86400000);
   };
 
-  if (matchdayPoster) {
-    const posterDays = dayDifference(matchdayPoster.dataset.matchdayDate);
-    const posterCountdown = matchdayPoster.querySelector('[data-matchday-countdown]');
-    if (posterDays < 0) {
-      matchdayPoster.hidden = true;
-    } else if (posterCountdown) {
-      posterCountdown.textContent = posterDays === 0
-        ? 'Match day'
-        : posterDays === 1
-          ? 'Tomorrow'
-          : `${posterDays} days to kickoff`;
-    }
-  }
+  // Match-day poster: follows the next fixture that has posters in data/matchday-posters.json.
+  // Every fixture ships two designs; one is chosen at random per visit (?poster=1|2 forces a design for review).
+  const slugify = (name) => String(name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const posterEntryFor = (manifest, fixture) => {
+    if (!manifest || typeof manifest !== 'object' || !manifest.fixtures || fixture.eventOnly) return null;
+    const entry = manifest.fixtures[`${fixture.date}-${slugify(opponentFor(fixture).name)}`];
+    return entry && Array.isArray(entry.posters) && entry.posters.length ? entry : null;
+  };
+  const choosePoster = (posters) => {
+    const match = typeof location !== 'undefined' && location.search ? /[?&]poster=(\d+)/.exec(location.search) : null;
+    const forced = match ? Number(match[1]) : NaN;
+    if (Number.isInteger(forced) && forced >= 1 && forced <= posters.length) return posters[forced - 1];
+    return posters[Math.floor(Math.random() * posters.length)];
+  };
+  const hideMatchdayPoster = () => { if (matchdayPoster) matchdayPoster.hidden = true; };
+  const renderMatchdayPoster = (fixture, entry) => {
+    if (!matchdayPoster) return;
+    const poster = choosePoster(entry.posters);
+    const opponent = opponentFor(fixture);
+    const home = isCalBlue(fixture.home.name);
+    const days = dayDifference(fixture.date);
+    const longDate = formatDate(fixture, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    const kickoff = fixture.timeLabel && !/tba/i.test(fixture.timeLabel) ? fixture.timeLabel : 'Kickoff TBA';
+
+    const image = matchdayPoster.querySelector('[data-poster-image]');
+    image.src = poster.src;
+    image.alt = `Match-day poster for ${home ? `CalBlue FC versus ${opponent.name}` : `${opponent.name} versus CalBlue FC`} on ${longDate}, ${kickoff}, ${fixture.venue.name}`;
+    if (poster.width && poster.height) { image.width = poster.width; image.height = poster.height; }
+    matchdayPoster.querySelectorAll('[data-poster-link]').forEach((link) => {
+      link.href = poster.src;
+      if (link.getAttribute('aria-label')) link.setAttribute('aria-label', `Open the full-size ${image.alt.replace(/^Match-day poster for /, 'match-day poster: ')}`);
+    });
+    matchdayPoster.dataset.posterStyle = poster.style || '';
+
+    const countdown = matchdayPoster.querySelector('[data-matchday-countdown]');
+    countdown.textContent = days === 0 ? 'Match day' : days === 1 ? 'Tomorrow' : `${days} days to kickoff`;
+    matchdayPoster.querySelector('[data-poster-competition]').textContent = fixture.competition;
+    const matchup = matchdayPoster.querySelector('[data-poster-matchup]');
+    const vs = document.createElement('span'); vs.textContent = 'vs';
+    matchup.replaceChildren(
+      document.createTextNode(home ? 'CalBlue FC ' : `${opponent.name} `),
+      vs,
+      document.createTextNode(home ? ` ${opponent.name}` : ' CalBlue FC'),
+    );
+    matchdayPoster.querySelector('[data-poster-date]').textContent = formatDate(fixture, { weekday: 'long', month: 'long', day: 'numeric' });
+    matchdayPoster.querySelector('[data-poster-kickoff]').textContent = kickoff;
+    matchdayPoster.querySelector('[data-poster-venue]').textContent = fixture.venue.name;
+    matchdayPoster.querySelector('[data-poster-note]').textContent = home
+      ? 'Home match. Save the poster, share it, and come loud.'
+      : 'Away day. Save the poster, share it, and travel loud.';
+    matchdayPoster.hidden = false;
+  };
 
   const formatDate = (fixture, options) => {
     const instant = fixture.startsAt
@@ -251,7 +290,13 @@
     })
     .then((data) => ({ ...feed, data }));
 
-  Promise.allSettled(feeds.map(loadFeed)).then((results) => {
+  const loadPosters = () => fetch('data/matchday-posters.json', { cache: 'no-cache' })
+    .then((response) => (response.ok ? response.json() : null));
+
+  Promise.allSettled([...feeds.map(loadFeed), loadPosters()]).then((allResults) => {
+    const results = allResults.slice(0, feeds.length);
+    const posterResult = allResults[feeds.length];
+    const posterManifest = posterResult && posterResult.status === 'fulfilled' ? posterResult.value : null;
     const loaded = results
       .filter((result) => result.status === 'fulfilled')
       .map((result) => result.value);
@@ -291,6 +336,10 @@
     if (fixtures.length) renderNextMatch(fixtures[0]);
     else renderEmpty();
     renderUpcoming(fixtures);
+
+    const posterFixture = fixtures.find((fixture) => posterEntryFor(posterManifest, fixture));
+    if (posterFixture) renderMatchdayPoster(posterFixture, posterEntryFor(posterManifest, posterFixture));
+    else hideMatchdayPoster();
 
     const checkedTimes = loaded
       .map(({ data }) => Date.parse(data.checkedAt))

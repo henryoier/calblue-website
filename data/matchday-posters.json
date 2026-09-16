@@ -1,0 +1,218 @@
+{
+  "schemaVersion": 1,
+  "note": "Match-day posters keyed by fixture date + opponent slug. Each fixture has two no-photo designs; the homepage picks one at random per visit. Regenerate from the poster pipeline (see docs) after any schedule change.",
+  "generatedAt": "2026-09-16T01:25:43-07:00",
+  "scheduleCheckedAt": "2026-09-14T14:58:47-07:00",
+  "fixtures": {
+    "2026-09-19-bay-area-united": {
+      "fixtureId": "ad00f3c6c9ff97c3",
+      "date": "2026-09-19",
+      "opponent": "Bay Area United",
+      "home": true,
+      "competition": "SWPL Pacific Premier League",
+      "posters": [
+        {
+          "src": "assets/matchday/2026-fall/2026-09-19-bay-area-united-styled.webp",
+          "style": "styled",
+          "width": 1296,
+          "height": 1616
+        },
+        {
+          "src": "assets/matchday/2026-fall/2026-09-19-bay-area-united-classic.webp",
+          "style": "classic",
+          "width": 1296,
+          "height": 1616
+        }
+      ]
+    },
+    "2026-10-03-albion-sc-silicon-valley": {
+      "fixtureId": "fd243df03dfbfd48",
+      "date": "2026-10-03",
+      "opponent": "Albion SC Silicon Valley",
+      "home": false,
+      "competition": "SWPL Pacific Premier League",
+      "posters": [
+        {
+          "src": "assets/matchday/2026-fall/2026-10-03-albion-sc-silicon-valley-styled.webp",
+          "style": "styled",
+          "width": 1296,
+          "height": 1616
+        },
+        {
+          "src": "assets/matchday/2026-fall/2026-10-03-albion-sc-silicon-valley-classic.webp",
+          "style": "classic",
+          "width": 1296,
+          "height": 1616
+        }
+      ]
+    },
+    "2026-10-10-in-motion-fc": {
+      "fixtureId": "5409a50731f24f00",
+      "date": "2026-10-10",
+      "opponent": "In Motion FC",
+      "home": true,
+      "competition": "SWPL Pacific Premier League",
+      "posters": [
+        {
+          "src": "assets/matchday/2026-fall/2026-10-10-in-motion-fc-styled.webp",
+          "style": "styled",
+          "width": 1296,
+          "height": 1616
+        },
+        {
+          "src": "assets/matchday/2026-fall/2026-10-10-in-motion-fc-classic.webp",
+          "style": "classic",
+          "width": 1296,
+          "height": 1616
+        }
+      ]
+    },
+    "2026-10-17-club-deportivo-oakland": {
+      "fixtureId": "48cf6ddb5fb14eea",
+      "date": "2026-10-17",
+      "opponent": "Club Deportivo Oakland",
+      "home": false,
+      "competition": "SWPL Pacific Premier League",
+      "posters": [
+        {
+          "src": "assets/matchday/2026-fall/2026-10-17-club-deportivo-oakland-styled.webp",
+          "style": "styled",
+          "width": 1296,
+          "height": 1616
+        },
+        {
+          "src": "assets/matchday/2026-fall/2026-10-17-club-deportivo-oakland-classic.webp",
+          "style": "classic",
+          "width": 1296,
+          "height": 1616
+        }
+      ]
+    },
+    "2026-10-25-jsc-jasa": {
+      "fixtureId": "5d802175467117e9",
+      "date": "2026-10-25",
+      "opponent": "JSC JASA",
+      "home": false,
+      "competition": "Abronzino Cup · Group Stage",
+      "posters": [
+        {
+          "src": "assets/matchday/2026-fall/2026-10-25-jsc-jasa-styled.webp",
+          "style": "styled",
+          "width": 1296,
+          "height": 1616
+        },
+        {
+          "src": "assets/matchday/2026-fall/2026-10-25-jsc-jasa-classic.webp",
+          "style": "classic",
+          "width": 1296,
+          "height": 1616
+        }
+      ]
+    },
+    "2026-11-01-jsc-jasa": {
+      "fixtureId": "dd58a8facc37e6bf",
+      "date": "2026-11-01",
+      "opponent": "JSC JASA",
+      "home": false,
+      "competition": "SWPL Pacific Premier League",
+      "posters": [
+        {
+          "src": "assets/matchday/2026-fall/2026-11-01-jsc-jasa-styled.webp",
+          "style": "styled",
+          "width": 1296,
+          "height": 1616
+        },
+        {
+          "src": "assets/matchday/2026-fall/2026-11-01-jsc-jasa-classic.webp",
+          "style": "classic",
+          "width": 1296,
+          "height": 1616
+        }
+      ]
+    },
+    "2026-11-08-south-san-francisco-ac": {
+      "fixtureId": "2ddf53df04f65ccb",
+      "date": "2026-11-08",
+      "opponent": "South San Francisco AC",
+      "home": false,
+      "competition": "SWPL Pacific Premier League",
+      "posters": [
+        {
+          "src": "assets/matchday/2026-fall/2026-11-08-south-san-francisco-ac-styled.webp",
+          "style": "styled",
+          "width": 1296,
+          "height": 1616
+        },
+        {
+          "src": "assets/matchday/2026-fall/2026-11-08-south-san-francisco-ac-classic.webp",
+          "style": "classic",
+          "width": 1296,
+          "height": 1616
+        }
+      ]
+    },
+    "2026-11-14-legends-sc": {
+      "fixtureId": "5934e86dd95bfdbf",
+      "date": "2026-11-14",
+      "opponent": "Legends SC",
+      "home": true,
+      "competition": "SWPL Pacific Premier League",
+      "posters": [
+        {
+          "src": "assets/matchday/2026-fall/2026-11-14-legends-sc-styled.webp",
+          "style": "styled",
+          "width": 1296,
+          "height": 1616
+        },
+        {
+          "src": "assets/matchday/2026-fall/2026-11-14-legends-sc-classic.webp",
+          "style": "classic",
+          "width": 1296,
+          "height": 1616
+        }
+      ]
+    },
+    "2026-11-22-south-san-francisco-ac": {
+      "fixtureId": "2a35a2799dc97eea",
+      "date": "2026-11-22",
+      "opponent": "South San Francisco AC",
+      "home": true,
+      "competition": "Abronzino Cup · Group Stage",
+      "posters": [
+        {
+          "src": "assets/matchday/2026-fall/2026-11-22-south-san-francisco-ac-styled.webp",
+          "style": "styled",
+          "width": 1296,
+          "height": 1616
+        },
+        {
+          "src": "assets/matchday/2026-fall/2026-11-22-south-san-francisco-ac-classic.webp",
+          "style": "classic",
+          "width": 1296,
+          "height": 1616
+        }
+      ]
+    },
+    "2026-12-06-afghan-premier-fc": {
+      "fixtureId": "2b8619a6b0fc36d4",
+      "date": "2026-12-06",
+      "opponent": "Afghan Premier FC",
+      "home": false,
+      "competition": "SWPL Pacific Premier League",
+      "posters": [
+        {
+          "src": "assets/matchday/2026-fall/2026-12-06-afghan-premier-fc-styled.webp",
+          "style": "styled",
+          "width": 1296,
+          "height": 1616
+        },
+        {
+          "src": "assets/matchday/2026-fall/2026-12-06-afghan-premier-fc-classic.webp",
+          "style": "classic",
+          "width": 1296,
+          "height": 1616
+        }
+      ]
+    }
+  }
+}
