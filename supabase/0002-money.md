@@ -80,11 +80,16 @@ python3 scripts/check_sql.py
 python3 -m unittest discover -s tests -v
 ```
 
-The generator now requires 0001 and 0002 by default. The linter checks documented structure,
+The current generator checks all implemented migrations by default (including 0003 once its
+policy stage is added). The linter checks documented structure,
 RLS/ACLs, fixed paths, invoker views and key constraints; it does not execute PostgreSQL or prove
 accounting semantics. CI remains offline with respect to Supabase.
 
-## Manual test — not yet run
+## Manual test reference — completed by the owner for PR #80
+
+The owner confirmed successful application and both money smoke scripts before PR #80 merged.
+The instructions below remain a reference for a new disposable project. After applying 0003,
+do not rerun these deny-by-default tests: policies/grants deliberately change that boundary.
 
 Use the **empty disposable Supabase project where 0001 passed**, not the production/configured
 CalBlue project. If starting a fresh test project, apply 0001 and run its two smoke files first.
@@ -121,5 +126,5 @@ SQL error, if any: <exact text, excluding private information>
 Two-session concurrency: not tested
 ```
 
-No database password/private key needs to be shared. PR #80 addresses issue #26 until this manual
-verification is confirmed; it should resolve the issue only when the verified PR is merged.
+No database password/private key needs to be shared. PR #80 is merged and issue #26 is closed.
+The owner's confirmation is not an agent-executed SQL test or two-session concurrency validation.

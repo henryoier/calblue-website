@@ -3,8 +3,14 @@
 Apply migrations in order, once each:
 
 1. [0001_core.sql](migrations/0001_core.sql): issue #25 / merged PR #79. Its released bytes are unchanged.
-2. [0002_money.sql](migrations/0002_money.sql): issue #26 / PR #80. Read the
+2. [0002_money.sql](migrations/0002_money.sql): issue #26 / merged PR #80. Read the
    [billing migration and test guide](0002-money.md) before running it.
+3. [0003_rls.sql](migrations/0003_rls.sql): issue #27 / PR #81. Read the
+   [access-policy migration and test guide](0003-rls.md).
+
+If 0001 and 0002 already passed, continue with **0003 only**, then its two smoke files.
+Do not rerun the earlier migrations or their deny-by-default smoke tests after 0003 installs
+policies and grants. No production Supabase project is changed by CI or the coding agent.
 
 If you already applied and tested 0001 for PR #79, keep that empty scratch project and continue
 with 0002. **Do not rerun 0001.** Its core-only smoke scripts belong before 0002; the new billing
@@ -46,7 +52,7 @@ python3 scripts/check_sql.py
 python3 -m unittest discover -s tests -v
 ```
 
-Default generation/checking now requires **0001 and 0002**. Future files require explicit repeatable
+Default generation/checking now requires **0001, 0002 and 0003**. Future files require explicit repeatable
 `--target` selections; they are not silently created as part of this issue. `--check` never writes
 files or creates directories and fails if a required file is missing or different.
 
@@ -139,4 +145,5 @@ Two-session concurrency: not tested
 
 The project owner confirmed the scratch application and both core smoke scripts before PR #79
 merged and issue #25 closed. This is user-reported verification, not a database run by the coding
-agent. Migration 0002 still requires its own manual checks. CI remains offline with respect to Supabase.
+agent. The owner also confirmed all three money files before PR #80 merged and issue #26 closed.
+Migration 0003 requires its own manual checks. CI remains offline with respect to Supabase.

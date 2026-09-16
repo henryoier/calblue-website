@@ -18,9 +18,9 @@ def fixture(section_numbers=range(11), preamble="create extension if not exists 
 
 
 class SectionParserTest(unittest.TestCase):
-    def test_default_build_emits_core_and_money_and_excludes_future_sections(self):
+    def test_default_build_emits_three_landed_migrations_and_excludes_future_sections(self):
         generated = migrations.build(source_text=fixture())
-        self.assertEqual(list(generated), ["0001_core.sql", "0002_money.sql"])
+        self.assertEqual(list(generated), ["0001_core.sql", "0002_money.sql", "0003_rls.sql"])
         self.assertIn("SELECT 3;", generated["0001_core.sql"])
         self.assertNotIn("SELECT 4;", generated["0001_core.sql"])
         self.assertNotIn("SELECT 9;", generated["0001_core.sql"])
@@ -32,10 +32,23 @@ class SectionParserTest(unittest.TestCase):
         self.assertNotIn("SELECT 9;", generated["0002_money.sql"])
         self.assertNotIn("SELECT 10;", generated["0002_money.sql"])
         self.assertNotIn("create extension", generated["0002_money.sql"])
+        self.assertIn("SELECT 7;", generated["0003_rls.sql"])
+        self.assertNotIn("SELECT 8;", generated["0003_rls.sql"])
+        self.assertNotIn("SELECT 9;", generated["0003_rls.sql"])
+        self.assertNotIn("SELECT 10;", generated["0003_rls.sql"])
+        self.assertNotIn("create extension", generated["0003_rls.sql"])
 
     def test_default_core_bytes_match_explicit_core_target(self):
         self.assertEqual(migrations.build(source_text=fixture())["0001_core.sql"],
                          migrations.build(["0001_core.sql"], fixture())["0001_core.sql"])
+
+    def test_default_money_bytes_match_explicit_money_target(self):
+        self.assertEqual(migrations.build(source_text=fixture())["0002_money.sql"],
+                         migrations.build(["0002_money.sql"], fixture())["0002_money.sql"])
+
+    def test_rls_target_requires_its_section(self):
+        with self.assertRaisesRegex(migrations.SchemaError, "missing required sections.*7"):
+            migrations.build(["0003_rls.sql"], fixture(range(7)))
 
     def test_explicit_targets_are_deduplicated_in_plan_order(self):
         targets = ["0003_rls.sql", "0001_core.sql", "0003_rls.sql"]
@@ -139,10 +152,10 @@ class GenerationCommandTest(unittest.TestCase):
         self.assertIn("required migration is missing", output)
         self.assertFalse(self.output.parent.exists())
 
-    def test_default_generation_writes_core_and_money_and_is_reproducible(self):
+    def test_default_generation_writes_three_landed_migrations_and_is_reproducible(self):
         self.assertEqual(self.run_command([])[0], 0)
         self.assertEqual({path.name for path in self.output.iterdir()},
-                         {"0001_core.sql", "0002_money.sql"})
+                         {"0001_core.sql", "0002_money.sql", "0003_rls.sql"})
         previous = {path.name: (path.read_bytes(), path.stat().st_mtime_ns)
                     for path in self.output.iterdir()}
         self.assertEqual(self.run_command([])[0], 0)
@@ -160,6 +173,30 @@ class GenerationCommandTest(unittest.TestCase):
         self.assertFalse((self.output / "0002_money.sql").exists())
         self.assertEqual((core.read_bytes(), core.stat().st_mtime_ns), before)
         self.assertEqual(self.run_command(["--check", "--target", "0001_core.sql"])[0], 0)
+
+    def test_default_check_requires_rls_without_touching_prior_migrations(self):
+        targets = ["--target", "0001_core.sql", "--target", "0002_money.sql"]
+        self.assertEqual(self.run_command(targets)[0], 0)
+        before = {path.name: (path.read_bytes(), path.stat().st_mtime_ns)
+                  for path in self.output.iterdir()}
+        code, output = self.run_command(["--check"])
+        self.assertEqual(code, 1)
+        self.assertIn("0003_rls.sql: required migration is missing", output)
+        self.assertFalse((self.output / "0003_rls.sql").exists())
+        self.assertEqual({path.name: (path.read_bytes(), path.stat().st_mtime_ns)
+                          for path in self.output.iterdir()}, before)
+        self.assertEqual(self.run_command(["--check", *targets])[0], 0)
+
+    def test_rls_drift_is_read_only(self):
+        self.assertEqual(self.run_command([])[0], 0)
+        path = self.output / "0003_rls.sql"
+        path.write_text("drifted RLS\n", encoding="utf-8")
+        before = path.stat().st_mtime_ns
+        code, output = self.run_command(["--check"])
+        self.assertEqual(code, 1)
+        self.assertIn("0003_rls.sql: has drifted", output)
+        self.assertEqual(path.read_text(), "drifted RLS\n")
+        self.assertEqual(path.stat().st_mtime_ns, before)
 
     def test_explicit_repeatable_selection_does_not_write_other_targets(self):
         arguments = ["--target", "0003_rls.sql", "--target", "0002_money.sql"]
@@ -181,7 +218,7 @@ class GenerationCommandTest(unittest.TestCase):
 
     def test_existing_future_file_is_not_selected_or_rewritten_by_default(self):
         self.output.mkdir(parents=True)
-        future = self.output / "0003_rls.sql"
+        future = self.output / "0004_future.sql"
         future.write_text("unrelated future content\n", encoding="utf-8")
         self.assertEqual(self.run_command([])[0], 0)
         self.assertEqual(self.run_command(["--check"])[0], 0)

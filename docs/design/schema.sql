@@ -1355,52 +1355,149 @@ select p.id, p.display_name, p.preferred_number, p.default_positions, p.photo_ur
 -- =====================================================================
 
 create or replace function public.app_roles() returns text[]
-language sql stable as $$
-  select case
-    when auth.jwt() -> 'app_metadata' ? 'roles'
-      then array(select jsonb_array_elements_text(
-                          auth.jwt() -> 'app_metadata' -> 'roles'))
-    else array[]::text[]
-  end
-$$;
+language plpgsql stable set search_path = '' as $$
+declare claims jsonb;
+begin
+  if auth.uid() is null then return array[]::text[]; end if;
+  claims := auth.jwt() -> 'app_metadata' -> 'roles';
+  if jsonb_typeof(claims) is distinct from 'array' then return array[]::text[]; end if;
+  if exists (select 1 from jsonb_array_elements(claims) item
+              where jsonb_typeof(item) <> 'string') then
+    return array[]::text[];
+  end if;
+  return array(select jsonb_array_elements_text(claims));
+end $$;
 
 create or replace function public.has_role(r text) returns boolean
-language sql stable as $$ select r = any(public.app_roles()) $$;
+language sql stable set search_path = '' as $$
+  select coalesce(auth.uid() is not null and r = any(public.app_roles()), false)
+$$;
 
 create or replace function public.is_admin() returns boolean
-language sql stable as $$ select public.has_role('admin') $$;
+language sql stable set search_path = '' as $$ select public.has_role('admin') $$;
 
 -- Holding a scoped role over one competition, game or team. This is what
 -- makes somebody the point of contact for a single tournament without
 -- giving them any authority over the rest of the club.
 create or replace function public.has_grant_on_competition(c uuid, roles text[])
 returns boolean
-language sql stable security definer set search_path = public as $$
-  select exists (select 1 from public.role_grants g
+language sql stable security definer set search_path = '' as $$
+  select auth.uid() is not null and exists (select 1 from public.role_grants g
                   where g.account_id = auth.uid()
                     and g.competition_id = c
                     and g.role = any(roles))
 $$;
 
 create or replace function public.owns_player(p uuid) returns boolean
-language sql stable security definer set search_path = public as $$
-  select exists (select 1 from public.players pl
+language sql stable security definer set search_path = '' as $$
+  select auth.uid() is not null and exists (select 1 from public.players pl
                   where pl.id = p
                     and (pl.account_id = auth.uid()
                          or pl.guardian_account_id = auth.uid()))
 $$;
 
-create or replace function public.manages_game(g uuid) returns boolean
-language sql stable security definer set search_path = public as $$
-  select exists (
-    select 1 from public.role_grants rg
-     where rg.account_id = auth.uid()
-       and rg.role in ('organiser','manager','captain','coach')
-       and (rg.game_id = g
-            or rg.competition_id = (select competition_id
-                                      from public.games where id = g)
-            or rg.team_id = (select team_id from public.games where id = g)))
+-- Ownership is sufficient for private reads, but an account-bearing minor
+-- cannot register itself. Account-less guardian identities always act through
+-- their guardian. Date-of-birth changes are separately protected below.
+create or replace function public.can_register_player(p uuid) returns boolean
+language sql stable security definer set search_path = '' as $$
+  select auth.uid() is not null and exists (
+    select 1 from public.players pl where pl.id = p
+      and (pl.guardian_account_id = auth.uid()
+           or (pl.account_id = auth.uid()
+               and (pl.date_of_birth is null
+                    or pl.date_of_birth <= (current_date - interval '18 years')::date)))
+  )
 $$;
+
+create or replace function public.manages_game(g uuid) returns boolean
+language sql stable security definer set search_path = '' as $$
+  select auth.uid() is not null and exists (
+    select 1 from public.role_grants rg
+    join public.games match on match.id = g
+     where rg.account_id = auth.uid()
+       and ((rg.role = 'captain' and
+             (rg.game_id = match.id or rg.team_id = match.team_id
+              or rg.competition_id = match.competition_id))
+            or (rg.role = 'organiser' and rg.competition_id = match.competition_id)))
+$$;
+
+-- Baseline eligibility is checked as trusted SQL so hidden season/identity
+-- rows cannot turn missing visibility into permission. Full registration UI,
+-- notification and override workflows remain later issues.
+create or replace function public.can_register_for_game(p_game uuid, p_player uuid)
+returns boolean
+language sql stable security definer set search_path = '' as $$
+  select auth.uid() is not null and public.can_register_player(p_player) and exists (
+    select 1 from public.games g join public.players pl on pl.id = p_player
+     where g.id = p_game and g.status = 'published'
+       and g.start_time > now()
+       and (g.registration_opens_at is null or g.registration_opens_at <= now())
+       and (g.registration_closes_at is null or g.registration_closes_at > now())
+       and (g.game_type in ('pickup','training')
+            or (pl.verification_status = 'verified'
+                and (pl.account_id is null or public.has_role('player'))
+                and (g.game_type = 'friendly' or exists (
+                  select 1 from public.competition_registrations cr
+                   where cr.competition_id = g.competition_id
+                     and cr.player_id = pl.id and cr.status = 'approved')))))
+$$;
+
+-- There is deliberately no public-row policy on players. A public-row policy
+-- plus authenticated table-wide SELECT would reveal legal/medical/claim fields.
+-- This projection is the only anonymous path to player information.
+create or replace function public.read_public_roster()
+returns table(id uuid, display_name text, preferred_number integer,
+              default_positions text[], photo_url text)
+language sql stable security definer set search_path = '' as $$
+  select p.id, p.display_name, p.preferred_number, p.default_positions, p.photo_url
+    from public.players p
+   where p.is_public and p.verification_status = 'verified'
+$$;
+
+create or replace view public.v_public_roster with (security_invoker = true) as
+select id, display_name, preferred_number, default_positions, photo_url
+  from public.read_public_roster();
+
+create or replace function public.read_game_emergency_contacts(p_game uuid)
+returns table(player_id uuid, display_name text, emergency_contact_name text,
+              emergency_contact_phone text, medical_notes text)
+language plpgsql stable security definer set search_path = '' as $$
+begin
+  if auth.uid() is null or not (public.is_admin() or public.manages_game(p_game)) then
+    raise exception 'game_contacts_forbidden' using errcode = '42501';
+  end if;
+  return query
+    select p.id, p.display_name, p.emergency_contact_name,
+           p.emergency_contact_phone, p.medical_notes
+      from public.game_registrations gr join public.players p on p.id = gr.player_id
+     where gr.game_id = p_game and gr.status = 'registered';
+end $$;
+
+-- Preserve the released bodies and their transaction/immutability protocol.
+-- Only these checked wrappers become RPCs; private originals/writers remain
+-- revoked. JWT checks must never use current_user as authorization here:
+-- SECURITY DEFINER necessarily runs as its owner for every caller.
+alter function public.finalise_game_attendance(uuid) rename to finalise_game_attendance_internal;
+alter function public.close_billing_period(uuid) rename to close_billing_period_internal;
+
+create or replace function public.finalise_game_attendance(p_game uuid) returns void
+language plpgsql security definer set search_path = '' as $$
+begin
+  if auth.uid() is null or not (public.is_admin() or public.manages_game(p_game)) then
+    raise exception 'game_finalisation_forbidden' using errcode = '42501';
+  end if;
+  perform public.finalise_game_attendance_internal(p_game);
+end $$;
+
+create or replace function public.close_billing_period(p_period uuid) returns void
+language plpgsql security definer set search_path = '' as $$
+begin
+  if auth.uid() is null or public.is_admin() is not true then
+    raise exception 'billing_close_forbidden' using errcode = '42501';
+  end if;
+  perform public.close_billing_period_internal(p_period);
+end $$;
 
 alter table public.profiles                  enable row level security;
 alter table public.players                   enable row level security;
@@ -1420,144 +1517,521 @@ alter table public.period_player_summaries   enable row level security;
 alter table public.period_account_summaries  enable row level security;
 alter table public.audit_log                 enable row level security;
 
--- profiles: yourself, or an admin
-create policy profiles_self_read on public.profiles for select
-  using (id = auth.uid() or public.is_admin());
-create policy profiles_self_write on public.profiles for update
-  using (id = auth.uid() or public.is_admin())
-  with check (id = auth.uid() or public.is_admin());
--- a user may not promote themselves; only an admin may change `role`
+-- Guard functions are intentionally SECURITY INVOKER. For direct client DML
+-- current_user is authenticated, even when the JWT says admin. For an Auth
+-- bootstrap or a revoked trusted billing/waitlist writer it is the table owner.
+-- This owner bypass must NEVER be copied into an exposed SECURITY DEFINER RPC.
 create or replace function public.guard_role_change() returns trigger
-language plpgsql as $$
+language plpgsql security invoker set search_path = '' as $$
 begin
-  if new.roles is distinct from old.roles and not public.is_admin() then
-    raise exception 'only an admin may change roles';
+  if current_user = pg_catalog.pg_get_userbyid((select relowner from pg_catalog.pg_class where oid = tg_relid)) then
+    return new;
+  end if;
+  if auth.uid() is null or tg_op = 'INSERT' then
+    raise exception 'profile_bootstrap_required' using errcode = '42501';
+  end if;
+  if (new.id, new.email, new.created_at) is distinct from (old.id, old.email, old.created_at) then
+    raise exception 'profile_identity_immutable' using errcode = '42501';
+  end if;
+  if new.roles is distinct from old.roles and public.is_admin() is not true then
+    raise exception 'profile_roles_forbidden' using errcode = '42501';
   end if;
   return new;
 end $$;
-create trigger profiles_guard_role before update on public.profiles
+create trigger profiles_auth_guard before insert or update on public.profiles
   for each row execute function public.guard_role_change();
 
--- players: your own identities, plus the opt-in public roster
-create policy players_read on public.players for select
-  using (public.is_admin()
-         or account_id = auth.uid()
-         or guardian_account_id = auth.uid()
-         or (is_public and verification_status = 'verified'));
-create policy players_insert on public.players for insert
-  with check (public.is_admin() or account_id = auth.uid());
-create policy players_update on public.players for update
-  using (public.is_admin() or account_id = auth.uid()
-         or guardian_account_id = auth.uid());
--- verification_status is admin-only, enforced by trigger rather than policy
 create or replace function public.guard_verification() returns trigger
-language plpgsql as $$
+language plpgsql security invoker set search_path = '' as $$
 begin
-  if new.verification_status is distinct from old.verification_status
-     and not public.is_admin() then
-    raise exception 'only an admin may verify a player';
+  if current_user = pg_catalog.pg_get_userbyid((select relowner from pg_catalog.pg_class where oid = tg_relid)) then
+    return new;
+  end if;
+  if auth.uid() is null then
+    raise exception 'authentication_required' using errcode = '42501';
+  end if;
+  if tg_op = 'UPDATE' then
+    if (new.id, new.account_id, new.guardian_account_id, new.claim_code, new.claimed_at, new.created_at)
+       is distinct from
+       (old.id, old.account_id, old.guardian_account_id, old.claim_code, old.claimed_at, old.created_at) then
+      raise exception 'player_identity_immutable' using errcode = '42501';
+    end if;
+  end if;
+  if public.is_admin() then return new; end if;
+  if tg_op = 'INSERT' then
+    if not coalesce((new.account_id = auth.uid() and new.guardian_account_id is null)
+                    or (new.account_id is null and new.guardian_account_id = auth.uid()), false) then
+      raise exception 'player_ownership_forbidden' using errcode = '42501';
+    end if;
+    if new.verification_status <> 'pending' or new.verification_note is not null
+       or new.claim_code is not null or new.claimed_at is not null then
+      raise exception 'player_verification_forbidden' using errcode = '42501';
+    end if;
+    if new.date_of_birth > (current_date - interval '18 years')::date
+       and new.guardian_account_id is null then
+      raise exception 'minor_requires_guardian' using errcode = '42501';
+    end if;
+    new.created_at := now();
+  else
+    if (new.verification_status, new.verification_note, new.date_of_birth)
+       is distinct from (old.verification_status, old.verification_note, old.date_of_birth) then
+      raise exception 'player_verification_forbidden' using errcode = '42501';
+    end if;
   end if;
   return new;
 end $$;
-create trigger players_guard_verification before update on public.players
+create trigger players_auth_guard before insert or update on public.players
   for each row execute function public.guard_verification();
 
--- schedule: published events are world-readable; drafts are staff-only
-create policy games_read on public.games for select
-  using (status <> 'draft' or public.is_admin() or public.manages_game(id));
-create policy games_write on public.games for all
-  using (public.is_admin() or public.manages_game(id))
-  with check (public.is_admin() or public.manages_game(id));
-
-create policy competitions_read on public.competitions for select
-  using (status <> 'draft' or public.is_admin());
-create policy competitions_write on public.competitions for all
-  using (public.is_admin()) with check (public.is_admin());
-
-create policy clubs_read on public.clubs for select using (true);
-create policy clubs_write on public.clubs for all
-  using (public.is_admin()) with check (public.is_admin());
-
-create policy venues_read on public.venues for select using (true);
-create policy venues_write on public.venues for all
-  using (public.is_admin()) with check (public.is_admin());
-
-create policy fees_read on public.fee_schedules for select using (true);
-create policy fees_write on public.fee_schedules for all
-  using (public.is_admin()) with check (public.is_admin());
-
--- registrations: your own, plus everything on a game you run
-create policy greg_read on public.game_registrations for select
-  using (public.is_admin() or public.owns_player(player_id)
-         or public.manages_game(game_id));
-create policy greg_insert on public.game_registrations for insert
-  with check (public.is_admin() or public.manages_game(game_id)
-              or public.owns_player(player_id));
-create policy greg_update on public.game_registrations for update
-  using (public.is_admin() or public.manages_game(game_id)
-         or public.owns_player(player_id));
--- a player may change their own number/position/status, never their attendance
-create or replace function public.guard_attendance() returns trigger
-language plpgsql as $$
+create or replace function public.guard_fixture_scope() returns trigger
+language plpgsql security invoker set search_path = '' as $$
 begin
-  if (new.attendance, new.checked_in_at, new.checked_in_by)
-     is distinct from (old.attendance, old.checked_in_at, old.checked_in_by)
-     and not (public.is_admin() or public.manages_game(new.game_id)) then
-    raise exception 'only a captain or an admin may record attendance';
+  if current_user = pg_catalog.pg_get_userbyid((select relowner from pg_catalog.pg_class where oid = tg_relid)) then
+    return new;
+  end if;
+  if auth.uid() is null then
+    raise exception 'authentication_required' using errcode = '42501';
+  end if;
+  if tg_op = 'UPDATE' and new.id is distinct from old.id then
+    raise exception 'fixture_identity_immutable' using errcode = '42501';
+  end if;
+  if tg_op = 'INSERT' then
+    if new.created_by is not null and new.created_by <> auth.uid() then
+      raise exception 'fixture_creator_forbidden' using errcode = '42501';
+    end if;
+    new.created_by := auth.uid();
+    new.created_at := now();
+  end if;
+  if public.is_admin() then return new; end if;
+  if tg_op = 'INSERT' then
+    if public.has_grant_on_competition(new.competition_id, array['organiser']) is not true
+       or new.status not in ('draft','published')
+       or new.fee_override is not null or new.no_show_fee_override is not null
+       or new.attendance_locked_at is not null then
+      raise exception 'fixture_scope_forbidden' using errcode = '42501';
+    end if;
+  elsif (new.competition_id, new.team_id, new.home_team_id, new.away_team_id,
+         new.game_type, new.fee_override, new.no_show_fee_override, new.created_by, new.created_at)
+        is distinct from
+        (old.competition_id, old.team_id, old.home_team_id, old.away_team_id,
+         old.game_type, old.fee_override, old.no_show_fee_override, old.created_by, old.created_at) then
+    raise exception 'fixture_scope_forbidden' using errcode = '42501';
+  end if;
+  if tg_op = 'UPDATE'
+     and (new.status = 'locked' or new.attendance_locked_at is distinct from old.attendance_locked_at)
+     and public.manages_game(old.id) is not true then
+    raise exception 'game_finalisation_forbidden' using errcode = '42501';
   end if;
   return new;
 end $$;
-create trigger greg_guard_attendance before update on public.game_registrations
+create trigger games_auth_guard before insert or update on public.games
+  for each row execute function public.guard_fixture_scope();
+
+create or replace function public.guard_competition_scope() returns trigger
+language plpgsql security invoker set search_path = '' as $$
+begin
+  if current_user = pg_catalog.pg_get_userbyid((select relowner from pg_catalog.pg_class where oid = tg_relid)) then
+    return new;
+  end if;
+  if auth.uid() is null then
+    raise exception 'authentication_required' using errcode = '42501';
+  end if;
+  if tg_op = 'UPDATE' and new.id is distinct from old.id then
+    raise exception 'competition_identity_immutable' using errcode = '42501';
+  end if;
+  if public.is_admin() then return new; end if;
+  if tg_op = 'INSERT' then
+    raise exception 'competition_creation_forbidden' using errcode = '42501';
+  end if;
+  if (to_jsonb(new) - array['name','season_label','organiser','external_url','start_date',
+                           'end_date','status','rules_url','description','updated_at'])
+     is distinct from
+     (to_jsonb(old) - array['name','season_label','organiser','external_url','start_date',
+                           'end_date','status','rules_url','description','updated_at']) then
+    raise exception 'competition_scope_forbidden' using errcode = '42501';
+  end if;
+  return new;
+end $$;
+create trigger competitions_auth_guard before insert or update on public.competitions
+  for each row execute function public.guard_competition_scope();
+
+create or replace function public.guard_role_grant() returns trigger
+language plpgsql security invoker set search_path = '' as $$
+declare target public.role_grants;
+begin
+  if current_user = pg_catalog.pg_get_userbyid((select relowner from pg_catalog.pg_class where oid = tg_relid)) then
+    if tg_op = 'DELETE' then return old; end if;
+    return new;
+  end if;
+  if auth.uid() is null then
+    raise exception 'authentication_required' using errcode = '42501';
+  end if;
+  if tg_op = 'UPDATE' then
+    raise exception 'role_grant_updates_forbidden' using errcode = '42501';
+  end if;
+  if tg_op = 'DELETE' then target := old; else target := new; end if;
+  if public.is_admin() is not true then
+    if target.role not in ('captain','coach') or target.competition_id is null
+       or target.game_id is not null or target.team_id is not null
+       or public.has_grant_on_competition(target.competition_id, array['organiser']) is not true then
+      raise exception 'role_grant_scope_forbidden' using errcode = '42501';
+    end if;
+  end if;
+  if tg_op = 'DELETE' then return old; end if;
+  if new.granted_by is not null and new.granted_by <> auth.uid() then
+    raise exception 'role_grant_actor_forbidden' using errcode = '42501';
+  end if;
+  new.granted_by := auth.uid();
+  new.created_at := now();
+  return new;
+end $$;
+create trigger role_grants_auth_guard before insert or update or delete on public.role_grants
+  for each row execute function public.guard_role_grant();
+create trigger audit_role_grants after insert or update or delete on public.role_grants
+  for each row execute function public.audit_row();
+
+create or replace function public.guard_season_registration() returns trigger
+language plpgsql security invoker set search_path = '' as $$
+declare organiser boolean;
+begin
+  if current_user = pg_catalog.pg_get_userbyid((select relowner from pg_catalog.pg_class where oid = tg_relid)) then
+    return new;
+  end if;
+  if auth.uid() is null then
+    raise exception 'authentication_required' using errcode = '42501';
+  end if;
+  if tg_op = 'UPDATE'
+     and (new.id, new.competition_id, new.player_id, new.created_at)
+         is distinct from (old.id, old.competition_id, old.player_id, old.created_at) then
+    raise exception 'season_registration_identity_immutable' using errcode = '42501';
+  end if;
+  organiser := public.has_grant_on_competition(new.competition_id, array['organiser']);
+  if public.is_admin() then
+    if new.status in ('approved','rejected')
+       and (tg_op = 'INSERT' or new.status is distinct from old.status) then
+      new.decided_by := auth.uid(); new.decided_at := now();
+    end if;
+    return new;
+  end if;
+  if tg_op = 'INSERT' then
+    if public.can_register_player(new.player_id) is not true or new.status <> 'pending'
+       or new.decided_by is not null or new.decided_at is not null then
+      raise exception 'season_registration_forbidden' using errcode = '42501';
+    end if;
+    new.created_at := now();
+    return new;
+  end if;
+  if organiser and new.status in ('approved','rejected') then
+    new.decided_by := auth.uid(); new.decided_at := now();
+    return new;
+  end if;
+  if public.can_register_player(old.player_id) is not true
+     or (new.decided_by, new.decided_at) is distinct from (old.decided_by, old.decided_at)
+     or (new.status is distinct from old.status and new.status not in ('pending','withdrawn')) then
+    raise exception 'season_decision_forbidden' using errcode = '42501';
+  end if;
+  return new;
+end $$;
+create trigger creg_auth_guard before insert or update on public.competition_registrations
+  for each row execute function public.guard_season_registration();
+
+create or replace function public.guard_attendance() returns trigger
+language plpgsql security invoker set search_path = '' as $$
+declare own_identity boolean; staff boolean; game_row public.games;
+begin
+  if current_user = pg_catalog.pg_get_userbyid((select relowner from pg_catalog.pg_class where oid = tg_relid)) then
+    return new;
+  end if;
+  if auth.uid() is null then
+    raise exception 'authentication_required' using errcode = '42501';
+  end if;
+  if tg_op = 'UPDATE'
+     and (new.id, new.game_id, new.player_id, new.created_at)
+         is distinct from (old.id, old.game_id, old.player_id, old.created_at) then
+    raise exception 'registration_identity_forbidden' using errcode = '42501';
+  end if;
+  if public.is_admin() then return new; end if;
+  own_identity := public.can_register_player(new.player_id);
+  staff := public.manages_game(new.game_id);
+  if tg_op = 'INSERT' then
+    if own_identity is not true or public.can_register_for_game(new.game_id, new.player_id) is not true
+       or new.status not in ('registered','waitlisted')
+       or new.participation not in ('player','keeper')
+       or new.attendance <> 'unknown' or new.checked_in_at is not null
+       or new.checked_in_by is not null or new.late_cancel or new.cancelled_at is not null
+       or (new.registered_by is not null and new.registered_by <> auth.uid())
+       or new.registered_at is distinct from now() then
+      raise exception 'registration_insert_forbidden' using errcode = '42501';
+    end if;
+    new.registered_by := auth.uid(); new.created_at := now();
+    return new;
+  end if;
+  if own_identity is not true then
+    -- Staff can check a child in, but may not register/cancel/reparent the child
+    -- or change the child's playing/fee status. The same restriction covers
+    -- other adults until an explicit staff registration workflow is delivered.
+    if staff is not true
+       or old.status <> 'registered'
+       or (to_jsonb(new) - array['attendance','checked_in_at','checked_in_by','updated_at'])
+          is distinct from
+          (to_jsonb(old) - array['attendance','checked_in_at','checked_in_by','updated_at']) then
+      raise exception 'registration_staff_fields_forbidden' using errcode = '42501';
+    end if;
+  else
+    if (new.registered_by, new.registered_at, new.cancelled_at, new.late_cancel)
+       is distinct from (old.registered_by, old.registered_at, old.cancelled_at, old.late_cancel)
+       or new.participation not in ('player','keeper') then
+      raise exception 'registration_metadata_forbidden' using errcode = '42501';
+    end if;
+    if new.status is distinct from old.status then
+      if old.attendance <> 'unknown' then
+        raise exception 'checked_in_registration_forbidden' using errcode = '42501';
+      end if;
+      select * into game_row from public.games where id = new.game_id;
+      if not found or game_row.status not in ('published','reg_closed') or game_row.start_time <= now() then
+        raise exception 'registration_window_closed' using errcode = '42501';
+      end if;
+      if new.status = 'cancelled' then
+        new.cancelled_at := now();
+        new.late_cancel := old.status = 'registered'
+          and coalesce(game_row.registration_closes_at < now(), false);
+      elsif old.status = 'cancelled'
+            and public.can_register_for_game(new.game_id, new.player_id) then
+        new.cancelled_at := null; new.late_cancel := false; new.registered_at := now();
+      else
+        raise exception 'registration_transition_forbidden' using errcode = '42501';
+      end if;
+    end if;
+  end if;
+  if (new.attendance, new.checked_in_at, new.checked_in_by)
+     is distinct from (old.attendance, old.checked_in_at, old.checked_in_by) then
+    if staff is not true then
+      raise exception 'attendance_forbidden' using errcode = '42501';
+    end if;
+    new.checked_in_by := case when new.attendance = 'unknown' then null else auth.uid() end;
+    new.checked_in_at := case when new.attendance = 'present' then now() else null end;
+  end if;
+  return new;
+end $$;
+create trigger greg_auth_guard before insert or update on public.game_registrations
   for each row execute function public.guard_attendance();
 
-create policy creg_read on public.competition_registrations for select
-  using (public.is_admin() or public.owns_player(player_id));
-create policy creg_insert on public.competition_registrations for insert
-  with check (public.is_admin() or public.owns_player(player_id));
-create policy creg_update on public.competition_registrations for update
-  using (public.is_admin() or public.owns_player(player_id));
+-- Separate anonymous policies never invoke authenticated-only helper functions.
+create policy profiles_read on public.profiles for select to authenticated
+  using (auth.uid() is not null and (id = auth.uid() or public.is_admin()));
+create policy profiles_update on public.profiles for update to authenticated
+  using (auth.uid() is not null and (id = auth.uid() or public.is_admin()))
+  with check (auth.uid() is not null and (id = auth.uid() or public.is_admin()));
 
--- money: read your own, write nothing
-create policy charges_read on public.charges for select
-  using (public.is_admin() or account_id = auth.uid()
-         or public.owns_player(player_id));
-create policy charges_write on public.charges for all
-  using (public.is_admin()) with check (public.is_admin());
+create policy players_read on public.players for select to authenticated
+  using (auth.uid() is not null and (public.is_admin()
+    or account_id = auth.uid() or guardian_account_id = auth.uid()));
+create policy players_insert on public.players for insert to authenticated
+  with check (auth.uid() is not null and (public.is_admin()
+    or (account_id = auth.uid() and guardian_account_id is null)
+    or (account_id is null and guardian_account_id = auth.uid())));
+create policy players_update on public.players for update to authenticated
+  using (auth.uid() is not null and (public.is_admin()
+    or account_id = auth.uid() or guardian_account_id = auth.uid()))
+  with check (auth.uid() is not null and (public.is_admin()
+    or account_id = auth.uid() or guardian_account_id = auth.uid()));
 
-create policy payments_read on public.payments for select
-  using (public.is_admin() or account_id = auth.uid());
-create policy payments_write on public.payments for all
-  using (public.is_admin()) with check (public.is_admin());
+create policy games_public_read on public.games for select to anon, authenticated
+  using (status <> 'draft');
+create policy games_staff_read on public.games for select to authenticated
+  using (auth.uid() is not null and (public.is_admin() or public.manages_game(id)
+    or public.has_grant_on_competition(competition_id, array['organiser'])));
+create policy games_insert on public.games for insert to authenticated
+  with check (auth.uid() is not null and (public.is_admin()
+    or public.has_grant_on_competition(competition_id, array['organiser'])));
+create policy games_update on public.games for update to authenticated
+  using (auth.uid() is not null and (public.is_admin()
+    or public.has_grant_on_competition(competition_id, array['organiser'])))
+  with check (auth.uid() is not null and (public.is_admin()
+    or public.has_grant_on_competition(competition_id, array['organiser'])));
 
-create policy periods_read on public.billing_periods for select
-  using (public.is_admin());
-create policy periods_write on public.billing_periods for all
-  using (public.is_admin()) with check (public.is_admin());
+create policy competitions_public_read on public.competitions for select to anon, authenticated
+  using (status <> 'draft');
+create policy competitions_staff_read on public.competitions for select to authenticated
+  using (auth.uid() is not null and (public.is_admin()
+    or public.has_grant_on_competition(id, array['organiser'])));
+create policy competitions_insert on public.competitions for insert to authenticated
+  with check (auth.uid() is not null and public.is_admin());
+create policy competitions_update on public.competitions for update to authenticated
+  using (auth.uid() is not null and (public.is_admin()
+    or public.has_grant_on_competition(id, array['organiser'])))
+  with check (auth.uid() is not null and (public.is_admin()
+    or public.has_grant_on_competition(id, array['organiser'])));
 
-create policy pps_read on public.period_player_summaries for select
-  using (public.is_admin() or public.owns_player(player_id));
-create policy pas_read on public.period_account_summaries for select
-  using (public.is_admin() or account_id = auth.uid());
+-- Contact fields and venue gate-code notes are omitted from public column
+-- grants, including for authenticated clients. A future admin-only projection
+-- can retrieve them; do not add table-wide SELECT to fix a SELECT * request.
+-- Anonymous game reads similarly omit game notes and the creator account;
+-- authenticated members may read the operational notes of visible games.
+create policy clubs_read on public.clubs for select to anon, authenticated using (true);
+create policy clubs_insert on public.clubs for insert to authenticated
+  with check (auth.uid() is not null and public.is_admin());
+create policy clubs_update on public.clubs for update to authenticated
+  using (auth.uid() is not null and public.is_admin())
+  with check (auth.uid() is not null and public.is_admin());
+create policy venues_read on public.venues for select to anon, authenticated using (true);
+create policy venues_insert on public.venues for insert to authenticated
+  with check (auth.uid() is not null and public.is_admin());
+create policy venues_update on public.venues for update to authenticated
+  using (auth.uid() is not null and public.is_admin())
+  with check (auth.uid() is not null and public.is_admin());
+create policy teams_read on public.teams for select to anon, authenticated using (true);
+create policy teams_insert on public.teams for insert to authenticated
+  with check (auth.uid() is not null and public.is_admin());
+create policy teams_update on public.teams for update to authenticated
+  using (auth.uid() is not null and public.is_admin())
+  with check (auth.uid() is not null and public.is_admin());
+create policy fees_read on public.fee_schedules for select to anon, authenticated using (true);
+create policy fees_insert on public.fee_schedules for insert to authenticated
+  with check (auth.uid() is not null and public.is_admin());
+create policy fees_update on public.fee_schedules for update to authenticated
+  using (auth.uid() is not null and public.is_admin())
+  with check (auth.uid() is not null and public.is_admin());
 
-create policy audit_read on public.audit_log for select using (public.is_admin());
+create policy greg_read on public.game_registrations for select to authenticated
+  using (auth.uid() is not null and (public.is_admin() or public.owns_player(player_id)
+    or public.manages_game(game_id)));
+create policy greg_insert on public.game_registrations for insert to authenticated
+  with check (auth.uid() is not null and (public.is_admin()
+    or public.can_register_for_game(game_id, player_id)));
+create policy greg_update on public.game_registrations for update to authenticated
+  using (auth.uid() is not null and (public.is_admin() or public.owns_player(player_id)
+    or public.manages_game(game_id)))
+  with check (auth.uid() is not null and (public.is_admin() or public.owns_player(player_id)
+    or public.manages_game(game_id)));
 
--- role_grants and teams: readable by all signed-in users, admin-writable.
--- A competition organiser may also grant captain/coach within their own
--- competition, so running a tournament does not require pestering an admin.
-create policy grants_read on public.role_grants for select
-  using (auth.uid() is not null);
-create policy grants_write on public.role_grants for all
-  using (public.is_admin()
-         or (competition_id is not null
-             and public.has_grant_on_competition(competition_id,
-                                                 array['organiser'])))
-  with check (public.is_admin()
-              or (competition_id is not null and role <> 'organiser'
-                  and public.has_grant_on_competition(competition_id,
-                                                      array['organiser'])));
-create policy teams_read on public.teams for select using (true);
-create policy teams_write on public.teams for all
-  using (public.is_admin()) with check (public.is_admin());
+create policy creg_read on public.competition_registrations for select to authenticated
+  using (auth.uid() is not null and (public.is_admin() or public.owns_player(player_id)
+    or public.has_grant_on_competition(competition_id, array['organiser'])));
+create policy creg_insert on public.competition_registrations for insert to authenticated
+  with check (auth.uid() is not null and (public.is_admin() or public.can_register_player(player_id)));
+create policy creg_update on public.competition_registrations for update to authenticated
+  using (auth.uid() is not null and (public.is_admin() or public.owns_player(player_id)
+    or public.has_grant_on_competition(competition_id, array['organiser'])))
+  with check (auth.uid() is not null and (public.is_admin() or public.owns_player(player_id)
+    or public.has_grant_on_competition(competition_id, array['organiser'])));
+
+-- Financial ownership is the historical payer, not today's identity/guardian
+-- link. Moving guardians must not expose the previous payer's statements.
+create policy charges_read on public.charges for select to authenticated
+  using (auth.uid() is not null and (public.is_admin() or account_id = auth.uid()));
+create policy charges_insert on public.charges for insert to authenticated
+  with check (auth.uid() is not null and public.is_admin());
+create policy charges_update on public.charges for update to authenticated
+  using (auth.uid() is not null and public.is_admin())
+  with check (auth.uid() is not null and public.is_admin());
+create policy payments_read on public.payments for select to authenticated
+  using (auth.uid() is not null and (public.is_admin() or account_id = auth.uid()));
+create policy payments_insert on public.payments for insert to authenticated
+  with check (auth.uid() is not null and public.is_admin());
+create policy pps_read on public.period_player_summaries for select to authenticated
+  using (auth.uid() is not null and (public.is_admin() or account_id = auth.uid()));
+create policy pas_read on public.period_account_summaries for select to authenticated
+  using (auth.uid() is not null and (public.is_admin() or account_id = auth.uid()));
+create policy periods_read on public.billing_periods for select to authenticated
+  using (auth.uid() is not null and (public.is_admin()
+    or exists (select 1 from public.charges ch
+                where ch.billing_period_id = billing_periods.id and ch.account_id = auth.uid())
+    or exists (select 1 from public.payments pay
+                where pay.billing_period_id = billing_periods.id and pay.account_id = auth.uid())
+    or exists (select 1 from public.period_account_summaries s
+                where s.billing_period_id = billing_periods.id and s.account_id = auth.uid())));
+create policy periods_insert on public.billing_periods for insert to authenticated
+  with check (auth.uid() is not null and public.is_admin());
+create policy periods_update on public.billing_periods for update to authenticated
+  using (auth.uid() is not null and public.is_admin())
+  with check (auth.uid() is not null and public.is_admin());
+create policy audit_read on public.audit_log for select to authenticated
+  using (auth.uid() is not null and public.is_admin());
+
+create policy grants_read on public.role_grants for select to authenticated
+  using (auth.uid() is not null and (public.is_admin() or account_id = auth.uid()
+    or public.has_grant_on_competition(competition_id, array['organiser'])));
+create policy grants_insert on public.role_grants for insert to authenticated
+  with check (auth.uid() is not null and (public.is_admin()
+    or (role in ('captain','coach') and competition_id is not null and game_id is null and team_id is null
+        and public.has_grant_on_competition(competition_id, array['organiser']))));
+create policy grants_delete on public.role_grants for delete to authenticated
+  using (auth.uid() is not null and (public.is_admin()
+    or (role in ('captain','coach') and competition_id is not null and game_id is null and team_id is null
+        and public.has_grant_on_competition(competition_id, array['organiser']))));
+
+-- Revoke first, then grant the exact application surface. No table DELETE
+-- except controlled grant revocation; no sequence/TRUNCATE/REFERENCES/TRIGGER
+-- privileges. All snapshot/audit writes stay behind trusted internal writers.
+revoke all on table public.profiles, public.players, public.role_grants, public.clubs,
+  public.venues, public.teams, public.competitions, public.games,
+  public.competition_registrations, public.game_registrations, public.fee_schedules,
+  public.billing_periods, public.charges, public.payments, public.period_player_summaries,
+  public.period_account_summaries, public.audit_log from public, anon, authenticated;
+revoke all on table public.v_account_balance, public.v_account_ledger, public.v_public_roster
+  from public, anon, authenticated;
+revoke all on sequence public.audit_log_id_seq from public, anon, authenticated;
+
+revoke all on function public.app_roles() from public, anon, authenticated;
+revoke all on function public.has_role(text) from public, anon, authenticated;
+revoke all on function public.is_admin() from public, anon, authenticated;
+revoke all on function public.has_grant_on_competition(uuid, text[]) from public, anon, authenticated;
+revoke all on function public.owns_player(uuid) from public, anon, authenticated;
+revoke all on function public.can_register_player(uuid) from public, anon, authenticated;
+revoke all on function public.manages_game(uuid) from public, anon, authenticated;
+revoke all on function public.can_register_for_game(uuid, uuid) from public, anon, authenticated;
+revoke all on function public.read_public_roster() from public, anon, authenticated;
+revoke all on function public.read_game_emergency_contacts(uuid) from public, anon, authenticated;
+revoke all on function public.finalise_game_attendance_internal(uuid) from public, anon, authenticated;
+revoke all on function public.close_billing_period_internal(uuid) from public, anon, authenticated;
+revoke all on function public.finalise_game_attendance(uuid) from public, anon, authenticated;
+revoke all on function public.close_billing_period(uuid) from public, anon, authenticated;
+revoke all on function public.guard_role_change() from public, anon, authenticated;
+revoke all on function public.guard_verification() from public, anon, authenticated;
+revoke all on function public.guard_fixture_scope() from public, anon, authenticated;
+revoke all on function public.guard_competition_scope() from public, anon, authenticated;
+revoke all on function public.guard_role_grant() from public, anon, authenticated;
+revoke all on function public.guard_season_registration() from public, anon, authenticated;
+revoke all on function public.guard_attendance() from public, anon, authenticated;
+
+grant usage on schema public to anon, authenticated;
+grant select on table public.competitions, public.teams, public.fee_schedules
+  to anon, authenticated;
+grant select (id, competition_id, team_id, game_type, title, opponent, home_away,
+  home_team_id, away_team_id, stage_label, round_number, venue_id, field_label,
+  timezone, gather_time, start_time, end_time, game_date, capacity, min_players,
+  waitlist_enabled, registration_opens_at, registration_closes_at, kit_color,
+  fee_override, no_show_fee_override, status, cancellation_reason, attendance_locked_at,
+  created_at, updated_at) on table public.games to anon;
+grant select on table public.games to authenticated;
+grant select (id, name, short_name, crest_url, city, is_us, created_at, updated_at)
+  on table public.clubs to anon, authenticated;
+grant select (id, name, address, map_url, surface, timezone, created_at, updated_at)
+  on table public.venues to anon, authenticated;
+grant select on table public.profiles, public.players, public.role_grants,
+  public.competition_registrations, public.game_registrations, public.billing_periods,
+  public.charges, public.payments, public.period_player_summaries,
+  public.period_account_summaries, public.audit_log to authenticated;
+grant update (display_name, phone, locale, roles) on table public.profiles to authenticated;
+grant insert, update on table public.players, public.competitions, public.games,
+  public.competition_registrations, public.game_registrations, public.clubs, public.venues,
+  public.teams, public.fee_schedules, public.billing_periods to authenticated;
+grant insert, delete on table public.role_grants to authenticated;
+-- Future hosted-entry fees cannot be inserted by any client until their
+-- referenced entry model and validation arrive. Owner-only writers are intact.
+grant insert (id, player_id, account_id, game_id, competition_id, billing_period_id,
+  kind, description, amount, charge_date, source) on table public.charges to authenticated;
+grant insert on table public.payments to authenticated;
+grant update (voided_at, void_reason) on table public.charges to authenticated;
+grant select on table public.v_account_balance, public.v_account_ledger to authenticated;
+grant select on table public.v_public_roster to anon, authenticated;
+grant execute on function public.app_roles(), public.has_role(text), public.is_admin(),
+  public.has_grant_on_competition(uuid, text[]), public.owns_player(uuid),
+  public.can_register_player(uuid), public.manages_game(uuid),
+  public.can_register_for_game(uuid, uuid), public.read_game_emergency_contacts(uuid),
+  public.finalise_game_attendance(uuid), public.close_billing_period(uuid) to authenticated;
+grant execute on function public.read_public_roster() to anon, authenticated;
 
 
 -- =====================================================================

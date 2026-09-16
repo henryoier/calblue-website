@@ -21,7 +21,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 MIG_DIR = ROOT / "supabase" / "migrations"
 CORE = "0001_core.sql"
 MONEY = "0002_money.sql"
-LANDED_TARGETS = (CORE, MONEY)
+POLICIES = "0003_rls.sql"
+LANDED_TARGETS = (CORE, MONEY, POLICIES)
 CORE_TABLES = {
     "profiles", "players", "venues", "clubs", "teams", "competitions",
     "games", "role_grants", "competition_registrations", "game_registrations",
@@ -33,6 +34,37 @@ MONEY_TABLES = {
 MONEY_MUTABLE_TABLES = {"fee_schedules", "billing_periods", "charges", "payments"}
 MONEY_VIEWS = {"v_account_balance", "v_account_ledger", "v_public_roster"}
 API_ROLES = {"public", "anon", "authenticated"}
+AUTH_FUNCTIONS = {
+    "app_roles()", "has_role(text)", "is_admin()",
+    "has_grant_on_competition(uuid,text[])", "owns_player(uuid)",
+    "can_register_player(uuid)", "manages_game(uuid)",
+    "can_register_for_game(uuid,uuid)", "read_game_emergency_contacts(uuid)",
+    "finalise_game_attendance(uuid)", "close_billing_period(uuid)",
+    "read_public_roster()",
+}
+ANON_FUNCTIONS = {"read_public_roster()"}
+GUARD_FUNCTIONS = {
+    "profiles": "guard_role_change",
+    "players": "guard_verification",
+    "game_registrations": "guard_attendance",
+}
+PUBLIC_COLUMNS = {
+    "clubs": {"id", "name", "short_name", "crest_url", "city", "is_us", "created_at", "updated_at"},
+    "venues": {"id", "name", "address", "map_url", "surface", "timezone", "created_at", "updated_at"},
+}
+ANON_GAME_COLUMNS = {
+    "id", "competition_id", "team_id", "game_type", "title", "opponent", "home_away",
+    "home_team_id", "away_team_id", "stage_label", "round_number", "venue_id", "field_label",
+    "timezone", "gather_time", "start_time", "end_time", "game_date", "capacity", "min_players",
+    "waitlist_enabled", "registration_opens_at", "registration_closes_at", "kit_color",
+    "fee_override", "no_show_fee_override", "status", "cancellation_reason",
+    "attendance_locked_at", "created_at", "updated_at",
+}
+CHARGE_INSERT_COLUMNS = {
+    "id", "player_id", "account_id", "game_id", "competition_id", "billing_period_id",
+    "kind", "description", "amount", "charge_date", "source",
+}
+ROSTER_COLUMNS = ("id", "display_name", "preferred_number", "default_positions", "photo_url")
 DOLLAR = re.compile(r"\$(?:[A-Za-z_][A-Za-z_0-9]*)?\$")
 
 
@@ -170,11 +202,134 @@ def function_signature(name, args, declaration=False):
 
 FUNCTION = r"^\s*create\s+(?:or\s+replace\s+)?function\s+public\.(\w+)\s*\(([^()]*)\)"
 RLS = r"^\s*alter\s+table\s+public\.(\w+)\s+(enable|disable)\s+row\s+level\s+security\s*$"
+POLICY = r"^\s*create\s+policy\s+(\w+)\s+on\s+public\.(\w+)\b(.*)$"
+
+
+def parse_grant(statement, revoke=False):
+    """Parse the small explicit GRANT subset used by the policy migration.
+
+    Unsupported forms (ALL objects, grant options, implicit schemas or roles)
+    return None and are rejected. This intentionally is not a PostgreSQL parser.
+    """
+    action, connector = ("revoke", "from") if revoke else ("grant", "to")
+    grant = matches(rf"^\s*{action}\s+(.+?)\s+on\s+(?:(table|function|sequence|schema)\s+)?(.+?)\s+{connector}\s+(.+?)\s*$", statement)
+    if not grant:
+        return None
+    roles = [value.strip().lower() for value in grant[4].split(",")]
+    if not roles or any(not re.fullmatch(r"[a-z_][a-z_0-9]*", role) for role in roles):
+        return None
+    privileges = []
+    for value in split_columns(grant[1]):
+        privilege = matches(r"^(select|insert|update|delete|usage|execute|all(?:\s+privileges)?)\s*(?:\(([^()]*)\))?\s*$", value)
+        if not privilege:
+            return None
+        if privilege[1].lower().startswith("all") and not revoke:
+            return None
+        columns = tuple(column.strip().lower() for column in (privilege[2] or "").split(",") if column.strip())
+        if any(not re.fullmatch(r"[a-z_][a-z_0-9]*", column) for column in columns):
+            return None
+        privileges.append(("all" if privilege[1].lower().startswith("all") else privilege[1].lower(), columns))
+    kind = (grant[2] or "table").lower()
+    targets = []
+    for value in split_columns(grant[3]):
+        if kind == "function":
+            target = matches(r"^public\.(\w+)\s*\(([^()]*)\)\s*$", value)
+            if not target:
+                return None
+            targets.append(function_signature(target[1], target[2]))
+        elif kind == "schema":
+            if value.strip().lower() != "public":
+                return None
+            targets.append("public")
+        else:
+            target = matches(r"^public\.(\w+)\s*$", value)
+            if not target:
+                return None
+            targets.append(target[1].lower())
+    return kind, roles, targets, privileges
+
+
+def policy_queries_profiles(statement):
+    """Ignore the policy's target while rejecting direct profile lookups."""
+    policy = matches(POLICY, statement)
+    body = policy[3] if policy else statement
+    return bool(matches(r"\bpublic\.profiles\b|\b(?:from|join)\s+profiles\b|,\s*profiles\b", body))
+
+
+def required_policy_acl():
+    """Reviewed client surface; rows still require the applicable RLS policy.
+
+    Entries are (role, kind, object, privilege, column); empty column means a
+    whole-object grant. Extending this matrix is a deliberate security change.
+    """
+    acl = set()
+
+    def add(role, kind, targets, privileges, columns=("",)):
+        acl.update((role, kind, target, privilege, column)
+                   for target in targets for privilege in privileges for column in columns)
+
+    add("authenticated", "function", AUTH_FUNCTIONS, ("execute",))
+    add("anon", "function", ANON_FUNCTIONS, ("execute",))
+    for role in ("anon", "authenticated"):
+        add(role, "schema", ("public",), ("usage",))
+    add("authenticated", "table", (CORE_TABLES | MONEY_TABLES | MONEY_VIEWS) - PUBLIC_COLUMNS.keys(), ("select",))
+    add("anon", "table", {"competitions", "teams", "fee_schedules", "v_public_roster"}, ("select",))
+    add("anon", "table", ("games",), ("select",), ANON_GAME_COLUMNS)
+    for table, columns in PUBLIC_COLUMNS.items():
+        for role in ("anon", "authenticated"):
+            add(role, "table", (table,), ("select",), columns)
+    add("authenticated", "table", {
+        "players", "competitions", "games", "competition_registrations", "game_registrations",
+        "clubs", "venues", "teams", "fee_schedules", "billing_periods",
+    }, ("insert", "update"))
+    add("authenticated", "table", ("profiles",), ("update",), ("display_name", "phone", "locale", "roles"))
+    add("authenticated", "table", ("payments",), ("insert",))
+    add("authenticated", "table", ("charges",), ("insert",), CHARGE_INSERT_COLUMNS)
+    add("authenticated", "table", ("charges",), ("update",), ("voided_at", "void_reason"))
+    add("authenticated", "table", ("role_grants",), ("insert", "delete"))
+    return acl
+
+
+def check_policy_acl(scan, problems):
+    required = required_policy_acl()
+    allowed = required
+    granted = set()
+    for _, _, statement in statements(scan):
+        if matches(r"^\s*alter\s+default\s+privileges\b", statement):
+            problems.append(f"{POLICIES}: default privilege changes are outside the explicit client allowlist")
+            continue
+        is_grant = bool(matches(r"^\s*grant\b", statement))
+        is_revoke = bool(matches(r"^\s*revoke\b", statement))
+        if not is_grant and not is_revoke:
+            continue
+        parsed = parse_grant(statement, revoke=is_revoke)
+        if parsed is None:
+            problems.append(f"{POLICIES}: unsupported or broad {'GRANT' if is_grant else 'REVOKE'}; use explicit reviewed objects, privileges and roles")
+            continue
+        kind, roles, targets, privileges = parsed
+        for role in roles:
+            for target in targets:
+                for privilege, columns in privileges:
+                    if is_revoke:
+                        granted.difference_update({entry for entry in granted
+                            if entry[:3] == (role, kind, target)
+                            and (privilege == "all" or entry[3] == privilege)
+                            and (not columns or entry[4] in columns)})
+                        continue
+                    for column in columns or ("",):
+                        entry = (role, kind, target, privilege, column)
+                        if entry not in allowed:
+                            suffix = f"({column})" if column else ""
+                            problems.append(f"{POLICIES}: unapproved client grant: {role} {privilege.upper()}{suffix} on {kind} public.{target}")
+                        granted.add(entry)
+    for role, kind, target, privilege, column in sorted(required - granted):
+        suffix = f"({column})" if column else ""
+        problems.append(f"{POLICIES}: missing explicit client grant: {role} {privilege.upper()}{suffix} on {kind} public.{target}")
 
 
 def installation_checks(name, scan, tables, required_tables, mutable_tables, problems):
     """Check one installation's transaction, table access and helper boundaries."""
-    stage = "core" if name == CORE else "money"
+    stage = "core" if name == CORE else "money" if name == MONEY else "RLS"
     parts = list(statements(scan))
     if not parts or parts[0][2].strip().lower() not in {"begin", "begin transaction"}:
         problems.append(f"{name}: {stage} installation must start with BEGIN")
@@ -215,9 +370,9 @@ def installation_checks(name, scan, tables, required_tables, mutable_tables, pro
                 for function_name, args in re.findall(r"public\.(\w+)\s*\(([^()]*)\)", revoke[3], re.I):
                     key = function_signature(function_name, args)
                     function_revokes.setdefault(key, set()).update(roles)
-        if matches(r"^\s*grant\b.+\bto\s+.*\b(public|anon|authenticated)\b", statement):
+        if name != POLICIES and matches(r"^\s*grant\b.+\bto\s+.*\b(public|anon|authenticated)\b", statement):
             problems.append(f"{name}: API role grants belong in the later policy migration")
-        if matches(r"^\s*create\s+policy\b", statement):
+        if name != POLICIES and matches(r"^\s*create\s+policy\b", statement):
             problems.append(f"{name}: access policies belong in the later policy migration")
         function = matches(FUNCTION, statement)
         if function:
@@ -353,12 +508,115 @@ def money_checks(scan, tables, problems):
         problems.append(f"{MONEY}: missing row BEFORE UPDATE OR DELETE charge immutability trigger")
 
 
+def policy_checks(scan, enabled_rls, problems):
+    """Check policy installation shape; SQL role-matrix tests remain required."""
+    functions, _, _ = installation_checks(POLICIES, scan, {}, set(), set(), problems)
+    check_policy_acl(scan, problems)
+    parts = list(statements(scan))
+    declared = {function_signature(function[1], function[2], declaration=True)
+                for _, _, statement in parts if (function := matches(FUNCTION, statement))}
+    for helper in sorted(AUTH_FUNCTIONS - declared):
+        problems.append(f"{POLICIES}: required client helper public.{helper} is missing")
+    for helper, (_, body) in functions.items():
+        for relation in re.finditer(r"\b(?:from|join)\s+(?:(\w+)\.)?pg_class\b", body.clean, re.I):
+            if (relation[1] or "").lower() != "pg_catalog":
+                problems.append(f"{POLICIES}: public.{helper}() must qualify pg_class as pg_catalog.pg_class; empty search_path still searches temporary relations")
+    policies, triggers = {}, {}
+    for _, _, statement in parts:
+        altered_function = matches(r"^\s*alter\s+function\s+public\.(\w+)\s*\(([^()]*)\)\s+(.+)$", statement)
+        if altered_function:
+            signature = function_signature(altered_function[1], altered_function[2])
+            rename = matches(r"^rename\s+to\s+(\w+)\s*$", altered_function[3])
+            allowed_renames = {
+                "finalise_game_attendance(uuid)": "finalise_game_attendance_internal",
+                "close_billing_period(uuid)": "close_billing_period_internal",
+            }
+            if not rename or allowed_renames.get(signature) != rename[1].lower():
+                problems.append(f"{POLICIES}: function alterations must not bypass checked search paths/privileges; only the two private billing renames are allowed")
+        elif matches(r"^\s*alter\s+function\b", statement):
+            problems.append(f"{POLICIES}: function alterations must not bypass checked search paths/privileges; public-qualified DDL is required")
+        if matches(r"^\s*alter\s+policy\b", statement):
+            problems.append(f"{POLICIES}: ALTER POLICY is outside the checked create-policy contract")
+        if matches(r"^\s*(?:alter|drop)\s+view\b", statement):
+            problems.append(f"{POLICIES}: view alterations/drops are outside the checked safe projection contract")
+        changed_view = matches(r"^\s*create\s+(?:or\s+replace\s+)?view\s+public\.(\w+)\b", statement)
+        if changed_view and changed_view[1].lower() != "v_public_roster":
+            problems.append(f"{POLICIES}: only the public roster view may be replaced in this policy migration")
+        elif not changed_view and matches(r"^\s*create\s+(?:or\s+replace\s+)?view\b", statement):
+            problems.append(f"{POLICIES}: view declaration is outside this checker's supported public-qualified DDL")
+        policy = matches(POLICY, statement)
+        if policy:
+            policy_name, table = policy[1].lower(), policy[2].lower()
+            policies.setdefault(table, set()).add(policy_name)
+            header = matches(r"^\s*(?:as\s+(?:permissive|restrictive)\s+)?for\s+(?:all|select|insert|update|delete)\s+to\s+(.+?)\s+(?=using\b|with\s+check\b)", policy[3])
+            roles = {role.strip().lower() for role in header[1].split(",")} if header else set()
+            if not roles or roles - {"anon", "authenticated"}:
+                problems.append(f"{POLICIES}: policy {policy_name} must explicitly target anon/authenticated and supply a predicate")
+        elif matches(r"^\s*create\s+policy\b", statement):
+            problems.append(f"{POLICIES}: policy declaration is outside this checker's supported public-qualified DDL")
+        dropped_policy = matches(r"^\s*drop\s+policy\s+(?:if\s+exists\s+)?(\w+)\s+on\s+public\.(\w+)\b", statement)
+        if dropped_policy:
+            policies.get(dropped_policy[2].lower(), set()).discard(dropped_policy[1].lower())
+        trigger = matches(r"^\s*create\s+trigger\s+(\w+)\s+before\s+((?:insert|update)(?:\s+or\s+(?:insert|update))*)\s+on\s+public\.(\w+)\s+for\s+each\s+row\s+execute\s+function\s+public\.(\w+)\s*\(\s*\)\s*$", statement)
+        if trigger:
+            triggers[(trigger[3].lower(), trigger[1].lower())] = (
+                trigger[4].lower(), set(re.split(r"\s+or\s+", trigger[2].lower())),
+            )
+        dropped_trigger = matches(r"^\s*drop\s+trigger\s+(?:if\s+exists\s+)?(\w+)\s+on\s+public\.(\w+)\b", statement)
+        if dropped_trigger:
+            triggers.pop((dropped_trigger[2].lower(), dropped_trigger[1].lower()), None)
+
+    for table in sorted(CORE_TABLES | MONEY_TABLES):
+        if table not in enabled_rls:
+            problems.append(f"{POLICIES}: public.{table} must keep RLS enabled")
+        if not policies.get(table):
+            problems.append(f"{POLICIES}: public.{table} needs at least one real policy")
+    for table, function in GUARD_FUNCTIONS.items():
+        events = set().union(*(events for (target, _), (helper, events) in triggers.items()
+                              if target == table and helper == function))
+        if events != {"insert", "update"}:
+            problems.append(f"{POLICIES}: public.{table} needs row BEFORE INSERT and UPDATE protection using {function}()")
+        if function not in functions:
+            problems.append(f"{POLICIES}: required guard public.{function}() is missing")
+        elif matches(r"\bsecurity\s+definer\b", functions[function][0]):
+            problems.append(f"{POLICIES}: public.{function}() must keep SECURITY INVOKER caller context")
+
+    # The public roster intentionally has no base-table SELECT grant. Its only
+    # definer projection is a small, fixed result, not an arbitrary player row.
+    declaration, body = functions.get("read_public_roster", ("", scan_sql("")))
+    returns = matches(r"\breturns\s+table\s*\(([^()]*)\)", declaration)
+    columns = tuple(column.split()[0].lower() for column in split_columns(returns[1])) if returns else ()
+    if columns != ROSTER_COLUMNS or not matches(r"\bsecurity\s+definer\b", declaration):
+        problems.append(f"{POLICIES}: read_public_roster() must be a SECURITY DEFINER projection of the five safe roster columns")
+    row_query = matches(r"^\s*select\s+(.+?)\s+from\s+public\.players\s+(?:as\s+)?(\w+)\s+where\s+(.+?)(?:\s+order\s+by\s+[\w\s,.]+)?\s*;?\s*$", body.comments_removed)
+    safe_query = False
+    if row_query:
+        alias = row_query[2].lower()
+        selected = tuple(re.sub(r"\s+", "", column).lower() for column in split_columns(row_query[1]))
+        conditions = {re.sub(r"\s+", "", condition) for condition in re.split(r"\band\b", row_query[3], flags=re.I)}
+        expected_filter = {alias + ".is_public", alias + ".verification_status='verified'"}
+        safe_query = selected == tuple(alias + "." + column for column in ROSTER_COLUMNS) and conditions == expected_filter
+    if not safe_query:
+        problems.append(f"{POLICIES}: read_public_roster() must select only the five safe columns of opt-in verified players")
+    view_pattern = (
+        r"^\s*create\s+(?:or\s+replace\s+)?view\s+public\.v_public_roster\s+"
+        r"with\s*\(\s*security_invoker\s*=\s*true\s*\)\s+as\s+select\s+"
+        + r"\s*,\s*".join(ROSTER_COLUMNS)
+        + r"\s+from\s+public\.read_public_roster\s*\(\s*\)\s*$"
+    )
+    if not any(matches(view_pattern, statement) for _, _, statement in parts):
+        problems.append(f"{POLICIES}: v_public_roster must be an invoker view over only read_public_roster()'s five safe columns")
+    for _, _, statement in parts:
+        if matches(r"^\s*create\s+(?:or\s+replace\s+)?view\s+public\.v_public_roster\b", statement) and not matches(view_pattern, statement):
+            problems.append(f"{POLICIES}: every v_public_roster replacement must preserve the checked safe invoker projection")
+
+
 def check_migrations(migrations, required_targets=LANDED_TARGETS):
     """Return findings; focused fixtures may explicitly require only core."""
     problems = []
     for target in required_targets:
         if target not in migrations:
-            stage = "core" if target == CORE else "money" if target == MONEY else target
+            stage = "core" if target == CORE else "money" if target == MONEY else "RLS" if target == POLICIES else target
             problems.append(f"{target}: required {stage} migration is missing")
     seen, all_rls = set(), set()
     for name, sql in sorted(migrations.items()):
@@ -374,7 +632,7 @@ def check_migrations(migrations, required_targets=LANDED_TARGETS):
                 tables[table_name] = table[2]
                 events.append((start + table.start(1), "create", table_name))
             policy = matches(r"^\s*create\s+policy\b", statement)
-            if policy and matches(r"\b(?:from|join)\s+public\.profiles\b", statement):
+            if policy and policy_queries_profiles(statement):
                 problems.append(f"{name}:{line_of(sql, start + policy.end() - len('policy'))}: policy queries profiles; use JWT role helpers to avoid recursion")
             for match in re.finditer(r"\breferences\s+public\.(\w+)", statement, re.I):
                 events.append((start + match.start(), "ref", match[1].lower()))
@@ -395,9 +653,11 @@ def check_migrations(migrations, required_targets=LANDED_TARGETS):
             core_checks(scan, tables, problems)
         if name == MONEY:
             money_checks(scan, tables, problems)
-    if "0003_rls.sql" in migrations:
+        if name == POLICIES:
+            policy_checks(scan, all_rls, problems)
+    if POLICIES in migrations:
         for table in sorted(seen - all_rls):
-            problems.append(f"0003_rls.sql: public.{table} never has row-level security enabled")
+            problems.append(f"{POLICIES}: public.{table} never has row-level security enabled")
     return problems
 
 

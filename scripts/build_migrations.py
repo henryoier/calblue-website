@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Generate supabase/migrations/*.sql from docs/design/schema.sql.
 
-    python3 scripts/build_migrations.py           # write landed migrations 0001 and 0002
-    python3 scripts/build_migrations.py --check   # fail if either is missing or has drifted
-    python3 scripts/build_migrations.py --target 0003_rls.sql  # explicitly select future work
+    python3 scripts/build_migrations.py           # write landed migrations 0001, 0002 and 0003
+    python3 scripts/build_migrations.py --check   # fail if any is missing or has drifted
+    python3 scripts/build_migrations.py --target 0003_rls.sql  # explicitly select one migration
 
 Repeat --target to select more than one migration. Future PLAN entries are never selected
 implicitly. --check is read-only, including when the output directory does not exist.
@@ -40,7 +40,7 @@ PLAN = {
     "0002_money.sql": ("money, the functions that do the work, views and audit", [4, 5, 6, 8]),
     "0003_rls.sql": ("row-level security policies and role helpers", [7]),
 }
-LANDED_TARGETS = ("0001_core.sql", "0002_money.sql")
+LANDED_TARGETS = ("0001_core.sql", "0002_money.sql", "0003_rls.sql")
 
 BANNER = re.compile(r"^--[ \t]+(\d+)\.[ \t]+\S.*$")
 NUMBERED_COMMENT = re.compile(r"^--[ \t]*\d+(?:\.|[ \t]|$)")
@@ -145,7 +145,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="Generate only explicitly selected or landed migrations.")
     ap.add_argument("--check", action="store_true", help="read-only check; fail on missing files or drift")
     ap.add_argument("--target", action="append", choices=tuple(PLAN),
-                    help="migration filename; repeat to select several (default: 0001_core.sql, 0002_money.sql)")
+                    help="migration filename; repeat to select several (default: " + ", ".join(LANDED_TARGETS) + ")")
     args = ap.parse_args(argv)
 
     try:
