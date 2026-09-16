@@ -16,6 +16,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Enforce the no-build convention
         run: python3 scripts/check_no_build.py
+      - name: Reject Supabase service credentials
+        run: python3 scripts/check_secrets.py
       - name: Test Python checks and public-site logic
         run: python3 -m unittest discover -s tests -v
       - name: Test app JavaScript logic (existing Node, no packages)
