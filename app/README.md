@@ -45,7 +45,7 @@ the document root, including during local development.
 ```text
 app/
   index.html        Placeholder entry point; no authentication yet
-  config.js         Public URL/anon-key placeholders; no client loads them yet
+  config.js         Real public URL/publishable key; no client loads them yet
   js/
     dom.js          Escaping template helper
   tests/            Pure-logic suites and browser DOM checks
@@ -76,9 +76,11 @@ run separately with `python3 scripts/test_check_secrets.py`. Test credentials ar
 
 ## Which key goes where
 
-`config.js` holds the project URL and the **anon key**. Both are public by design, but
-access still depends on database grants and correct row-level-security policies. A public key
-does not make an unprotected database safe.
+`config.js` holds the project URL and a **publishable browser key**. Both are public by design,
+but access still depends on database grants and correct row-level-security policies. A public
+key does not make an unprotected database safe. The export remains named `SUPABASE_ANON_KEY`
+for compatibility with the queued app-client imports; it may hold a modern publishable key or
+a legacy public anon key. Do not assume this value is a JWT or a signed-in user credential.
 
 The **service-role key bypasses row-level security entirely**. It must never appear in this
 directory, in any committed file, or in any deployed asset. It belongs only to server-side scheduled
@@ -89,7 +91,7 @@ private files, and it is not a substitute for RLS, access review or credential r
 
 | Value | Location | May be committed or served? |
 |---|---|---|
-| Project URL and public anon key | `app/config.js` | Yes; database permissions still need review. |
+| Project URL and public publishable/anon key | `app/config.js` | Yes; database permissions still need review. |
 | Service-role/secret key | Future server-side job runner secret store | No. Never put it in this repository or a web document root. |
 | Template names and placeholders | `.env.example` | Yes; no real private values. This file is documentation and is not loaded by the browser. |
 
@@ -97,17 +99,30 @@ If a real secret is exposed, revoke/rotate it first and assess the exposure. Rem
 file does not remove copies in Git history, deployed artifacts or logs. Coordinate any history
 cleanup with the maintainers; do not force-push a shared branch as an automatic remediation.
 
-## One-time project setup — manual and still pending
+## Project setup — public config verified, URL settings pending
 
-The committed values are clearly marked placeholders. That is intentional: downstream work can
-continue without a backend, but issue #24 is not fully complete until the real project and auth
-settings below are verified by an administrator.
+The user-provided project `https://rmksoklavpoartewjvus.supabase.co` and its publishable key are
+recorded in `app/config.js`. A read-only request to `/auth/v1/settings` using that key succeeded
+on **2026-09-16** and reported:
+
+- Email provider enabled (`external.email = true`).
+- New signups enabled (`disable_signup = false`).
+- Email confirmation required (`mailer_autoconfirm = false`).
+
+This verifies public endpoint/key acceptance and those reported settings, not email delivery,
+an end-to-end magic-link round trip, database migrations or RLS. Site URL, redirect allow-list,
+SMTP and organization ownership are not exposed by this endpoint. Dashboard review of the URL
+settings remains necessary before issue #24 is complete. The app page itself remains a placeholder
+and does not initialize a client yet.
+
+For administrator review or a future project replacement:
 
 1. Select or create a **club-owned Supabase project**. Confirm ownership, region and any billing
    choices in the dashboard. No project is created by this repository or its CI.
-2. Record the project URL and **public anon key** in `app/config.js`. Do not paste a service-role
-   or secret key there. Run the secret checks before committing. The public config must contain
-   only these two values at this stage; version/loader wiring follows in issue #29.
+2. Record the project URL and **public publishable or legacy anon key** in `app/config.js`.
+   Keep the existing `SUPABASE_ANON_KEY` export name. Do not paste a service-role key, secret key
+   or database password there. Run the secret checks before committing. The public config must
+   contain only these two values at this stage; version/loader wiring follows in issue #29.
 3. In Supabase Authentication settings, enable the Email provider and email confirmations;
    confirm email magic-link sign-in is available. End-to-end sign-in testing waits for issue #30.
 4. Use the planned production Site URL **`https://app.calbluefc.com/`**, matching DESIGN.md §2.
@@ -125,11 +140,12 @@ settings below are verified by an administrator.
 
 ### Completion checklist for issue #24
 
-- [x] Public config contract and clearly marked placeholders committed.
+- [x] Public config contract committed.
 - [x] Key-handling documentation and secret checks with CI regression coverage.
-- [ ] Club-owned project selected/provisioned.
-- [ ] Real project URL and public anon key recorded in `app/config.js`.
-- [ ] Email/magic-link and confirmation settings verified in the dashboard.
+- [x] User-provided project selected; public Auth endpoint is reachable.
+- [x] Real project URL and public publishable key recorded in `app/config.js`.
+- [x] Email provider, signup availability and email-confirmation requirement verified through public settings.
 - [ ] Site URL and exact redirect allow-list configured and reviewed.
 
-Until those manual items are done, the PR **addresses** issue #24; it must not auto-close it.
+Until the URL settings are confirmed, the PR **addresses** issue #24; it must not auto-close it.
+Actual client initialization is verified in issue #29, and email delivery/callback testing in #30.
