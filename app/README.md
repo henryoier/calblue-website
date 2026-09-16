@@ -99,7 +99,7 @@ If a real secret is exposed, revoke/rotate it first and assess the exposure. Rem
 file does not remove copies in Git history, deployed artifacts or logs. Coordinate any history
 cleanup with the maintainers; do not force-push a shared branch as an automatic remediation.
 
-## Project setup — public config verified, URL settings pending
+## Project setup — configured and confirmed
 
 The user-provided project `https://rmksoklavpoartewjvus.supabase.co` and its publishable key are
 recorded in `app/config.js`. A read-only request to `/auth/v1/settings` using that key succeeded
@@ -111,9 +111,10 @@ on **2026-09-16** and reported:
 
 This verifies public endpoint/key acceptance and those reported settings, not email delivery,
 an end-to-end magic-link round trip, database migrations or RLS. Site URL, redirect allow-list,
-SMTP and organization ownership are not exposed by this endpoint. Dashboard review of the URL
-settings remains necessary before issue #24 is complete. The app page itself remains a placeholder
-and does not initialize a client yet.
+SMTP and organization ownership are not exposed by this endpoint. On **2026-09-16**, the user
+confirmed the dashboard Site URL and exact redirect allow-list documented below. That completes
+the configuration work for issue #24; the app page itself remains a placeholder and does not
+initialize a client yet.
 
 For administrator review or a future project replacement:
 
@@ -145,7 +146,7 @@ For administrator review or a future project replacement:
 - [x] User-provided project selected; public Auth endpoint is reachable.
 - [x] Real project URL and public publishable key recorded in `app/config.js`.
 - [x] Email provider, signup availability and email-confirmation requirement verified through public settings.
-- [ ] Site URL and exact redirect allow-list configured and reviewed.
+- [x] Site URL and exact redirect allow-list configured and confirmed by the user on 2026-09-16.
 
-Until the URL settings are confirmed, the PR **addresses** issue #24; it must not auto-close it.
-Actual client initialization is verified in issue #29, and email delivery/callback testing in #30.
+PR #78 can resolve issue #24 when merged. Actual client initialization is verified in issue #29,
+and email delivery/callback testing in #30; this setup confirmation does not replace those tests.
