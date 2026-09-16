@@ -1,9 +1,11 @@
 // Escaping DOM helpers.
 //
 // ADR 0001 chose plain ES modules with no build step, which means no JSX and therefore a real risk
-// of escaping mistakes. Everything that builds markup goes through `html`, which escapes every
-// interpolated value by default. Trusted fragments must opt in explicitly via `raw`, so an XSS bug
-// requires somebody to type the word `raw` rather than merely forgetting to escape.
+// of escaping mistakes. `html` escapes values used as HTML text or inside quoted ordinary
+// attributes. It is NOT a sanitizer: it does not validate URL schemes, CSS, or JavaScript.
+// Never interpolate tag/attribute names, unquoted attributes, event-handler attributes, style,
+// srcdoc, or script/style content. Validate dynamic URLs separately and use addEventListener.
+// `raw` is only for code-owned markup, never database/form content.
 //
 // Never assign to innerHTML directly. Use `mount` or `toFragment`.
 
@@ -17,7 +19,7 @@ const ENTITIES = {
   "'": "&#39;",
 };
 
-/** Escape a value for interpolation into HTML text or a quoted attribute. */
+/** Escape HTML text or a quoted ordinary attribute; not URL/script/style sanitization. */
 export function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (char) => ENTITIES[char]);
 }
@@ -42,7 +44,7 @@ function render(value) {
 }
 
 /**
- * Tagged template producing safe HTML.
+ * Tagged template escaping text and quoted ordinary attribute values (see contract above).
  *
  *   html`<p>${name}</p>`                  // name is escaped
  *   html`<ul>${items.map(li)}</ul>`       // arrays are flattened, each item rendered

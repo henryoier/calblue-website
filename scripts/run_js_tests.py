@@ -3,22 +3,21 @@
 
     python3 scripts/run_js_tests.py
 
-There is no node, deno or bun on this machine (ADR 0001), and headless Chrome cannot start from this
-process tree — it dies on a Mach bootstrap permission error. What *is* available is JavaScriptCore,
-via `osascript -l JavaScript`, and that is a real engine: Symbol, tagged templates, rest/spread and
-arrow functions all work.
+Use an existing Node executable (including on Linux CI), or JavaScriptCore via
+`osascript -l JavaScript` on macOS. No package manager or build step is needed.
 
-So the suites are split. Anything that is pure string logic — which is all of the escaping, and
-therefore all of the security-relevant behaviour — lives in `app/tests/*.logic.js` and runs here,
-for real, in CI. Anything needing a DOM lives in `app/tests/*.test.js` and runs only in a browser
-at `app/tests/`.
+The suites are split: pure string logic lives in `app/tests/*.logic.js` and runs here.
+Anything needing a DOM, including security-relevant browser parsing, lives in
+`app/tests/*.test.js` and runs separately in a browser at `app/tests/`.
 
 JavaScriptCore has no module loader, so this strips `import`/`export` and concatenates. That is a
 harness detail, not a change to the code under test.
 """
 
+import json
 import pathlib
 import re
+import shutil
 import subprocess
 import sys
 
@@ -62,7 +61,16 @@ def strip_modules(source):
     return source
 
 
-def run_suite(module_path, logic_path, entry):
+def select_runtime():
+    """Prefer the runtime available on CI; retain the no-install macOS fallback."""
+    for name in ("node", "osascript"):
+        executable = shutil.which(name)
+        if executable:
+            return name, executable
+    return None
+
+
+def run_suite(module_path, logic_path, entry, runtime):
     module_src = strip_modules(module_path.read_text())
     logic_src = strip_modules(logic_path.read_text())
 
@@ -70,17 +78,20 @@ def run_suite(module_path, logic_path, entry):
     exported = re.findall(r"^export\s+function\s+(\w+)", module_path.read_text(), re.MULTILINE)
     bindings = ", ".join(f"{name}: {name}" for name in exported)
 
+    runtime_name, executable = runtime
+    output = ("process.stdout.write(JSON.stringify(__results));" if runtime_name == "node"
+              else "JSON.stringify(__results);")
     script = "\n".join([
         module_src, logic_src, HARNESS,
         f"{entry}({{ {bindings} }}, t);",
-        "JSON.stringify(__results);",
+        output,
     ])
 
-    proc = subprocess.run(["osascript", "-l", "JavaScript", "-e", script],
-                          capture_output=True, text=True)
+    command = ([executable, "-e", script] if runtime_name == "node"
+               else [executable, "-l", "JavaScript", "-e", script])
+    proc = subprocess.run(command, capture_output=True, text=True)
     if proc.returncode != 0:
         return None, proc.stderr.strip()
-    import json
     try:
         return json.loads(proc.stdout.strip()), None
     except json.JSONDecodeError:
@@ -88,10 +99,15 @@ def run_suite(module_path, logic_path, entry):
 
 
 def main():
+    runtime = select_runtime()
+    if runtime is None:
+        print("run_js_tests: no JavaScript runtime found; use Node or macOS osascript, "
+              "or open app/tests/ in a browser.")
+        return 1
     total = failed = 0
     for module_path, logic_path, entry in SUITES:
         rel = module_path.relative_to(ROOT)
-        results, error = run_suite(module_path, logic_path, entry)
+        results, error = run_suite(module_path, logic_path, entry, runtime)
         if error:
             print(f"run_js_tests: FAILED to execute {rel}\n  {error}")
             return 1
@@ -110,7 +126,8 @@ def main():
     if failed:
         print(f"run_js_tests: FAILED — {failed} of {total} tests failed")
         return 1
-    print(f"run_js_tests: ok — {total}/{total} passed (JavaScriptCore via osascript)")
+    engine = "Node" if runtime[0] == "node" else "JavaScriptCore via osascript"
+    print(f"run_js_tests: ok — {total}/{total} passed ({engine})")
     print("note: DOM-dependent tests are browser-only; open app/tests/ to run those.")
     return 0
 

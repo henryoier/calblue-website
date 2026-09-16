@@ -45,15 +45,19 @@ export function report(into) {
   window.__testResults = { total, failed: failed.length, results };
   document.title = failed.length ? `FAIL ${failed.length}/${total}` : `PASS ${total}/${total}`;
 
-  const lines = results.map((r) => {
+  const summary = document.createElement("p");
+  summary.className = `summary ${failed.length ? "bad" : "ok"}`;
+  summary.textContent = failed.length ? `${failed.length} of ${total} failed` : `all ${total} passed`;
+  const list = document.createElement("ul");
+  for (const r of results) {
     const ok = r.failures.length === 0;
-    const detail = r.failures.map((f) => `\n      ${f}`).join("");
-    return `<li class="${ok ? "ok" : "bad"}">${ok ? "PASS" : "FAIL"} — ${r.name}<pre>${detail}</pre></li>`;
-  });
-
-  into.innerHTML = `
-    <p class="summary ${failed.length ? "bad" : "ok"}">
-      ${failed.length ? `${failed.length} of ${total} failed` : `all ${total} passed`}
-    </p>
-    <ul>${lines.join("")}</ul>`;
+    const item = document.createElement("li");
+    item.className = ok ? "ok" : "bad";
+    item.textContent = `${ok ? "PASS" : "FAIL"} — ${r.name}`;
+    const detail = document.createElement("pre");
+    detail.textContent = r.failures.map((f) => `\n      ${f}`).join("");
+    item.appendChild(detail);
+    list.appendChild(item);
+  }
+  into.replaceChildren(summary, list);
 }
