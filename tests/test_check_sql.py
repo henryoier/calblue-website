@@ -59,6 +59,49 @@ def core_fixture():
     return "\n".join(sql)
 
 
+def money_fixture():
+    """Independent structural contract; executable billing tests live in SQL."""
+    sql = ["begin;"]
+    mutable = {"fee_schedules", "billing_periods", "charges", "payments"}
+    for table in (
+        "fee_schedules", "billing_periods", "charges", "payments",
+        "period_player_summaries", "period_account_summaries", "audit_log",
+    ):
+        updated = ", updated_at timestamptz not null default now()" if table in mutable else ""
+        sql.append(f"""create table public.{table} (
+            id uuid primary key,
+            account_id uuid references public.profiles(id),
+            created_at timestamptz not null default now(){updated}
+        );
+        alter table public.{table} enable row level security;
+        revoke all on table public.{table} from public, anon, authenticated;""")
+        if table in mutable:
+            sql.append(f"""create trigger {table}_touch before update on public.{table}
+                for each row execute function public.touch_updated_at();""")
+    sql.append("""revoke all on sequence public.audit_log_id_seq from public, anon, authenticated;
+        create unique index charges_auto_once on public.charges(game_id, player_id, kind)
+            where source = 'auto' and voided_at is null and game_id is not null;
+        alter table public.billing_periods add constraint billing_periods_no_overlap
+            exclude using gist (daterange(start_date, end_date, '[]') with &&);""")
+    for view in ("v_account_balance", "v_account_ledger", "v_public_roster"):
+        sql.append(f"""create or replace view public.{view} with (security_invoker = true) as
+            select id from public.profiles;
+            revoke all on table public.{view} from public, anon, authenticated;""")
+    for name, declaration, signature in (
+        ("charges_are_immutable", "", ""),
+        ("finalise_game_attendance", "p_game uuid", "uuid"),
+        ("require_open_billing_date", "p_date date, p_period uuid", "date, uuid"),
+    ):
+        sql.append(f"""create function public.{name}({declaration}) returns void
+            language plpgsql security definer set search_path = '' as $money$
+            begin return; end $money$;
+            revoke all on function public.{name}({signature}) from public, anon, authenticated;""")
+    sql.append("""create trigger charges_immutable before update or delete on public.charges
+        for each row execute function public.charges_are_immutable();
+        commit;""")
+    return "\n".join(sql)
+
+
 class LexerTest(unittest.TestCase):
     def test_noise_preserves_offsets_and_newlines(self):
         sql = "-- $$ (\n/* outer\n /* inner */ end */\nselect 'it''s $$)', E'escaped\\\' quote';"
@@ -96,7 +139,8 @@ class LexerTest(unittest.TestCase):
 
 class MigrationCheckTest(unittest.TestCase):
     def findings(self, sql, **others):
-        return check_sql.check_migrations({"0001_core.sql": sql, **others})
+        return check_sql.check_migrations({"0001_core.sql": sql, **others},
+                                          required_targets=(check_sql.CORE,))
 
     def assert_problem(self, sql, fragment, **others):
         self.assertTrue(any(fragment in problem for problem in self.findings(sql, **others)), fragment)
@@ -227,6 +271,181 @@ revoke execute on function public.on_slot_freed() from anon, authenticated;""")
     def test_money_comment_names_are_not_invariants(self):
         money = "-- charges_auto_once billing_periods_no_overlap charges cannot be deleted"
         self.assert_problem(core_fixture(), "missing charges_auto_once unique index", **{"0002_money.sql": money})
+
+
+class MoneyMigrationCheckTest(unittest.TestCase):
+    def findings(self, sql):
+        return check_sql.check_migrations({check_sql.CORE: core_fixture(), check_sql.MONEY: sql})
+
+    def assert_problem(self, sql, fragment):
+        self.assertTrue(any(fragment in problem for problem in self.findings(sql)), fragment)
+
+    def test_complete_money_baseline_passes(self):
+        self.assertEqual(self.findings(money_fixture()), [])
+        self.assertEqual(self.findings(money_fixture().upper().replace("'AUTO'", "'auto'")), [])
+
+    def test_money_is_required_by_default_and_by_cli(self):
+        problems = check_sql.check_migrations({check_sql.CORE: core_fixture()})
+        self.assertIn("0002_money.sql: required money migration is missing", problems)
+        with tempfile.TemporaryDirectory() as directory:
+            (Path(directory) / check_sql.CORE).write_text(core_fixture(), encoding="utf-8")
+            with mock.patch.object(check_sql, "MIG_DIR", Path(directory)), \
+                    mock.patch("sys.argv", ["check_sql.py"]), redirect_stdout(io.StringIO()) as output:
+                self.assertEqual(check_sql.main(), 1)
+            self.assertIn("0002_money.sql: required money migration is missing", output.getvalue())
+
+    def test_focused_core_contract_can_be_requested_explicitly(self):
+        self.assertEqual(check_sql.check_migrations(
+            {check_sql.CORE: core_fixture()}, required_targets=(check_sql.CORE,),
+        ), [])
+
+    def test_cli_accepts_both_complete_installations(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for name, source in ((check_sql.CORE, core_fixture()), (check_sql.MONEY, money_fixture())):
+                (Path(directory) / name).write_text(source, encoding="utf-8")
+            with mock.patch.object(check_sql, "MIG_DIR", Path(directory)), \
+                    mock.patch("sys.argv", ["check_sql.py"]), redirect_stdout(io.StringIO()) as output:
+                self.assertEqual(check_sql.main(), 0)
+            self.assertIn("2 migration(s); structural checks only", output.getvalue())
+
+    def test_money_is_one_atomic_installation(self):
+        self.assert_problem(money_fixture().replace("begin;", "", 1), "money installation must start with BEGIN")
+        self.assert_problem(money_fixture().removesuffix("commit;"), "money installation must end with COMMIT")
+        self.assert_problem(money_fixture().replace("commit;", "commit; begin; commit;"), "transaction boundaries cannot appear inside")
+
+    def test_every_money_table_is_required(self):
+        source = money_fixture().replace("create table public.audit_log", "create table public.extra_log")
+        self.assert_problem(source, "required money table public.audit_log is missing")
+
+    def test_every_money_table_needs_rls_now_and_at_installation_end(self):
+        for table in check_sql.MONEY_TABLES:
+            with self.subTest(table=table):
+                source = money_fixture().replace(f"alter table public.{table} enable row level security;", "")
+                self.assert_problem(source, f"public.{table} must enable RLS in the money migration")
+        self.assert_problem(money_fixture().replace("commit;", "alter table public.charges disable row level security; commit;"),
+                            "public.charges must enable RLS")
+
+    def test_table_privileges_are_revoked_for_all_api_roles(self):
+        for table in check_sql.MONEY_TABLES:
+            with self.subTest(table=table):
+                source = money_fixture().replace(f"revoke all on table public.{table} from public, anon, authenticated;", "")
+                self.assert_problem(source, f"public.{table} must revoke ALL table privileges")
+        source = money_fixture().replace("from public, anon, authenticated", "from public, authenticated")
+        self.assert_problem(source, "public.charges must revoke ALL table privileges from anon")
+
+    def test_api_regrants_and_policies_are_not_allowed_in_money(self):
+        for statement in (
+            "grant select on table public.charges to authenticated;",
+            "grant execute on function public.finalise_game_attendance(uuid) to anon;",
+            "grant usage on sequence public.audit_log_id_seq to public;",
+        ):
+            with self.subTest(statement=statement):
+                self.assert_problem(money_fixture().replace("commit;", statement + "commit;"),
+                                    "API role grants belong in the later policy migration")
+        self.assert_problem(money_fixture().replace("commit;", "create policy open_charges on public.charges using (true); commit;"),
+                            "access policies belong in the later policy migration")
+
+    def test_mutable_money_tables_need_timestamps_and_touch(self):
+        for table in check_sql.MONEY_MUTABLE_TABLES:
+            with self.subTest(table=table):
+                self.assert_problem(money_fixture().replace(f"before update on public.{table}", f"after update on public.{table}"),
+                                    f"public.{table} needs a row BEFORE UPDATE")
+        for column in ("created_at", "updated_at"):
+            self.assert_problem(money_fixture().replace(f"{column} timestamptz not null default now()", f"{column} timestamptz"),
+                                f"public.charges.{column} needs timestamptz")
+
+    def test_immutable_snapshots_and_audit_do_not_require_updated_at(self):
+        self.assertEqual(self.findings(money_fixture()), [])
+        source = money_fixture().replace("created_at timestamptz not null default now()", "created_at timestamptz")
+        self.assert_problem(source, "public.audit_log.created_at needs timestamptz")
+        self.assert_problem(source, "public.period_account_summaries.created_at needs timestamptz")
+
+    def test_every_view_is_required_invoker_and_revoked(self):
+        for view in check_sql.MONEY_VIEWS:
+            with self.subTest(view=view):
+                self.assert_problem(money_fixture().replace(f"view public.{view}", f"view public.other_{view}"),
+                                    f"required view public.{view} is missing")
+                self.assert_problem(money_fixture().replace(f"public.{view} with (security_invoker = true)", f"public.{view}"),
+                                    f"public.{view} needs security_invoker = true")
+                self.assert_problem(money_fixture().replace(f"revoke all on table public.{view} from public, anon, authenticated;", ""),
+                                    f"public.{view} must revoke ALL view privileges")
+
+    def test_invoker_setting_cannot_be_comment_or_later_disabled(self):
+        self.assert_problem(money_fixture().replace("with (security_invoker = true)", "/* with (security_invoker = true) */"),
+                            "needs security_invoker = true")
+        for option in ("set (security_invoker = false)", "reset (security_invoker)"):
+            self.assert_problem(money_fixture().replace("commit;", f"alter view public.v_account_ledger {option}; commit;"),
+                                "public.v_account_ledger needs security_invoker = true")
+
+    def test_audit_identity_sequence_privileges_are_separately_revoked(self):
+        source = money_fixture().replace("revoke all on sequence public.audit_log_id_seq", "revoke all on table public.audit_log_id_seq")
+        self.assert_problem(source, "public.audit_log_id_seq must revoke ALL sequence privileges")
+        source = money_fixture().replace("revoke all on sequence public.audit_log_id_seq from public, anon, authenticated;",
+                                         "revoke all on sequence public.audit_log_id_seq from anon, authenticated;")
+        self.assert_problem(source, "public.audit_log_id_seq must revoke ALL sequence privileges from public")
+
+    def test_every_money_helper_has_fixed_empty_path_and_execute_revokes(self):
+        source = money_fixture().replace("set search_path = ''", "set search_path = pg_catalog")
+        self.assert_problem(source, "public.require_open_billing_date(date,uuid) needs a fixed empty search_path")
+        source = money_fixture().replace("set search_path = ''", "/* set search_path = '' */")
+        self.assert_problem(source, "needs a fixed empty search_path")
+        source = money_fixture().replace("revoke all on function public.require_open_billing_date(date, uuid)",
+                                         "revoke all on function public.require_open_billing_date(uuid, date)")
+        self.assert_problem(source, "public.require_open_billing_date(date,uuid) must revoke EXECUTE")
+        new_helper = "create function public.future_money_guard() returns void language sql as $$ select 1; $$;"
+        source = money_fixture().replace("commit;", new_helper + "commit;")
+        self.assert_problem(source, "public.future_money_guard() needs a fixed empty search_path")
+        self.assert_problem(source, "public.future_money_guard() must revoke EXECUTE")
+
+    def test_non_public_helper_cannot_bypass_generic_inspection(self):
+        source = money_fixture().replace("function public.finalise_game_attendance(p_game uuid)",
+                                         "function finalise_game_attendance(p_game uuid)")
+        self.assert_problem(source, "function declaration is outside this checker's supported")
+
+    def test_partial_unique_index_covers_exact_key_and_active_auto_predicate(self):
+        for original, replacement in (
+            ("create unique index charges_auto_once", "create index charges_auto_once"),
+            ("charges(game_id, player_id, kind)", "charges(game_id, player_id)"),
+            ("charges(game_id, player_id, kind)", "payments(game_id, player_id, kind)"),
+            ("source = 'auto'", "source = 'manual'"),
+            ("source = 'auto'", "source = 'AUTO'"),
+            ("and voided_at is null", ""),
+            ("and game_id is not null", ""),
+        ):
+            with self.subTest(replacement=replacement):
+                self.assert_problem(money_fixture().replace(original, replacement), "missing charges_auto_once unique index")
+
+    def test_overlap_constraint_covers_inclusive_billing_dates(self):
+        for original, replacement in (
+            ("alter table public.billing_periods add constraint", "alter table public.charges add constraint"),
+            ("exclude using gist", "exclude using btree"),
+            ("daterange(start_date, end_date, '[]')", "daterange(start_date, end_date, '[)')"),
+            ("daterange(start_date, end_date, '[]')", "daterange(end_date, start_date, '[]')"),
+            ("with &&", "with ="),
+        ):
+            with self.subTest(replacement=replacement):
+                self.assert_problem(money_fixture().replace(original, replacement), "missing billing_periods_no_overlap exclusion constraint")
+
+    def test_immutable_trigger_covers_update_and_delete_before_each_charge(self):
+        for original, replacement in (
+            ("before update or delete on public.charges", "before update on public.charges"),
+            ("before update or delete on public.charges", "after update or delete on public.charges"),
+            ("before update or delete on public.charges", "before update or delete on public.payments"),
+            ("for each row execute function public.charges_are_immutable", "for each statement execute function public.charges_are_immutable"),
+            ("execute function public.charges_are_immutable", "execute function public.touch_updated_at"),
+        ):
+            with self.subTest(replacement=replacement):
+                self.assert_problem(money_fixture().replace(original, replacement), "missing row BEFORE UPDATE OR DELETE charge immutability trigger")
+        self.assertEqual(self.findings(money_fixture().replace("before update or delete on public.charges",
+                                                               "before delete or update on public.charges")), [])
+
+    def test_function_bodies_cannot_supply_top_level_money_invariants(self):
+        source = money_fixture().replace("create unique index charges_auto_once", "create index charges_auto_once")
+        source = source.replace("begin return; end $money$", """begin
+            create unique index charges_auto_once on public.charges(game_id, player_id, kind)
+                where source = 'auto' and voided_at is null and game_id is not null;
+            return; end $money$""")
+        self.assert_problem(source, "missing charges_auto_once unique index")
 
 
 if __name__ == "__main__":
