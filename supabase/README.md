@@ -1,6 +1,16 @@
 # CalBlue database migrations
 
-Issue #25 adds the **core schema file and its checks**, not a live database deployment or a
+Apply migrations in order, once each:
+
+1. [0001_core.sql](migrations/0001_core.sql): issue #25 / merged PR #79. Its released bytes are unchanged.
+2. [0002_money.sql](migrations/0002_money.sql): issue #26 / PR #80. Read the
+   [billing migration and test guide](0002-money.md) before running it.
+
+If you already applied and tested 0001 for PR #79, keep that empty scratch project and continue
+with 0002. **Do not rerun 0001.** Its core-only smoke scripts belong before 0002; the new billing
+guards deliberately change the later runtime behavior, including the isolation error message.
+
+Issue #25 added the **core schema file and its checks**, not a live database deployment or a
 member-facing feature. Nothing in GitHub Actions applies SQL to Supabase. The public website
 and `/app/` placeholder remain unchanged.
 
@@ -19,8 +29,8 @@ roles. The browser cannot read or write these tables just because migration 0001
 Owner/server access is still privileged; this is not a restriction on a database administrator.
 
 No member/admin authorization policy, registration screen, eligibility check, signup deadline
-workflow, attendance-finalization billing or money table is delivered here. Those remain separate
-issues. Issue #27 must explicitly grant the minimum table/function privileges alongside its policies;
+workflow, attendance-finalization billing or money table is delivered by migration 0001. Those are
+separate issues. Issue #27 must explicitly grant the minimum table/function privileges alongside its policies;
 policies alone do not undo this migration's revocations. Do not re-grant all privileges to make a
 later screen work.
 
@@ -36,7 +46,7 @@ python3 scripts/check_sql.py
 python3 -m unittest discover -s tests -v
 ```
 
-Default generation/checking requires **only 0001**. Future files require explicit repeatable
+Default generation/checking now requires **0001 and 0002**. Future files require explicit repeatable
 `--target` selections; they are not silently created as part of this issue. `--check` never writes
 files or creates directories and fails if a required file is missing or different.
 
@@ -77,7 +87,7 @@ The slot helpers do not implement the full future registration workflow. Game-ca
 deadline/eligibility rules and retries under concurrent transactions require the later feature
 tests; they must not be inferred from a passing structural check.
 
-## Manual verification — still required
+## Core manual verification — before applying 0002
 
 There is no local PostgreSQL/Docker environment. The Python linter checks a documented subset
 of SQL structure and repository conventions; it cannot prove PostgreSQL execution, privileges,
@@ -127,5 +137,6 @@ SQL error, if any: <exact error text, with private information removed>
 Two-session concurrency: not tested
 ```
 
-Until the scratch application and smoke checks are confirmed, PR #79 **addresses** issue #25
-rather than claiming it is fully verified. CI remains entirely offline with respect to Supabase.
+The project owner confirmed the scratch application and both core smoke scripts before PR #79
+merged and issue #25 closed. This is user-reported verification, not a database run by the coding
+agent. Migration 0002 still requires its own manual checks. CI remains offline with respect to Supabase.
