@@ -1,7 +1,8 @@
 // Public Supabase browser configuration.
 //
-// Replace the two placeholders after the project is provisioned. The anon key
-// is intentionally public and receives only the access allowed by RLS. Never
-// put a service-role or secret key in this file.
-export const SUPABASE_URL = "https://YOUR_PROJECT_REF.supabase.co";
-export const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+// Both values are intentionally public; database grants and RLS must still be configured.
+// Keep the SUPABASE_ANON_KEY export name for the queued app client; its value is a
+// publishable browser key, not a legacy JWT. Never put a service-role key, secret key,
+// or database password here. Client initialization follows in issue #29.
+export const SUPABASE_URL = "https://rmksoklavpoartewjvus.supabase.co";
+export const SUPABASE_ANON_KEY = "sb_publishable_E6Nev6Kb2-8WF5YC0ZNJkA_2reaQUvU";
