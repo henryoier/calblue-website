@@ -1,0 +1,13 @@
+{
+  "source": {
+    "type": "manual-overrides",
+    "reference": "https://pacific.swplsoccer.com/schedule",
+    "retiredOn": "2026-09-14",
+    "retiredPreviewSources": [
+      "749.jpg",
+      "4a07243c9bceb3e7e44759b7b0abf080.jpg"
+    ],
+    "note": "SWPL has published the full league and Abronzino Cup schedule. All former preview fixtures are retired; no manual overrides are active. Original previews remain in Git history."
+  },
+  "fixtures": []
+}

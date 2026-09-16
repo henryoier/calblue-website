@@ -33,7 +33,23 @@ Repeat with `sfu`, `hehe`, and `nbh`, using expected counts of 24, 66, and 58. T
 
 The 2026 UPSL California Cup albums use `upsl-athletico`, `upsl-bay-area`, and `upsl-san-ramon`, with expected counts of 34, 32, and 51 unique photos. The San Ramon Drive folder contains duplicate `(1)` copies, so remove exact duplicates from the build input before generating that album. Generated files are placed under `.media-build/gallery/<slug>/{thumb,full}/` and excluded from Git.
 
+The 2026 Kylin Cup albums use `kylin-aurora`, `kylin-dallas-group`, `kylin-kirin`, and `kylin-dallas-third`, with expected counts of 44, 41, 28, and 14 photos. The 30 source videos remain linked from Drive; only still photographs are processed for the web gallery.
+
 ## Configure R2 credentials locally
+
+The September 13, 2026 SWPL season opener against SF Glens uses `swpl-sf-glens` with 99 photos. The [original Drive album](https://drive.google.com/drive/folders/13ABmOL8_1zxd6nJBmlN2sKnrf3S-F5dp) supplies photos `001`–`061`; confirm its complete listing because the initial folder view exposes only 50 of the 61 files. The [additional photo source](https://drive.google.com/drive/folders/1oVoJz4RIPLmQNDp4gOO4v9sr9u5SK_dv) supplies 38 HEIC still photos, appended as `062`–`099`. Its seven MOV videos are excluded from the website.
+
+Keep the existing `001`–`061` thumbnail and full-resolution URLs unchanged. Build additional still photos in an isolated staging directory, number them starting at `062`, and upload only the new objects; do not rebuild or overwrite the first batch. Deduplicate against the original photos before assigning new numbers. The archive now contains 654 still photographs across 13 albums.
+
+```bash
+.venv-media/bin/python scripts/build_r2_album.py \
+  --slug swpl-sf-glens --source "/path/to/additional-still-photos" \
+  --output .media-build/swpl-glens-additions --expected 38 --start-index 62
+.venv-media/bin/python scripts/upload_r2_media.py \
+  --source .media-build/swpl-glens-additions --dry-run
+```
+
+After checking that the upload lists only `062`–`099`, repeat the upload command without `--dry-run`. The builder accepts still-image extensions only and strips original metadata when encoding web JPEGs.
 
 Create an R2 API token limited to Object Read & Write access for the media bucket. Copy the provided example and fill it in locally; never commit or share this file:
 

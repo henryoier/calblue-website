@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="CalBlue's official SWPL Pacific League and Abronzino Cup fixtures and results." />
+    <meta name="theme-color" content="#071b3f" />
+    <meta property="og:title" content="SWPL Pacific League | CalBlue" />
+    <meta property="og:description" content="Officially synced CalBlue fixtures and results for the SWPL Pacific League and Abronzino Cup." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://calbluefc.com/competition-swpl.html" />
+    <meta property="og:image" content="https://calbluefc.com/assets/calblue-logo-web.jpg" />
+    <link rel="canonical" href="https://calbluefc.com/competition-swpl.html" />
+    <title>SWPL Pacific League | CalBlue</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css?v=20260913a" data-site-stylesheet />
+    <link rel="stylesheet" href="competition.css?v=20260913b" />
+    <link rel="stylesheet" href="designs/switcher.css?v=20260826a" />
+    <script src="designs/registry.js?v=20260913a"></script>
+    <script src="designs/switcher.js?v=20260826a"></script>
+    <script defer src="competition-schedule.js?v=20260913b"></script>
+    <link rel="stylesheet" href="rosters.css?v=20260909a" />
+    <script defer src="rosters.js?v=20260909b"></script>
+    <script defer src="script.js?v=20260913a"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header scrolled" data-header>
+      <div class="header-inner shell">
+        <a class="brand" href="index.html" aria-label="CalBlue home"><img src="assets/calblue-logo-web.jpg" alt="" width="52" height="52" /><span>CAL<span>BLUE</span></span></a>
+        <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="site-nav" data-menu-toggle><span></span><span></span><span></span></button>
+        <nav class="site-nav" id="site-nav" data-nav aria-label="Main navigation">
+          <a href="index.html#club">Club</a><a href="index.html#teams">Teams</a><a href="players.html">Players</a><a href="gallery.html">Gallery</a><a href="competitions.html" aria-current="page">Competitions</a><a class="button button-small" href="index.html#join">Join CalBlue</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="subpage-hero">
+        <div class="shell">
+          <p class="eyebrow">League • Pacific Division</p>
+          <h1>SWPL<br />Pacific.</h1>
+          <p>CalBlue’s Pacific League and Abronzino Cup fixtures and results, synchronized from the club’s official SWPL profile.</p>
+        </div>
+      </section>
+
+      <section class="competition-schedule-section section" data-competition-schedule data-feed="data/swpl.json" data-source="https://pacific.swplsoccer.com/teams/calblue-fc">
+        <div class="shell">
+          <div class="competition-schedule-heading">
+            <div><p class="section-tag">SWPL Pacific League + Abronzino Cup</p><h2>Season fixtures.</h2><p>League and Abronzino Cup fixtures are synced from SWPL’s official schedule. Cup games are highlighted separately, and completed games show the final score beside each team. Kickoff times are Pacific Time. Changes published by SWPL are picked up automatically during the next site deployment.</p></div>
+            <div class="competition-sync"><p class="status-pill"><span class="status-dot" aria-hidden="true"></span><b data-competition-status>Loading official schedule</b></p><strong data-competition-count>Loading fixtures…</strong><small data-competition-checked>Updates are checked automatically.</small></div>
+          </div>
+          <ol class="season-fixtures" data-competition-fixtures aria-live="polite"><li class="season-empty">Loading fixtures…</li></ol>
+          <div class="competition-page-links"><div><a href="competition-nccsf.html">2026 NCCSF Fall schedule →</a><a href="index.html#schedule">Homepage match center →</a></div><a href="https://pacific.swplsoccer.com/schedule" target="_blank" rel="noopener">Official SWPL schedule ↗</a></div>
+        </div>
+      </section>
+      <section class="section roster-section" id="roster" data-competition-roster="swpl">
+        <div class="shell">
+          <div class="roster-heading"><div><p class="section-tag">Competition roster</p><h2>Our squad.</h2></div><p data-roster-status>Loading the official competition roster…</p></div>
+          <div class="roster-grid" data-roster-grid></div>
+          <div class="competition-page-links"><a href="players.html">All CalBlue players →</a><a href="https://pacific.swplsoccer.com/teams/calblue-fc" target="_blank" rel="noopener">Official roster ↗</a></div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="shell footer-top">
+        <a class="brand brand-footer" href="index.html" aria-label="CalBlue home"><img src="assets/calblue-logo-web.jpg" alt="" width="62" height="62" /><span>CAL<span>BLUE</span></span></a>
+        <div class="footer-links"><div><span>Navigate</span><a href="index.html#club">Club</a><a href="index.html#teams">Teams</a><a href="players.html">Players</a><a href="gallery.html">Gallery</a></div><div><span>Schedules</span><a href="competition-swpl.html">SWPL Pacific</a><a href="competition-nccsf.html">NCCSF Fall</a></div><div><span>Connect</span><a href="mailto:calblue1996@gmail.com">Email</a><a href="index.html#join">Join the team</a></div></div>
+      </div>
+      <div class="shell footer-bottom"><p>© <span data-year></span> CalBlue Soccer Club</p><p>Made for the Bay Area football community.</p></div>
+    </footer>
+  </body>
+</html>

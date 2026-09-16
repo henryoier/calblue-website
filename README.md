@@ -27,7 +27,40 @@ Validate the site before publishing:
 python3 scripts/check_site.py
 ```
 
+## Official schedule sync
+
+The homepage match center merges CalBlue's official SWPL profile with its 2026 NCCSF Fall League schedule:
+
+```bash
+curl --fail --silent --show-error --location \
+  --header 'User-Agent: CalBlueScheduleSync/1.0 (+https://calbluefc.com/)' \
+  'https://pacific.swplsoccer.com/teams/calblue-fc' \
+  | python3 scripts/sync_swpl.py --source-file -
+
+nccsf_sync_dir=$(mktemp -d)
+curl --fail --silent --show-error --location \
+  --output "$nccsf_sync_dir/games.json" \
+  'https://nccsf.org/en/league/game?a=ag&lid=36'
+curl --fail --silent --show-error --location \
+  --output "$nccsf_sync_dir/teams.html" \
+  'https://nccsf.org/en/league/team?a=teams&lid=36'
+python3 scripts/sync_nccsf.py \
+  --source-file "$nccsf_sync_dir/games.json" \
+  --teams-file "$nccsf_sync_dir/teams.html"
+rm -rf "$nccsf_sync_dir"
+```
+
+The deploy workflow runs both syncs every six hours and before every Pages deployment. It writes small `data/swpl.json` and `data/nccsf.json` snapshots. The homepage merges both feeds chronologically and emphasizes the next five matches; dedicated SWPL and NCCSF pages show each complete season schedule and published results.
+
+SWPL published the full league and Abronzino Cup schedule on September 14, 2026. The sync reads CalBlue’s official team profile, which was verified against [the league-wide schedule](https://pacific.swplsoccer.com/schedule). All former preview fixtures have been retired from `data/swpl-overrides.json`; its empty `fixtures` list keeps manual-override support available without allowing obsolete previews to reappear if SWPL removes a fixture. Original image transcriptions remain in Git history. Times use Pacific Time with the correct daylight-saving offsets, and a published TBA kickoff stays undecided. Any future manual override should be deliberately reviewed; official rows replace matching overrides within the same competition, keeping league and Cup games against the same opponent separate.
+
+The checked-in SWPL snapshot has been refreshed from the official feed for local previews. Scheduled deployments regenerate the live JSON snapshots in the deployment artifact but do not commit them back to Git, so the live site may have newer data than a checkout.
+
+The NCCSF importer also reads the official team directory so every club uses its published crest, including the site’s mixed `.png`, `.jpeg`, and `.jpg` filenames. The importers only accept rows involving CalBlue and deliberately ignore contact, player, and unrelated-team data. If either official source is unavailable or changes structure, deployment stops and the previous Pages deployment remains live.
+
 ## Content to confirm before launch
+
+Official schedule imports also retain completed games in each feed's `results` array, with numeric `score.home` and `score.away` fields. Only published scorelines on or before the check date become results; elapsed dates without scores are not treated as completed matches. Competition pages show published final scores inline on each completed fixture, alongside upcoming games in chronological order. The homepage remains focused on upcoming games. Results use the existing six-hour deployment sync, including score corrections. Completed SWPL rows suppress matching provisional fixtures.
 
 - Confirm that `calblue1996@gmail.com` is the approved public contact address.
 - Add confirmed league, team, training, and fixture information.
@@ -65,8 +98,12 @@ python3 scripts/check_site.py
 
 ```text
 index.html               Main one-page site
-roster.html              Public Kylin Cup roster
-gallery.html             2026 NCCSF Tournament photo gallery
+players.html             Club-wide public player directory
+roster.html              Redirect for existing roster links
+competitions.html        League and tournament directory
+competition-swpl.html    Complete upcoming SWPL schedule
+competition-nccsf.html   Complete upcoming NCCSF Fall schedule
+gallery.html             2026 match gallery across five competitions
 gallery-*.html           Individual match albums backed by Cloudflare R2
 styles.css                         Classic responsive visual system
 designs/codex-pro.css              Codex Stadium design layer
@@ -78,16 +115,28 @@ designs/switcher.js                Persistent multi-design loader and picker
 designs/switcher.css               Theme-neutral picker styling
 design-preview.html                Multi-page desktop/mobile review tool
 script.js                Navigation and small UI behavior
+swpl-schedule.js         Safe merged rendering for official SWPL and NCCSF fixtures
+competition-schedule.js  Shared renderer for competition schedule pages
+competition.css          Responsive competition schedule page styles
 media-config.js          Public R2 media base URL
 assets/calblue-logo-web.jpg  Web-optimized official crest sourced from the shared Drive
 assets/roster/           Public face photos sourced from the roster sheet
+assets/matchday/         Time-bounded match-day posters displayed on the homepage
 assets/favicon.svg       Browser icon
 404.html                 Branded error page
 netlify.toml             Optional Netlify config
 scripts/check_site.py    Dependency-free pre-deployment checks
+scripts/sync_swpl.py     Dependency-free official SWPL schedule importer
+scripts/sync_nccsf.py    Dependency-free official NCCSF schedule importer
+data/swpl.json           Build-time SWPL snapshot and local fallback
+data/nccsf.json          Build-time NCCSF snapshot and local fallback
 serve.sh                 Local preview helper
 ```
 
 Gallery images are stored in Cloudflare R2 rather than in the Git repository. See [R2_MEDIA.md](R2_MEDIA.md) for the media build and upload workflow.
 
+Competition rosters are refreshed every six hours and before deployment with `python3 scripts/sync_rosters.py`. SWPL and NCCSF pages display their official CalBlue roster snapshots from `data/rosters.json`. The Players directory combines the existing approved club players with those public competition lists, matching normalized names and explicit aliases. Newer competition seasons take precedence for each populated field (SWPL September 13, then NCCSF September 12); existing club data fills gaps, and older photos remain fallbacks. Keep `SEASON_STARTS` in the importer current when adding or changing seasons. This is a public directory; account registration will be a separate future feature. The importer retains the previous snapshot if a source is missing or malformed. Only public names, photos, positions, and shirt numbers are imported; NCCSF departed players are excluded. Existing roster URLs redirect to Players.
+
 See [DEPLOYMENT.md](DEPLOYMENT.md) for ownership, access, DNS, publishing, maintenance, and future CMS/database guidance.
+
+Confirmed NCCSF full-size photo URLs are stored in `data/nccsf-player-photos.json`, keyed by the official player ID. Their filenames contain unique suffixes obtained from signed-in player pages; they cannot be generated from thumbnail filenames. Roster sync reapplies these URLs and keeps each public thumbnail as a fallback. Add only verified original photo URLs for the matching player.

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from html.parser import HTMLParser
+import json
 from pathlib import Path
 import re
 import sys
@@ -12,6 +13,7 @@ import sys
 ROOT = Path(__file__).resolve().parent.parent
 PAGES = tuple(ROOT.glob("*.html"))
 ALBUMS = {
+    "swpl-sf-glens": 99,
     "tiger": 135,
     "nbh": 58,
     "sfu": 24,
@@ -20,8 +22,12 @@ ALBUMS = {
     "upsl-athletico": 34,
     "upsl-bay-area": 32,
     "upsl-san-ramon": 51,
+    "kylin-aurora": 44,
+    "kylin-dallas-group": 41,
+    "kylin-kirin": 28,
+    "kylin-dallas-third": 14,
 }
-DESIGN_PAGES = tuple(page for page in PAGES if page.name != "design-preview.html")
+DESIGN_PAGES = tuple(page for page in PAGES if page.name not in {"design-preview.html", "roster.html"})
 THEME_ASSETS = {
     "classic": "styles.css",
     "codex-pro": "designs/codex-pro.css",
@@ -78,10 +84,81 @@ def check_page(path: Path) -> list[str]:
 def main() -> int:
     errors = [error for page in PAGES for error in check_page(page)]
 
+    try:
+        swpl = json.loads((ROOT / "data" / "swpl.json").read_text(encoding="utf-8"))
+        if swpl.get("schemaVersion") != 1:
+            errors.append("data/swpl.json: unsupported schemaVersion")
+        if swpl.get("team", {}).get("name") != "CalBlue FC":
+            errors.append("data/swpl.json: expected the CalBlue FC team")
+        if not isinstance(swpl.get("fixtures"), list):
+            errors.append("data/swpl.json: fixtures must be a list")
+    except (OSError, json.JSONDecodeError) as error:
+        errors.append(f"data/swpl.json: {error}")
+
+    try:
+        swpl_overrides = json.loads((ROOT / "data" / "swpl-overrides.json").read_text(encoding="utf-8"))
+        override_fixtures = swpl_overrides.get("fixtures")
+        if not isinstance(override_fixtures, list):
+            errors.append("data/swpl-overrides.json: fixtures must be a list (empty when no overrides are needed)")
+            override_fixtures = []
+        for fixture in override_fixtures:
+            if not isinstance(fixture, dict):
+                errors.append("data/swpl-overrides.json: each fixture must be an object")
+                continue
+            if "abronzino" in str(fixture.get("competition", "")).lower() and fixture.get("eventOnly"):
+                errors.append("data/swpl-overrides.json: Cup fixtures must have named opponents, not date placeholders")
+            for side in ("home", "away"):
+                team = fixture.get(side)
+                logo = team.get("logo") if isinstance(team, dict) else None
+                if not isinstance(logo, str) or not logo.startswith("https://nisa.sportzstudio.com/team_images/"):
+                    errors.append(f"data/swpl-overrides.json: {side} team is missing its official crest")
+    except (OSError, json.JSONDecodeError) as error:
+        errors.append(f"data/swpl-overrides.json: {error}")
+
+    try:
+        nccsf = json.loads((ROOT / "data" / "nccsf.json").read_text(encoding="utf-8"))
+        if nccsf.get("schemaVersion") != 1:
+            errors.append("data/nccsf.json: unsupported schemaVersion")
+        if nccsf.get("team", {}).get("name") != "CalBlue":
+            errors.append("data/nccsf.json: expected the CalBlue team")
+        if nccsf.get("season", {}).get("leagueId") != 36:
+            errors.append("data/nccsf.json: expected the 2026 NCCSF Fall League")
+        if not isinstance(nccsf.get("fixtures"), list):
+            errors.append("data/nccsf.json: fixtures must be a list")
+        else:
+            for fixture in nccsf["fixtures"]:
+                for side in ("home", "away"):
+                    logo = fixture.get(side, {}).get("logo", "")
+                    if not logo.startswith("https://nccsf.org/en/img/team/logo/"):
+                        errors.append(f"data/nccsf.json: {side} team is missing its official crest")
+    except (OSError, json.JSONDecodeError) as error:
+        errors.append(f"data/nccsf.json: {error}")
+
+    homepage = (ROOT / "index.html").read_text(encoding="utf-8")
+    if "data-swpl-schedule" not in homepage or "swpl-schedule.js" not in homepage:
+        errors.append("index.html: missing SWPL schedule integration")
+    if "data-nccsf-source" not in homepage:
+        errors.append("index.html: missing NCCSF schedule integration")
+    if "data-fixture-toggle" not in homepage or "fixture-row-crest" not in (ROOT / "swpl-schedule.js").read_text(encoding="utf-8"):
+        errors.append("index.html: missing expandable fixture list with opponent crests")
+    for page_name, feed in (
+        ("competition-swpl.html", "data/swpl.json"),
+        ("competition-nccsf.html", "data/nccsf.json"),
+    ):
+        competition_page = (ROOT / page_name).read_text(encoding="utf-8")
+        if feed not in competition_page or "competition-schedule.js" not in competition_page:
+            errors.append(f"{page_name}: missing competition schedule integration")
+    if "data-matchday-poster" not in homepage:
+        errors.append("index.html: missing match-day poster section")
+    if not (ROOT / "assets" / "matchday" / "calblue-vs-sf-glens-2026-09-13.webp").exists():
+        errors.append("assets/matchday: missing the CalBlue vs SF Glens poster")
+
     for page in DESIGN_PAGES:
         source = page.read_text(encoding="utf-8")
         if "data-site-stylesheet" not in source:
             errors.append(f"{page.name}: missing fallback site stylesheet")
+        if "site-nav" in source and "competitions.html" not in source:
+            errors.append(f"{page.name}: missing competitions navigation")
         for asset in ("designs/registry.js", "designs/switcher.js", "designs/switcher.css"):
             if asset not in source:
                 errors.append(f"{page.name}: missing {asset}")
@@ -112,6 +189,19 @@ def main() -> int:
     for album, expected_count in ALBUMS.items():
         if configured_albums.get(album) != expected_count:
             errors.append(f"album.js: {album} should contain {expected_count} photos")
+
+    site_script = (ROOT / "script.js").read_text(encoding="utf-8")
+    latest_gallery_categories = (
+        "gallery.html#kylin-cup-2026",
+        "gallery.html#btg-2026",
+        "gallery.html#nccsf-2026",
+        "gallery.html#upsl-california-cup-2026",
+    )
+    if "Latest gallery competitions" not in site_script or "View all galleries" not in site_script:
+        errors.append("script.js: missing the latest-gallery navigation menu")
+    for gallery_category in latest_gallery_categories:
+        if gallery_category not in site_script:
+            errors.append(f"script.js: latest-gallery navigation is missing {gallery_category}")
 
     if (ROOT / "assets" / "gallery").exists():
         errors.append("assets/gallery: local gallery copies should not be committed")

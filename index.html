@@ -20,12 +20,13 @@
     <title>CalBlue Soccer Club</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="preload" as="image" href="assets/hero/match-penalty.jpg" fetchpriority="high" />
-    <link rel="stylesheet" href="styles.css?v=20260826c" data-site-stylesheet />
+    <link rel="stylesheet" href="styles.css?v=20260913a" data-site-stylesheet />
     <link rel="stylesheet" href="designs/switcher.css?v=20260826a" />
-    <script src="designs/registry.js?v=20260826c"></script>
+    <script src="designs/registry.js?v=20260913a"></script>
     <script src="designs/switcher.js?v=20260826a"></script>
     <script defer src="home-gallery.js?v=20260826e"></script>
-    <script defer src="script.js?v=20260825b"></script>
+    <script defer src="swpl-schedule.js?v=20260914a"></script>
+    <script defer src="script.js?v=20260913a"></script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -63,9 +64,9 @@
         <nav class="site-nav" id="site-nav" data-nav aria-label="Main navigation">
           <a href="#club">Club</a>
           <a href="#teams">Teams</a>
-          <a href="roster.html">Roster</a>
+          <a href="players.html">Players</a>
           <a href="gallery.html">Gallery</a>
-          <a href="#schedule">Schedule</a>
+          <a href="competitions.html">Competitions</a>
           <a href="#contact">Contact</a>
           <a class="button button-small" href="#join">Join CalBlue</a>
         </nav>
@@ -163,49 +164,110 @@
             </article>
           </div>
 
-          <a class="league-banner" href="https://pacific.swplsoccer.com/teams" target="_blank" rel="noopener">
+          <a class="league-banner" href="competition-swpl.html">
             <span class="league-kicker">Next league</span>
             <strong>SWPL Pacific Premier League</strong>
-            <span class="league-action">Official teams directory ↗</span>
+            <span class="league-action">View schedule →</span>
           </a>
         </div>
       </section>
 
-      <section class="schedule section" id="schedule">
+      <section class="matchday-poster section" data-matchday-poster data-matchday-date="2026-09-13" aria-labelledby="matchday-poster-title">
+        <div class="shell matchday-poster-grid">
+          <figure class="matchday-poster-art">
+            <a href="assets/matchday/calblue-vs-sf-glens-2026-09-13.webp" target="_blank" aria-label="Open the full-size CalBlue versus SF Glens match-day poster">
+              <img
+                src="assets/matchday/calblue-vs-sf-glens-2026-09-13.webp"
+                alt="Match-day poster for CalBlue FC versus SF Glens SC on Sunday, September 13, 2026 at 7 PM in Central Park, Fremont"
+                width="1296"
+                height="1616"
+                loading="lazy"
+                decoding="async"
+              />
+            </a>
+          </figure>
+          <div class="matchday-poster-copy">
+            <p class="section-tag light">Historic SWPL debut</p>
+            <span class="poster-countdown" data-matchday-countdown>Next match</span>
+            <h2 id="matchday-poster-title">Match<br />day.</h2>
+            <p class="poster-matchup">CalBlue FC <span>vs</span> SF Glens SC</p>
+            <dl class="poster-details">
+              <div><dt>Date</dt><dd>Sunday, September 13</dd></div>
+              <div><dt>Kickoff</dt><dd>7:00 PM</dd></div>
+              <div><dt>Venue</dt><dd>Central Park · Fremont, CA</dd></div>
+            </dl>
+            <p>Chapter one starts here—CalBlue’s first match in the SWPL Pacific League.</p>
+            <div class="poster-actions">
+              <a class="button" href="#schedule">View match center</a>
+              <a class="text-link" href="assets/matchday/calblue-vs-sf-glens-2026-09-13.webp" target="_blank">Open full poster <span aria-hidden="true">↗</span></a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="schedule section"
+        id="schedule"
+        data-swpl-schedule
+        data-swpl-source="https://pacific.swplsoccer.com/teams/calblue-fc"
+        data-nccsf-source="https://nccsf.org/en/league/game?a=games&amp;lid=36"
+      >
         <div class="shell">
           <div class="schedule-heading">
             <div>
               <p class="section-tag">Match center</p>
               <h2>Next up.</h2>
             </div>
-            <p class="status-pill"><span></span> Schedule updates coming soon</p>
+            <p class="status-pill"><span class="status-dot" aria-hidden="true"></span><b data-swpl-status-text>Checking official schedules</b></p>
           </div>
 
-          <div class="match-card">
+          <div class="match-card match-card-empty" data-next-match aria-live="polite">
             <div class="match-meta">
-              <span>Next fixture</span>
-              <strong>To be announced</strong>
-              <small>Bay Area, California</small>
+              <em class="next-match-countdown" data-match-countdown>Awaiting fixtures</em>
+              <span data-match-competition>CalBlue fixtures</span>
+              <strong><time data-match-date>Schedule pending</time></strong>
+              <small data-match-venue>No upcoming CalBlue fixture is published yet</small>
             </div>
             <div class="matchup">
-              <div class="club-side">
-                <img src="assets/calblue-logo-web.jpg" alt="CalBlue crest" width="90" height="90" />
-                <strong>CalBlue</strong>
+              <div class="club-side" data-team-home data-side="home">
+                <img data-team-crest src="assets/calblue-logo-web.jpg" alt="CalBlue crest" width="90" height="90" />
+                <div class="crest-placeholder" data-team-placeholder hidden aria-hidden="true">?</div>
+                <span class="team-role" data-team-role>Home</span>
+                <strong data-team-name>CalBlue</strong>
               </div>
-              <div class="versus"><span>VS</span><small>— : —</small></div>
-              <div class="club-side opponent">
-                <div class="crest-placeholder" aria-hidden="true">?</div>
-                <strong>Opponent</strong>
+              <div class="versus"><span>VS</span><small data-match-time>TBA</small></div>
+              <div class="club-side opponent" data-team-away data-side="away">
+                <img data-team-crest alt="" width="90" height="90" hidden />
+                <div class="crest-placeholder" data-team-placeholder aria-hidden="true">?</div>
+                <span class="team-role" data-team-role>Away</span>
+                <strong data-team-name>Opponent</strong>
               </div>
             </div>
-            <a class="button button-dark" href="#contact">Get match updates</a>
+            <a class="button button-dark" data-match-link href="https://nccsf.org/en/league/game?a=games&amp;lid=36" target="_blank" rel="noopener">Check official schedule ↗</a>
           </div>
+
+          <div class="upcoming-fixtures" data-upcoming-fixtures hidden>
+            <div>
+              <span>On deck</span>
+              <h3>Upcoming matches</h3>
+              <button class="fixture-list-toggle" type="button" data-fixture-toggle aria-expanded="false" hidden>View all</button>
+            </div>
+            <ol data-fixture-list></ol>
+          </div>
+
+          <p class="schedule-source">
+            Schedule data comes from the
+            <a href="https://pacific.swplsoccer.com/teams/calblue-fc" target="_blank" rel="noopener">official CalBlue SWPL profile ↗</a>
+            and the
+            <a href="https://nccsf.org/en/league/game?a=games&amp;lid=36" target="_blank" rel="noopener">official 2026 NCCSF Fall League schedule ↗</a>.
+            <span data-swpl-checked>Updates are checked automatically.</span>
+          </p>
 
           <div class="competition-links" aria-label="CalBlue competition links">
             <span>Competitions:</span>
-            <a href="https://pacific.swplsoccer.com/teams" target="_blank" rel="noopener">SWPL Pacific ↗</a>
+            <a href="competition-swpl.html">SWPL Pacific →</a>
             <a href="https://www.beyondthegame.us/" target="_blank" rel="noopener">Beyond the Game ↗</a>
-            <a href="https://nccsf.org/" target="_blank" rel="noopener">NCCSF ↗</a>
+            <a href="competition-nccsf.html">2026 NCCSF Fall →</a>
           </div>
         </div>
       </section>
@@ -244,9 +306,9 @@
           </div>
           <div class="photo-feature-grid" data-home-gallery>
             <figure class="photo-feature-main">
-              <a class="photo-feature-link" href="gallery-btg.html" aria-label="Open the Real Santa Clara match album">
-                <img src="https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/btg/thumb/028.jpg" alt="CalBlue players warming up before the Real Santa Clara match" loading="lazy" />
-                <figcaption>Beyond the Game <span>June 28, 2026</span></figcaption>
+              <a class="photo-feature-link" href="gallery-swpl-sf-glens.html" aria-label="Open the SWPL season opener album against SF Glens">
+                <img src="https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/swpl-sf-glens/thumb/026.jpg" alt="CalBlue team before the SWPL season opener against SF Glens" loading="lazy" />
+                <figcaption>SWPL vs SF Glens <span>September 13, 2026</span></figcaption>
               </a>
             </figure>
             <figure>
@@ -292,7 +354,7 @@
           <span>CAL<span>BLUE</span></span>
         </a>
         <div class="footer-links">
-          <div><span>Navigate</span><a href="#club">Club</a><a href="#teams">Teams</a><a href="roster.html">Roster</a><a href="gallery.html">Gallery</a><a href="#schedule">Schedule</a></div>
+          <div><span>Navigate</span><a href="#club">Club</a><a href="#teams">Teams</a><a href="players.html">Players</a><a href="gallery.html">Gallery</a><a href="#schedule">Schedule</a></div>
           <div><span>Connect</span><a href="mailto:calblue1996@gmail.com">Email</a><a href="#join">Join the team</a></div>
           <div class="footer-social">
             <span>Follow us</span>

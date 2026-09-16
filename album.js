@@ -4,6 +4,7 @@ if (albumPage) {
   const media = window.CALBLUE_MEDIA || {};
   const mediaBaseUrl = (media.baseUrl || '').replace(/\/$/, '');
   const albums = {
+    'swpl-sf-glens': { opponent: 'SF Glens', date: 'September 13, 2026', count: 99, competition: '2026 SWPL Pacific Premier League' },
     tiger: { opponent: 'Tiger', date: 'May 24, 2026', count: 135, competition: '2026 NCCSF' },
     nbh: { opponent: 'NBH', date: 'May 23, 2026', count: 58, competition: '2026 NCCSF' },
     sfu: { opponent: 'SFU', date: 'May 16, 2026', count: 24, competition: '2026 NCCSF' },
@@ -12,6 +13,10 @@ if (albumPage) {
     'upsl-athletico': { opponent: 'Athletico San Jose', date: 'January 18, 2026', count: 34, competition: '2026 UPSL California Cup' },
     'upsl-bay-area': { opponent: 'Bay Area United', date: 'January 24, 2026', count: 32, competition: '2026 UPSL California Cup' },
     'upsl-san-ramon': { opponent: 'San Ramon FC', date: 'January 31, 2026', count: 51, competition: '2026 UPSL California Cup' },
+    'kylin-aurora': { opponent: 'New York Aurora', date: 'September 5, 2026', count: 44, competition: '2026 Kylin Cup' },
+    'kylin-dallas-group': { opponent: 'Dallas Dragon', date: 'September 5, 2026', count: 41, competition: '2026 Kylin Cup' },
+    'kylin-kirin': { opponent: 'Los Angeles Kirin', date: 'September 6, 2026', count: 28, competition: '2026 Kylin Cup' },
+    'kylin-dallas-third': { opponent: 'Dallas Dragon', date: 'September 6, 2026', count: 14, competition: '2026 Kylin Cup third-place match' },
   };
   const slug = albumPage.dataset.albumPage;
   const album = albums[slug];

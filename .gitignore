@@ -1,4 +1,5 @@
 .env.r2
 .media-build/
 .venv-media/
-
+__pycache__/
+*.py[cod]

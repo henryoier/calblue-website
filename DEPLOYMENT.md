@@ -10,7 +10,7 @@ Maintainers → GitHub repository → automatic deployment → public HTTPS webs
                  preview/review
 ```
 
-There is no application server or database to patch in the first release. This is the simplest reliable architecture for a team profile, schedule, news, links, and contact information.
+There is no application server or database to patch in the first release. This is the simplest reliable architecture for a team profile, news, links, and contact information. The public SWPL and NCCSF schedules are imported at build time and deployed as static JSON, so visitors do not depend on cross-origin requests to either league.
 
 ## Accounts and ownership
 
@@ -78,7 +78,7 @@ If several nontechnical contributors need frequent updates, add a hosted content
 
 No database is needed for the current site. A database would add backups, access controls, schema migrations, privacy obligations, and ongoing security maintenance without providing meaningful benefit yet.
 
-Store public schedules and announcements as reviewed static content. Introduce a managed data service only if CalBlue later needs features such as player accounts, registration, payments, private availability tracking, or a large searchable match archive. Private player operations should be a separate authenticated system, not part of the public website.
+Store announcements as reviewed static content. The public schedule importers validate CalBlue's official SWPL profile and NCCSF team ID, then emit `data/swpl.json` and `data/nccsf.json` during deployment. Introduce a managed data service only if CalBlue later needs features such as player accounts, registration, payments, private availability tracking, or a large searchable match archive. Private player operations should be a separate authenticated system, not part of the public website.
 
 ## Contact form
 
