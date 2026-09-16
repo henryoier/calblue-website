@@ -12,17 +12,21 @@
       "competition": "SWPL Pacific Premier League",
       "posters": [
         {
-          "src": "assets/matchday/2026-fall/2026-09-19-bay-area-united-styled.webp",
+          "src": "assets/matchday/2026-fall/2026-09-19-bay-area-united-styled-v2.webp",
           "style": "styled",
           "width": 1296,
           "height": 1616
         },
         {
-          "src": "assets/matchday/2026-fall/2026-09-19-bay-area-united-classic.webp",
+          "src": "assets/matchday/2026-fall/2026-09-19-bay-area-united-classic-v2.webp",
           "style": "classic",
           "width": 1296,
           "height": 1616
         }
+      ],
+      "storylines": [
+        "Luca's farewell game",
+        "Bay Area United are the UPSL 2026 spring season champions"
       ]
     },
     "2026-10-03-albion-sc-silicon-valley": {
