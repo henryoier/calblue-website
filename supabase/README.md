@@ -5,8 +5,13 @@ Apply migrations in order, once each:
 1. [0001_core.sql](migrations/0001_core.sql): issue #25 / merged PR #79. Its released bytes are unchanged.
 2. [0002_money.sql](migrations/0002_money.sql): issue #26 / merged PR #80. Read the
    [billing migration and test guide](0002-money.md) before running it.
-3. [0003_rls.sql](migrations/0003_rls.sql): issue #27 / PR #81. Read the
+3. [0003_rls.sql](migrations/0003_rls.sql): issue #27 / merged PR #81. Read the
    [access-policy migration and test guide](0003-rls.md).
+
+All three migrations have owner-reported scratch verification. The next step, issue #28 / PR #82,
+is the optional [disposable development seed](seed.md). It **commits demo data**, requires explicit
+opt-in and an empty, idle scratch project, and must never run on production. If all three
+migrations already passed, run only the seed/verification steps in that guide; do not reapply migrations.
 
 If 0001 and 0002 already passed, continue with **0003 only**, then its two smoke files.
 Do not rerun the earlier migrations or their deny-by-default smoke tests after 0003 installs
@@ -146,4 +151,5 @@ Two-session concurrency: not tested
 The project owner confirmed the scratch application and both core smoke scripts before PR #79
 merged and issue #25 closed. This is user-reported verification, not a database run by the coding
 agent. The owner also confirmed all three money files before PR #80 merged and issue #26 closed.
-Migration 0003 requires its own manual checks. CI remains offline with respect to Supabase.
+The owner also confirmed all three RLS files before PR #81 merged and issue #27 closed. Seed
+application/rerun verification remains pending. CI remains offline with respect to Supabase.
