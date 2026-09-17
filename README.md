@@ -77,6 +77,8 @@ SWPL published the full league and Abronzino Cup schedule on September 14, 2026.
 
 The checked-in SWPL snapshot has been refreshed from the official feed for local previews. Scheduled deployments regenerate the live JSON snapshots in the deployment artifact but do not commit them back to Git, so the live site may have newer data than a checkout.
 
+The NCCSF importer also reads the league's public **Goals & Highlights** list (`game?a=ajaxGoalList&lid=36`) and attaches published scorers to each completed result as a `goals` list (player, side, highlight flag). Scorers accumulate in `data/nccsf-goals.json` by game id, so earlier games keep their scorers if the league endpoint only lists the current week; a result whose published goals do not yet add up to its score is marked `goalsNote: "partial"`. The competition page shows scorers under each final score. NCCSF does not publish assists, and the SWPL site publishes neither scorers nor assists, so those remain club-supplied.
+
 The NCCSF importer also reads the official team directory so every club uses its published crest, including the site’s mixed `.png`, `.jpeg`, and `.jpg` filenames. The importers only accept rows involving CalBlue and deliberately ignore contact, player, and unrelated-team data. If either official source is unavailable or changes structure, deployment stops and the previous Pages deployment remains live.
 
 ## Content to confirm before launch

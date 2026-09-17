@@ -22,6 +22,8 @@ SEASON_YEAR = 2026
 TEAM_ID = 621
 API_URL = f"https://nccsf.org/en/league/game?a=ag&lid={LEAGUE_ID}"
 TEAM_LIST_URL = f"https://nccsf.org/en/league/team?a=teams&lid={LEAGUE_ID}"
+GOALS_URL = f"https://nccsf.org/en/league/game?a=ajaxGoalList&lid={LEAGUE_ID}"
+GOALS_CACHE = Path("data/nccsf-goals.json")
 PACIFIC = ZoneInfo("America/Los_Angeles")
 MAX_RESPONSE_BYTES = 5_000_000
 
@@ -276,6 +278,111 @@ def build_snapshot(
     }
 
 
+# ---------------- goal scorers (NCCSF "Goals & Highlights") ----------------
+def player_display_name(value: str) -> str:
+    """NCCSF lists players as 'Last, First'; show 'First Last'. A trailing * marks a highlight clip, not a goal."""
+    name = value.strip().rstrip("*").strip()
+    if "," in name:
+        last, _, first = name.partition(",")
+        return f"{first.strip()} {last.strip()}".strip()
+    return name
+
+
+def parse_goals(content: str) -> dict[str, list[dict[str, object]]]:
+    """Goals grouped by NCCSF game id from the public goal list endpoint (a=ajaxGoalList)."""
+    try:
+        payload = json.loads(content)
+    except json.JSONDecodeError as error:
+        raise ValueError("NCCSF goal list was not valid JSON") from error
+    rows = payload.get("data") if isinstance(payload, dict) else None
+    if not isinstance(rows, list):
+        raise ValueError("NCCSF goal list did not contain a data list")
+    goals: dict[str, list[dict[str, object]]] = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        gid_match = re.search(r"gid=(\d+)", str(row.get("week") or ""))
+        if not gid_match:
+            continue
+        raw_name, _ = parse_fragment(row.get("player"))
+        raw_name = clean_text(raw_name)
+        if not raw_name:
+            continue
+        pid_match = re.search(r"pid=(\d+)", str(row.get("player") or ""))
+        team_name, _ = parse_fragment(row.get("team"))
+        goals.setdefault(gid_match.group(1), []).append(
+            {
+                "player": player_display_name(raw_name),
+                "playerId": int(pid_match.group(1)) if pid_match else None,
+                "team": team_name,
+                "teamId": team_id(row.get("team")),
+                "week": clean_text(str(row.get("week") or "")),
+                "highlight": raw_name.endswith("*"),
+            }
+        )
+    return goals
+
+
+def load_goal_cache(path: Path) -> dict[str, list[dict[str, object]]]:
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    games = payload.get("games") if isinstance(payload, dict) else None
+    return {str(gid): rows for gid, rows in (games or {}).items() if isinstance(rows, list)}
+
+
+def merge_goals(cache: dict[str, list[dict[str, object]]], fresh: dict[str, list[dict[str, object]]]) -> dict[str, list[dict[str, object]]]:
+    """Fresh games replace cached ones; games the endpoint no longer lists (earlier weeks) are kept."""
+    merged = dict(cache)
+    merged.update(fresh)
+    return dict(sorted(merged.items(), key=lambda item: int(item[0]) if item[0].isdigit() else 0))
+
+
+def attach_goals(snapshot: dict[str, object], goals_by_game: dict[str, list[dict[str, object]]]) -> int:
+    """Add a `goals` list (player, playerId, side, highlight) to each completed result that has published scorers."""
+    attached = 0
+    for result in snapshot.get("results", []) or []:
+        gid = str(result.get("id", "")).removeprefix("nccsf-")
+        entries = goals_by_game.get(gid)
+        if not entries:
+            continue
+        sides = {team_id(result["home"].get("url")): "home", team_id(result["away"].get("url")): "away"}
+        goals = []
+        for entry in entries:
+            side = sides.get(entry.get("teamId"))
+            if not side:
+                continue
+            goals.append({"player": entry["player"], "playerId": entry.get("playerId"), "side": side, "highlight": bool(entry.get("highlight"))})
+        if not goals:
+            continue
+        result["goals"] = goals
+        counted = {"home": 0, "away": 0}
+        for goal in goals:
+            if not goal["highlight"]:
+                counted[goal["side"]] += 1
+        score = result.get("score") or {}
+        if counted != {"home": score.get("home"), "away": score.get("away")}:
+            result["goalsNote"] = "partial"   # the league has not published every scorer yet
+        attached += 1
+    return attached
+
+
+def write_goal_cache(path: Path, goals_by_game: dict[str, list[dict[str, object]]], checked_at: datetime) -> None:
+    write_json(
+        path,
+        {
+            "schemaVersion": 1,
+            "source": GOALS_URL,
+            "note": "Published NCCSF scorers by game id, accumulated across weeks so earlier games keep their scorers if the league endpoint only lists the current week. Refreshed by scripts/sync_nccsf.py.",
+            "checkedAt": checked_at.isoformat(timespec="seconds"),
+            "games": goals_by_game,
+        },
+    )
+
+
 def fetch_source(url: str, accept: str) -> str:
     request = Request(
         url,
@@ -315,6 +422,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--teams-url", default=TEAM_LIST_URL)
     parser.add_argument("--teams-file", type=Path)
     parser.add_argument("--output", type=Path, default=Path("data/nccsf.json"))
+    parser.add_argument("--goals-url", default=GOALS_URL)
+    parser.add_argument("--goals-file", type=Path, help="saved goal list response (a=ajaxGoalList)")
+    parser.add_argument("--goals-cache", type=Path, default=GOALS_CACHE, help="accumulated scorers by game id")
+    parser.add_argument("--skip-goals", action="store_true", help="do not fetch or attach scorers")
     parser.add_argument("--checked-at", help="ISO timestamp used for reproducible tests")
     parser.add_argument("--season-year", type=int, default=SEASON_YEAR)
     parser.add_argument("--league-id", type=int, default=LEAGUE_ID)
@@ -349,13 +460,31 @@ def main() -> int:
             season_year=args.season_year,
             league_id=args.league_id,
         )
+        attached = 0
+        if not args.skip_goals:
+            cached = load_goal_cache(args.goals_cache)
+            fresh: dict[str, list[dict[str, object]]] = {}
+            try:
+                goals_source = (
+                    args.goals_file.read_text(encoding="utf-8")
+                    if args.goals_file
+                    else fetch_source(args.goals_url, "application/json")
+                )
+                fresh = parse_goals(goals_source)
+            except (OSError, ValueError) as error:
+                # Scorers are an enrichment: keep deploying with the cached list rather than failing the schedule sync.
+                print(f"NCCSF goal list unavailable ({error}); using {len(cached)} cached game(s).", file=sys.stderr)
+            merged = merge_goals(cached, fresh)
+            if merged != cached:
+                write_goal_cache(args.goals_cache, merged, checked_at)
+            attached = attach_goals(snapshot, merged)
         write_json(args.output, snapshot)
     except (OSError, ValueError) as error:
         print(f"NCCSF sync failed: {error}", file=sys.stderr)
         return 1
 
     count = len(snapshot["fixtures"])
-    print(f"Synced {count} upcoming CalBlue NCCSF fixture(s).")
+    print(f"Synced {count} upcoming CalBlue NCCSF fixture(s); scorers attached to {attached} result(s).")
     return 0
 
 
