@@ -238,6 +238,57 @@ body {
 
 .app-home-links { line-height: 1.8; }
 
+/* Passwordless sign-in: keep the form readable and touch-friendly at 360px. */
+.app-sign-in { max-width: 42rem; }
+.app-sign-in-form {
+  display: grid;
+  gap: 0.65rem;
+  margin-block: 1.5rem;
+  min-width: 0;
+}
+.app-sign-in-form label { font-weight: 700; }
+.app-sign-in-form input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #64748b;
+  border-radius: 0.3rem;
+  background: #fff;
+  color: var(--ink, #0b1730);
+  font: inherit;
+  font-size: 1rem;
+}
+.app-sign-in-form input[readonly],
+.app-sign-in-form input:disabled { background: #f1f5f9; }
+.app-sign-in-form .app-sign-in-help { margin: 0; font-size: 0.9rem; }
+.app-sign-in-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.35rem;
+}
+.app-sign-in-submit {
+  background: var(--navy, #071b3f);
+  color: #fff;
+  border-color: var(--navy, #071b3f);
+}
+.app-sign-in-form button:disabled {
+  cursor: not-allowed;
+  background: #e2e8f0;
+  border-color: #94a3b8;
+  color: #475569;
+}
+.app-sign-in [hidden] { display: none; }
+.app-sign-in-status,
+.app-sign-in-error { margin: 0; }
+.app-sign-in-guidance {
+  padding-top: 0.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+.app-sign-in-guidance h2 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+.app-sign-in-guidance p { margin-block: 0.75rem; }
+
 /* 360px mobile-first is default; widen at 640px */
 @media (max-width: 400px) {
   .app-header { padding: 0.65rem 0.75rem; }

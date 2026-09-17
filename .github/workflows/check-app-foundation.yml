@@ -28,5 +28,7 @@ jobs:
         run: python3 -m unittest discover -s tests -v
       - name: Test app JavaScript logic (existing Node, no packages)
         run: python3 scripts/run_js_tests.py
+      - name: Test Auth and session lifecycle doubles (existing Node, no packages)
+        run: python3 scripts/run_async_js_tests.py
       - name: Validate the public site
         run: python3 scripts/check_site.py

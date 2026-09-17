@@ -81,6 +81,7 @@ export function createSessionManager() {
   let unsubscribe = null;
   let lifecycle = 0;
   let revision = 0;
+  let refreshSequence = 0;
   let latestWork = Promise.resolve();
   let signOutWork = null;
   let signedOut = false;
@@ -154,6 +155,7 @@ export function createSessionManager() {
   async function initSession(client) {
     const epoch = ++lifecycle;
     revision += 1;
+    refreshSequence += 1;
     clearSubscription();
     activeClient = client || null;
     signOutWork = null;
@@ -170,6 +172,9 @@ export function createSessionManager() {
           signedOut = true;
           acceptSession(null, null, epoch, true);
         } else if (!signOutWork && (!signedOut || event === "SIGNED_IN")) {
+          if (event === "SIGNED_IN" || session?.user?.id !== currentSession?.user?.id) {
+            refreshSequence += 1; // A new login/account supersedes an older refresh action.
+          }
           signedOut = false;
           acceptSession(client, session, epoch, true);
         }
@@ -196,17 +201,29 @@ export function createSessionManager() {
     if (client !== activeClient) throw new Error("The session client is no longer active.");
     const epoch = lifecycle;
     const ticket = ++revision;
+    const request = ++refreshSequence;
+    const requestIsCurrent = () => epoch === lifecycle && request === refreshSequence;
     try {
       const { data, error } = await client.auth.refreshSession();
-      if (!isCurrent(epoch, ticket)) {
+      if (!requestIsCurrent()) {
         if (epoch === lifecycle) await latestWork;
         return currentSession;
       }
       if (error) throw error;
+      if (!isCurrent(epoch, ticket)) {
+        if (epoch === lifecycle) await latestWork;
+        return currentSession;
+      }
       await acceptSession(client, data?.session || null, epoch);
       return currentSession;
     } catch (error) {
-      if (!isCurrent(epoch, ticket)) return currentSession;
+      if (!requestIsCurrent()) return currentSession;
+      // Auth-js emits TOKEN_REFRESHED or (on fatal failure) SIGNED_OUT before
+      // refreshSession settles. Those advance the state revision, but must not
+      // turn this action's error into success. New logins, refresh requests,
+      // explicit sign-out and lifecycle changes still supersede old failures.
+      if (!isCurrent(epoch, ticket)) await latestWork;
+      if (!requestIsCurrent()) return currentSession;
       currentError = error;
       emit();
       throw error;
@@ -219,6 +236,7 @@ export function createSessionManager() {
     const target = client || activeClient;
     const epoch = lifecycle;
     revision += 1; // Invalidate in-flight profile, initial-session and refresh work.
+    refreshSequence += 1;
     const work = Promise.resolve().then(async () => {
       try {
         if (epoch !== lifecycle) return;
@@ -246,6 +264,7 @@ export function createSessionManager() {
   function disposeSession() {
     lifecycle += 1;
     revision += 1;
+    refreshSequence += 1;
     clearSubscription();
     currentSession = currentProfile = currentError = activeClient = signOutWork = null;
     signedOut = false;

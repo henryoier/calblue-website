@@ -32,6 +32,11 @@ export function renderLayout({
   session,
   currentPath = "/",
   supabaseConfigured,
+  signInHref = "#/sign-in",
+  refreshing = false,
+  refreshMessage = "",
+  refreshFailed = false,
+  onRefreshAccess,
 }) {
   const items = visibleNavItems({ authenticated, roles });
   const displayName = profile?.displayName
@@ -46,7 +51,7 @@ export function renderLayout({
         ${authenticated
           ? html`<span class="app-user" title="${displayName}">${displayName}</span>
                  <a class="app-link app-link-action" href="#/sign-out">Sign out</a>`
-          : html`<a class="app-link app-link-primary" href="#/sign-in">Sign in</a>`}
+          : html`<a class="app-link app-link-primary" href="${signInHref}">Sign in</a>`}
       </div>
     </div>
     ${!supabaseConfigured
@@ -69,11 +74,21 @@ export function renderLayout({
     </ul>
     ${!authenticated
       ? html`<p class="app-nav-hint">
-          You are signed out. <a href="#/sign-in">Sign in</a> is the next feature;
-          games and registration currently have placeholder screens.
+          You are signed out. <a href="${signInHref}">Sign in with an email link</a>.
+          Games and registration currently have placeholder screens.
         </p>`
-      : null}
+      : html`<div class="app-nav-hint">
+          <p>Role changes take effect when your access token refreshes. If an administrator changed your roles, refresh here.</p>
+          <button class="app-button" type="button" data-refresh-access>Refresh my access</button>
+          <p data-access-status role="${refreshFailed ? "alert" : "status"}" aria-live="polite">${refreshMessage}</p>
+        </div>`}
   `);
+  const refreshButton = navEl.querySelector("[data-refresh-access]");
+  if (refreshButton) {
+    refreshButton.disabled = refreshing;
+    refreshButton.textContent = refreshing ? "Refreshing access…" : "Refresh my access";
+    if (onRefreshAccess) refreshButton.addEventListener("click", onRefreshAccess);
+  }
 
   mount(footerEl, html`
     <p>© CalBlue Soccer Club · <a href="../">Public site</a> · <a href="#/">Members home</a></p>
@@ -113,7 +128,7 @@ export function renderConnectionStatus(statusEl, { error, busy = false, onRetry 
   if (retry && onRetry) retry.addEventListener("click", onRetry);
 }
 
-export function renderAccessDenied(mainEl, { authenticated } = {}) {
+export function renderAccessDenied(mainEl, { authenticated, signInHref = "#/sign-in" } = {}) {
   mount(mainEl, html`
     <section class="app-state">
       <p class="app-eyebrow">Access</p>
@@ -124,7 +139,7 @@ export function renderAccessDenied(mainEl, { authenticated } = {}) {
           : "Sign in to open this members-only screen."}
       </p>
       <p>
-        <a class="app-link app-link-primary" href="${authenticated ? "#/" : "#/sign-in"}">
+        <a class="app-link app-link-primary" href="${authenticated ? "#/" : signInHref}">
           ${authenticated ? "Back to members home" : "Go to sign in"}
         </a>
       </p>

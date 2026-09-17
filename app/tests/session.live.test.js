@@ -283,6 +283,111 @@ testAsync("[session] out-of-order refresh responses preserve the newest token", 
   store.disposeSession();
 });
 
+testAsync("[session] fatal refresh errors remain failures after the SDK emits SIGNED_OUT", async (t) => {
+  for (const mode of ["returned", "thrown"]) {
+    const store = createSessionManager();
+    const client = mockClient();
+    await store.initSession(client);
+    const failure = new Error("Refresh credentials are no longer valid");
+    client.auth.refreshSession = async () => {
+      client.emit("SIGNED_OUT", null);
+      if (mode === "thrown") throw failure;
+      return { data: { session: null }, error: failure };
+    };
+    t.equal(await expectReject(store.refreshAccess(client), t), failure);
+    t.equal(store.getSession(), null);
+    t.equal(store.getProfile(), null);
+    t.equal(store.getSessionError(), failure, "SDK sign-out must not turn a failed refresh into success");
+    store.disposeSession();
+  }
+});
+
+testAsync("[session] TOKEN_REFRESHED applies removed roles and accepts an empty profile name", async (t) => {
+  const store = createSessionManager();
+  const client = mockClient(sessionFixture("one", ["admin"]));
+  await store.initSession(client);
+  const refreshed = sessionFixture("one", []);
+  client.profile = async (id) => ({ data: { id, display_name: "", roles: ["admin"] }, error: null });
+  client.auth.refreshSession = async () => {
+    client.emit("TOKEN_REFRESHED", refreshed);
+    return { data: { session: refreshed }, error: null };
+  };
+  t.equal(await store.refreshAccess(client), refreshed);
+  t.equal(store.getRoles().length, 0, "removed JWT roles must disappear even before profile completion");
+  t.assert(store.getProfile().isEmpty, "an empty display name is valid profile data, not a missing profile");
+  t.equal(store.getSessionError(), null);
+  store.disposeSession();
+});
+
+testAsync("[session] a refresh error after TOKEN_REFRESHED is not reported as success", async (t) => {
+  const store = createSessionManager();
+  const client = mockClient(sessionFixture("one", ["admin"]));
+  await store.initSession(client);
+  const refreshed = sessionFixture("one", []);
+  const failure = new Error("Refresh completion failed");
+  client.auth.refreshSession = async () => {
+    client.emit("TOKEN_REFRESHED", refreshed);
+    throw failure;
+  };
+  t.equal(await expectReject(store.refreshAccess(client), t), failure);
+  t.equal(store.getSession(), refreshed, "an error must not roll back an accepted token");
+  t.equal(store.getRoles().length, 0);
+  t.equal(store.getSessionError(), failure);
+  store.disposeSession();
+});
+
+testAsync("[session] token refresh preserves a newer profile error for the caller", async (t) => {
+  const store = createSessionManager();
+  const client = mockClient(sessionFixture("one", ["admin"]));
+  await store.initSession(client);
+  const refreshed = sessionFixture("one", []);
+  const failure = new Error("Profile unavailable after refresh");
+  client.profile = async () => ({ data: null, error: failure });
+  client.auth.refreshSession = async () => {
+    client.emit("TOKEN_REFRESHED", refreshed);
+    return { data: { session: refreshed }, error: null };
+  };
+  t.equal(await store.refreshAccess(client), refreshed);
+  t.equal(store.getRoles().length, 0);
+  t.equal(store.getSessionError(), failure);
+  store.disposeSession();
+});
+
+testAsync("[session] a later sign-in supersedes a pending refresh failure", async (t) => {
+  for (const account of ["one", "two"]) {
+    const store = createSessionManager();
+    const client = mockClient();
+    await store.initSession(client);
+    const pending = deferred();
+    client.auth.refreshSession = () => pending.promise;
+    const refreshing = store.refreshAccess(client);
+    client.emit("SIGNED_IN", sessionFixture(account, ["coach"]));
+    await tick();
+    pending.reject(new Error("Old refresh failed"));
+    await refreshing;
+    t.equal(store.getSession().user.id, account);
+    t.equal(store.getRoles().join(","), "coach");
+    t.equal(store.getSessionError(), null);
+    store.disposeSession();
+  }
+});
+
+testAsync("[session] explicit sign-out supersedes a pending refresh failure", async (t) => {
+  const store = createSessionManager();
+  const client = mockClient();
+  await store.initSession(client);
+  const pending = deferred();
+  client.auth.refreshSession = () => pending.promise;
+  const refreshing = store.refreshAccess(client);
+  await store.signOut(client);
+  pending.reject(new Error("Old refresh failed"));
+  await refreshing;
+  t.equal(store.getSession(), null);
+  t.equal(store.getProfile(), null);
+  t.equal(store.getSessionError(), null);
+  store.disposeSession();
+});
+
 testAsync("[session] disposal invalidates delayed work and clears private state", async (t) => {
   const store = createSessionManager();
   const client = mockClient();

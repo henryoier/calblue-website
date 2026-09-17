@@ -10,7 +10,7 @@ const settings = {
   version: "2.45.4",
 };
 
-testAsync("[supabase] concurrent callers create one SDK client with shell-only auth options", async (t) => {
+testAsync("[supabase] concurrent callers create one SDK client with persistent PKCE options", async (t) => {
   let imports = 0;
   let creations = 0;
   let options;
@@ -37,7 +37,7 @@ testAsync("[supabase] concurrent callers create one SDK client with shell-only a
   t.equal(options.auth.persistSession, true);
   t.equal(options.auth.autoRefreshToken, true);
   t.equal(options.auth.flowType, "pkce");
-  t.equal(options.auth.detectSessionInUrl, false, "callback exchange belongs to issue #30");
+  t.equal(options.auth.detectSessionInUrl, false, "auth.js owns callback capture and exchange");
 });
 
 testAsync("[supabase] failed SDK imports are visible and a later request can retry", async (t) => {

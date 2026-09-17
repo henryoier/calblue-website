@@ -31,6 +31,7 @@ SUITES = [
     (APP / "js" / "session.js", APP / "tests" / "session.logic.js", "sessionLogicTests"),
     (APP / "js" / "layout.js", APP / "tests" / "layout.logic.js", "layoutLogicTests"),
     (APP / "js" / "supabase.js", APP / "tests" / "supabase.logic.js", "supabaseLogicTests"),
+    (APP / "js" / "auth.js", APP / "tests" / "auth.logic.js", "authLogicTests"),
 ]
 
 HARNESS = """
