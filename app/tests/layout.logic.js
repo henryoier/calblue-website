@@ -16,10 +16,10 @@ export function layoutLogicTests(layout, t) {
     }
   });
 
-  t.test("treasurer sees payments but not admin-only screens", () => {
+  t.test("treasurer has no club-wide payments access under released RLS", () => {
     t.equal(
       paths({ authenticated: true, roles: ["treasurer"] }),
-      "/,/games,/identity,/admin/payments",
+      "/,/games,/identity",
     );
   });
 
@@ -30,10 +30,20 @@ export function layoutLogicTests(layout, t) {
     );
   });
 
-  t.test("developer sees audit but not unrelated admin screens", () => {
+  t.test("developer has no member-data or audit access under released RLS", () => {
     t.equal(
       paths({ authenticated: true, roles: ["developer"] }),
-      "/,/games,/identity,/admin/audit",
+      "/,/games,/identity",
     );
+  });
+
+  t.test("malformed or non-exact roles cannot show administration", () => {
+    for (const roles of [null, "admin", ["ADMIN"], [" admin "], ["admin", 1], ["organiser"]]) {
+      t.equal(paths({ authenticated: true, roles }), "/,/games,/identity");
+    }
+  });
+
+  t.test("signed-out state ignores stale role claims", () => {
+    t.equal(paths({ authenticated: false, roles: ["admin"] }), "/,/games");
   });
 }

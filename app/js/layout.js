@@ -7,13 +7,14 @@ export const NAV_ITEMS = [
   { href: "#/games", path: "/games", label: "Games" },
   { href: "#/identity", path: "/identity", label: "My identity", auth: true },
   { href: "#/admin/verify", path: "/admin/verify", label: "Verify players", roles: ["admin"] },
-  { href: "#/admin/payments", path: "/admin/payments", label: "Payments", roles: ["admin", "treasurer"] },
-  { href: "#/admin/audit", path: "/admin/audit", label: "Audit log", roles: ["admin", "developer"] },
+  { href: "#/admin/payments", path: "/admin/payments", label: "Payments", roles: ["admin"] },
+  { href: "#/admin/audit", path: "/admin/audit", label: "Audit log", roles: ["admin"] },
   { href: "#/admin/clubs", path: "/admin/clubs", label: "Clubs & teams", roles: ["admin"] },
 ];
 
 export function visibleNavItems({ authenticated = false, roles = [] } = {}) {
-  const available = new Set(roles.map((role) => String(role).toLowerCase()));
+  // Match the exact, typed JWT role array accepted by migration 0003.
+  const available = new Set(Array.isArray(roles) && roles.every((role) => typeof role === "string") ? roles : []);
   return NAV_ITEMS.filter((item) => {
     if (item.auth && !authenticated) return false;
     if (!item.roles || item.roles.length === 0) return true;
@@ -50,8 +51,8 @@ export function renderLayout({
     </div>
     ${!supabaseConfigured
       ? html`<div class="app-banner" role="status">
-          Database not configured yet — running in offline/demo mode.
-          <code>app/config.js</code> contains the setup placeholders.
+          Account services are not configured. Public app routes remain available;
+          no demo login or private data is provided.
         </div>`
       : null}
   `);
@@ -68,8 +69,8 @@ export function renderLayout({
     </ul>
     ${!authenticated
       ? html`<p class="app-nav-hint">
-          Signed-out visitors can browse published games.
-          <a href="#/sign-in">Sign in</a> to register.
+          You are signed out. <a href="#/sign-in">Sign in</a> is the next feature;
+          games and registration currently have placeholder screens.
         </p>`
       : null}
   `);
@@ -93,6 +94,23 @@ export function renderError(mainEl, message) {
       <strong>Something went wrong.</strong> ${message || "Please try again."}
     </div>
   `);
+}
+
+export function renderConnectionStatus(statusEl, { error, busy = false, onRetry } = {}) {
+  if (!error && !busy) {
+    statusEl.replaceChildren();
+    statusEl.hidden = true;
+    return;
+  }
+  statusEl.hidden = false;
+  mount(statusEl, error ? html`
+    <div class="app-error" role="alert">
+      <p>Account services could not be loaded completely. Public app routes are still available.</p>
+      <button class="app-button" type="button">Retry connection</button>
+    </div>
+  ` : html`<p class="app-muted" role="status">Checking your session…</p>`);
+  const retry = statusEl.querySelector("button");
+  if (retry && onRetry) retry.addEventListener("click", onRetry);
 }
 
 export function renderAccessDenied(mainEl, { authenticated } = {}) {

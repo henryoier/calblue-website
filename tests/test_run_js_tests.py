@@ -16,6 +16,13 @@ SPEC.loader.exec_module(RUNNER)
 
 
 class RuntimeTests(unittest.TestCase):
+    def test_stripping_imports_does_not_remove_similarly_named_variables(self):
+        source = 'import { value } from "./value.js";\nimports += 1;\nimportant();\n'
+        stripped = RUNNER.strip_modules(source)
+        self.assertNotIn('from "./value.js"', stripped)
+        self.assertIn("imports += 1;", stripped)
+        self.assertIn("important();", stripped)
+
     def test_prefers_existing_node(self):
         with patch.object(RUNNER.shutil, "which", side_effect=lambda name: "/bin/" + name):
             self.assertEqual(RUNNER.select_runtime(), ("node", "/bin/node"))

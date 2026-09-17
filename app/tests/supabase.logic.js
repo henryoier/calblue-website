@@ -19,4 +19,14 @@ export function supabaseLogicTests(supabase, t) {
       "sb_publishable_example",
     ));
   });
+
+  t.test("configuration rejects credentials, paths, fragments and non-string values", () => {
+    for (const url of ["http://example.supabase.co", "https://user:password@example.supabase.co",
+      "https://example.supabase.co/rest/v1", "https://example.supabase.co?project=1",
+      "https://example.supabase.co#access_token=test", "https://example.supabase.co bad", {}]) {
+      t.assert(!configurationIsUsable(url, "sb_publishable_example"));
+    }
+    t.assert(!configurationIsUsable("https://example.supabase.co", {}));
+    t.assert(!configurationIsUsable("https://example.supabase.co", "key with whitespace"));
+  });
 }

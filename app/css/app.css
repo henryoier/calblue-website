@@ -3,6 +3,8 @@
 
 :root {
   --app-max: 72rem;
+  --app-link: var(--navy-soft, #0c2857);
+  --app-muted: #475569;
 }
 
 *, *::before, *::after {
@@ -11,9 +13,40 @@
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--body, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif);
+  line-height: 1.5;
   color: var(--ink, #0b1730);
   background: var(--cream, #f3f0e9);
+}
+
+/* Public marketing headings are intentionally huge; app screens use readable type. */
+.app-main h1, .app-main h2, .app-main h3 {
+  max-width: none;
+  font-family: inherit;
+  text-transform: none;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+.app-main h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); }
+.app-main h2 { font-size: 1.5rem; }
+.app-main h3 { font-size: 1.2rem; }
+.app-status {
+  max-width: var(--app-max);
+  margin: 0 auto;
+  padding: 1rem 1rem 0;
+  overflow-wrap: anywhere;
+}
+.app-status[hidden] { display: none; }
+.app-button {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border: 1px solid currentColor;
+  border-radius: 0.3rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--navy, #071b3f);
+  background: white;
+  cursor: pointer;
 }
 
 .app-header {
@@ -125,7 +158,7 @@ body {
   max-width: var(--app-max);
   margin: 0.25rem auto 0;
   font-size: 0.85rem;
-  color: #64748b;
+  color: var(--app-muted);
 }
 
 .app-main {
@@ -136,21 +169,22 @@ body {
   min-width: 0;
   overflow-wrap: anywhere;
 }
-.app-main:focus { outline: none; }
 .app-main a:not(.app-link-primary),
 .app-nav-hint a,
 .app-footer a {
-  color: var(--blue, #1268e8);
+  color: var(--app-link);
   text-decoration: underline;
   text-underline-offset: 0.16em;
 }
 .app-main :focus-visible,
-.app-header :focus-visible,
+.app-main:focus-visible,
+.app-status :focus-visible,
 .app-nav :focus-visible,
 .app-footer :focus-visible {
-  outline: 3px solid var(--cyan, #ffc51b);
+  outline: 3px solid var(--navy, #071b3f);
   outline-offset: 3px;
 }
+.app-header :focus-visible { outline: 3px solid var(--cyan, #ffc51b); outline-offset: 3px; }
 
 .app-loading, .app-error, .app-state {
   padding: 1.5rem;
@@ -180,7 +214,7 @@ body {
 }
 .app-eyebrow {
   margin: 0 0 0.35rem;
-  color: var(--blue, #1268e8);
+  color: var(--app-link);
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.1em;
@@ -190,7 +224,7 @@ body {
 .app-home h1 {
   margin-top: 0;
 }
-.app-muted { color: #64748b; }
+.app-muted { color: var(--app-muted); }
 
 .app-footer {
   border-top: 1px solid #e5e7eb;

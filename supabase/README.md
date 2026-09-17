@@ -151,5 +151,6 @@ Two-session concurrency: not tested
 The project owner confirmed the scratch application and both core smoke scripts before PR #79
 merged and issue #25 closed. This is user-reported verification, not a database run by the coding
 agent. The owner also confirmed all three money files before PR #80 merged and issue #26 closed.
-The owner also confirmed all three RLS files before PR #81 merged and issue #27 closed. Seed
-application/rerun verification remains pending. CI remains offline with respect to Supabase.
+The owner also confirmed all three RLS files before PR #81 merged and issue #27 closed. The owner
+confirmed seed application, verification, rerun and matching fingerprints before PR #82 merged
+and issue #28 closed. CI remains offline with respect to Supabase; app-shell testing needs no SQL.

@@ -55,7 +55,12 @@ dashboard project name yourself. Keep the scratch project idle: concurrent Auth/
 cause lock waits or a deadlock rollback. Investigate an error before retrying the complete file;
 do not remove guards or attempt a partial repair.
 
-## Manual verification — not yet run
+## Manual verification reference — completed by the owner for PR #82
+
+The owner reported all four steps passed, including matching fingerprints, before PR #82 merged
+and issue #28 closed. This is owner-reported verification, not database execution by the coding
+agent. The instructions and blank result template below remain for a fresh disposable project.
+Do not repeat these SQL steps just to test the app shell in PR #83.
 
 Use the **same empty disposable project where PR #81's three files succeeded**, if it is still
 empty. In SQL Editor select `postgres` / database owner. **Do not rerun any migration.**
@@ -119,5 +124,5 @@ python3 -m unittest discover -s tests -v
 ```
 
 These inspect documented SQL structure, fixture coverage and safety conventions. They do not
-execute PostgreSQL, prove rerun behavior or certify production safety. Manual results remain
-pending; issue #28 stays open until verification and merge.
+execute PostgreSQL, prove rerun behavior or certify production safety. Owner-reported scratch
+verification is recorded in merged PR #82; issue #28 is closed.

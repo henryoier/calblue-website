@@ -5,7 +5,7 @@
 // The page also sets document.title and window.__testResults so a headless driver can read them.
 
 const results = [];
-const pending = [];
+let pending = Promise.resolve();
 let current = null;
 
 export function test(name, fn) {
@@ -55,17 +55,14 @@ export function testAsync(name, fn) {
       }
     },
   };
-  pending.push(
-    Promise.resolve()
-      .then(() => fn(scoped))
-      .catch((error) => {
-        record.failures.push(`threw: ${error && error.message ? error.message : error}`);
-      })
-  );
+  // Router/DOM tests share one browser URL and document; run async cases in order.
+  pending = pending.then(() => fn(scoped)).catch((error) => {
+    record.failures.push(`threw: ${error && error.message ? error.message : error}`);
+  });
 }
 
 export async function report(into) {
-  await Promise.all(pending);
+  await pending;
   const failed = results.filter((r) => r.failures.length);
   const total = results.length;
   window.__testResults = { total, failed: failed.length, results };
