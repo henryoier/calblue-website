@@ -5,7 +5,12 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
+    # Baseline: every six hours (17 past the hour avoids GitHub's top-of-the-hour rush).
     - cron: '17 */6 * * *'
+    # Match weekends: hourly all day Saturday and Sunday UTC, and through Sunday evening Pacific
+    # (Monday 00:00-07:00 UTC), so results, scorers and posts land within the hour.
+    - cron: '17 * * * 6,0'
+    - cron: '17 0-7 * * 1'
 
 permissions:
   contents: read

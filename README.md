@@ -71,7 +71,7 @@ python3 scripts/sync_nccsf.py \
 rm -rf "$nccsf_sync_dir"
 ```
 
-The deploy workflow runs both syncs every six hours and before every Pages deployment. It writes small `data/swpl.json` and `data/nccsf.json` snapshots. The homepage merges both feeds chronologically and emphasizes the next five matches; dedicated SWPL and NCCSF pages show each complete season schedule and published results.
+The deploy workflow runs both syncs every six hours, hourly through match weekends (Saturday and Sunday, until Sunday evening Pacific), and before every Pages deployment. It writes small `data/swpl.json` and `data/nccsf.json` snapshots. The homepage merges both feeds chronologically and emphasizes the next five matches; dedicated SWPL and NCCSF pages show each complete season schedule and published results.
 
 SWPL published the full league and Abronzino Cup schedule on September 14, 2026. The sync reads CalBlue’s official team profile, which was verified against [the league-wide schedule](https://pacific.swplsoccer.com/schedule). All former preview fixtures have been retired from `data/swpl-overrides.json`; its empty `fixtures` list keeps manual-override support available without allowing obsolete previews to reappear if SWPL removes a fixture. Original image transcriptions remain in Git history. Times use Pacific Time with the correct daylight-saving offsets, and a published TBA kickoff stays undecided. Any future manual override should be deliberately reviewed; official rows replace matching overrides within the same competition, keeping league and Cup games against the same opponent separate.
 
