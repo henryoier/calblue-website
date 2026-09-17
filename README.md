@@ -27,6 +27,20 @@ Validate the site before publishing:
 python3 scripts/check_site.py
 ```
 
+## Club news feed
+
+The homepage "Latest" section and `news.html` render `data/news.json`, which `scripts/build_news.py` assembles from sources already in the repository, newest first:
+
+- published results in `data/swpl.json` and `data/nccsf.json` (with the matching gallery album when one exists),
+- match albums in `gallery.html`,
+- the next fixture that has match-day posters in `data/matchday-posters.json` (one preview card, including any storylines),
+- hand-written posts in `data/news-posts.json` (title, summary, body paragraphs, image; they open on `news.html?post=<slug>`),
+- Instagram posts in `data/instagram.json`.
+
+The deploy workflow rebuilds the feed after the schedule syncs, so results appear within the six-hour cycle. After editing posts locally run `python3 scripts/build_news.py`; `tests/test_build_news.py` fails when the committed feed is stale.
+
+Instagram does not serve posts to anonymous readers, so `scripts/sync_instagram.py` is run by a maintainer and its output committed. It accepts an Instagram API access token for the club account (`--token`), a saved API response (`--source-file`), or a list of public post URLs (`--post-urls`, one per line, using Instagram's public embed page for each post). It stores only caption, permalink, timestamp and one image per post under `assets/news/instagram/`.
+
 ## Match-day posters
 
 The homepage poster block follows the next fixture that has artwork in `data/matchday-posters.json`. Each fixture ships two no-photo designs under `assets/matchday/2026-fall/` (a distinctive per-game style and the classic navy/gold/cream layout, both 1296×1616 WebP with the SWPL and Pacific Premier League marks). `swpl-schedule.js` picks one of the two at random on every visit; append `?poster=1` or `?poster=2` to the homepage URL to force a design for review. Fixtures without artwork (for example NCCSF games) are skipped, and the block hides itself when nothing upcoming has a poster.

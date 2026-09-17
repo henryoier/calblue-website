@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "account": "calbluefc",
+  "note": "Written by scripts/sync_instagram.py. Instagram does not expose posts to anonymous readers, so this file is refreshed by a maintainer with API access and committed.",
+  "checkedAt": null,
+  "items": []
+}

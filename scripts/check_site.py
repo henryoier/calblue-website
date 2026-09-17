@@ -155,6 +155,27 @@ def main() -> int:
             errors.append(f"{page_name}: missing competition schedule integration")
     if "data-matchday-poster" not in homepage:
         errors.append("index.html: missing match-day poster section")
+    if "data-news-feed" not in homepage or "news.js" not in homepage:
+        errors.append("index.html: missing club news feed")
+    news_page = (ROOT / "news.html").read_text(encoding="utf-8")
+    if "data-news-feed" not in news_page or "data-news-article" not in news_page or "news.js" not in news_page:
+        errors.append("news.html: missing club news feed integration")
+    try:
+        news = json.loads((ROOT / "data" / "news.json").read_text(encoding="utf-8"))
+        if news.get("schemaVersion") != 1 or not isinstance(news.get("items"), list):
+            errors.append("data/news.json: expected schemaVersion 1 with an items list")
+        for item in news.get("items", []):
+            for key in ("slug", "category", "date", "title", "image", "href"):
+                if not item.get(key):
+                    errors.append(f"data/news.json: item missing {key}: {item.get('slug') or item}")
+                    break
+            for key in ("image", "href"):
+                value = str(item.get(key, ""))
+                local = value.split("#", 1)[0].split("?", 1)[0]
+                if value and not value.startswith("https://") and local and not (ROOT / local).exists():
+                    errors.append(f"data/news.json: {item.get('slug')} points at missing {value}")
+    except (OSError, json.JSONDecodeError) as error:
+        errors.append(f"data/news.json: {error}")
     if not (ROOT / "assets" / "matchday" / "calblue-vs-sf-glens-2026-09-13.webp").exists():
         errors.append("assets/matchday: missing the CalBlue vs SF Glens poster")
 
