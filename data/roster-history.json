@@ -1,0 +1,537 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-09-16",
+  "players": {
+    "nccsf:bennett lee": {
+      "name": "Bennett Lee",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22087",
+      "photo": "https://nccsf.org/en/img/player/photo/220/22087_57Rrjcgv4G.jpeg"
+    },
+    "nccsf:bryan peltier": {
+      "name": "Bryan Peltier",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22382",
+      "photo": "https://nccsf.org/en/img/player/photo/223/22382_DE9XfVzPJh.jpeg"
+    },
+    "nccsf:chenge yang": {
+      "name": "Chenge Yang",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=2544",
+      "photo": "https://nccsf.org/en/img/player/photo/25/2544_StNoMrzCk6.jpg"
+    },
+    "nccsf:chengzhe feng": {
+      "name": "Chengzhe Feng",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21694",
+      "photo": "https://nccsf.org/en/img/player/photo/216/21694_Yp4tVlOH8U.jpeg"
+    },
+    "nccsf:dakai kang": {
+      "name": "Dakai Kang",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21105",
+      "photo": "https://nccsf.org/en/img/player/photo/211/21105_zOd9fD6FgX.jpeg"
+    },
+    "nccsf:elshad kadeer": {
+      "name": "Elshad Kadeer",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=2397",
+      "photo": "https://nccsf.org/en/img/player/photo/23/2397_c6zMhOImfL.jpg"
+    },
+    "nccsf:elzat kadeer": {
+      "name": "Elzat Kadeer",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=2763",
+      "photo": "https://nccsf.org/en/img/player/photo/27/2763_zkS1Dj4HnO.jpg"
+    },
+    "nccsf:haorui zhu": {
+      "name": "Haorui Zhu",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22494",
+      "photo": "https://nccsf.org/en/img/player/photo/224/22494_kFEj7yL1R6.jpeg"
+    },
+    "nccsf:jincheng zhao": {
+      "name": "Jincheng Zhao",
+      "league": "nccsf",
+      "firstSeen": "2026-09-16",
+      "seeded": false,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22210",
+      "photo": "https://nccsf.org/en/img/player/photo/222/thumb-22210.jpeg"
+    },
+    "nccsf:justin wang": {
+      "name": "Justin Wang",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=2692",
+      "photo": "https://nccsf.org/en/img/player/photo/26/2692_qO8Hs2E5Uc.jpg"
+    },
+    "nccsf:kevin gao": {
+      "name": "Kevin Gao",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21576",
+      "photo": "https://nccsf.org/en/img/player/photo/215/21576_1lgHfzZJIM.jpeg"
+    },
+    "nccsf:kevin yu": {
+      "name": "Kevin Yu",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21830",
+      "photo": "https://nccsf.org/en/img/player/photo/218/21830_4KQNPMOFHf.jpeg"
+    },
+    "nccsf:lan an": {
+      "name": "Lan An",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21641",
+      "photo": "https://nccsf.org/en/img/player/photo/216/21641_lcysaqTB4x.jpeg"
+    },
+    "nccsf:lu fang": {
+      "name": "Lu Fang",
+      "league": "nccsf",
+      "firstSeen": "2026-09-16",
+      "seeded": false,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1221",
+      "photo": "https://nccsf.org/en/img/player/photo/12/thumb-1221.jpg"
+    },
+    "nccsf:nutao jiang": {
+      "name": "Nutao Jiang",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1122",
+      "photo": "https://nccsf.org/en/img/player/photo/11/1122_RHqXPbJEGI.jpg"
+    },
+    "nccsf:qibang zhu": {
+      "name": "Qibang Zhu",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21756",
+      "photo": "https://nccsf.org/en/img/player/photo/217/21756_UzP7CrvlAZ.jpeg"
+    },
+    "nccsf:robert peng": {
+      "name": "Robert Peng",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-09",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22099",
+      "photo": "https://nccsf.org/en/img/player/photo/220/22099_lrw2detQYu.jpeg"
+    },
+    "nccsf:rui zhang": {
+      "name": "Rui Zhang",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21583",
+      "photo": "https://nccsf.org/en/img/player/photo/215/21583_HiJcBMYOWT.jpeg"
+    },
+    "nccsf:sheng qin": {
+      "name": "Sheng Qin",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1838",
+      "photo": "https://nccsf.org/en/img/player/photo/18/1838_uvktNqDInA.jpg"
+    },
+    "nccsf:sohrab rashid": {
+      "name": "Sohrab Rashid",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22086",
+      "photo": "https://nccsf.org/en/img/player/photo/220/22086_EtqSzkGLfJ.jpeg"
+    },
+    "nccsf:suhau kuo": {
+      "name": "Suhau Kuo",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1137",
+      "photo": "https://nccsf.org/en/img/player/photo/11/1137_DFksXPmwEo.jpg"
+    },
+    "nccsf:william peng": {
+      "name": "William Peng",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22495",
+      "photo": "https://nccsf.org/en/img/player/photo/224/22495_Zjn9QXNDsg.jpeg"
+    },
+    "nccsf:wilson duan": {
+      "name": "Wilson Duan",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21942",
+      "photo": "https://nccsf.org/en/img/player/photo/219/21942_eKUB92fONy.jpeg"
+    },
+    "nccsf:xinghang sun": {
+      "name": "Xinghang Sun",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21714",
+      "photo": "https://nccsf.org/en/img/player/photo/217/21714_mVWRfoOavG.jpg"
+    },
+    "nccsf:yang he": {
+      "name": "Yang He",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=2063",
+      "photo": "https://nccsf.org/en/img/player/photo/20/2063_QeZNtb1TqD.jpg"
+    },
+    "nccsf:yu li": {
+      "name": "Yu Li",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1145",
+      "photo": "https://nccsf.org/en/img/player/photo/11/1145_Gf3eMncAkx.jpg"
+    },
+    "nccsf:yuan feng": {
+      "name": "Yuan Feng",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21125",
+      "photo": "https://nccsf.org/en/img/player/photo/211/21125_oqkIGzgK3r.jpg"
+    },
+    "nccsf:yuanpu liang": {
+      "name": "Yuanpu Liang",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21181",
+      "photo": "https://nccsf.org/en/img/player/photo/211/21181_wMa3Sdpm7e.jpeg"
+    },
+    "nccsf:yue ning lim": {
+      "name": "Yue Ning Lim",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22025",
+      "photo": "https://nccsf.org/en/img/player/photo/220/22025_VlIMor1hOg.jpg"
+    },
+    "nccsf:yujie miao": {
+      "name": "Yujie Miao",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22361",
+      "photo": "https://nccsf.org/en/img/player/photo/223/22361_84mOgYWkhD.png"
+    },
+    "nccsf:yulin guo": {
+      "name": "Yulin Guo",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=2072",
+      "photo": "https://nccsf.org/en/img/player/photo/20/2072_yDI1H7RUNc.jpg"
+    },
+    "nccsf:yuran wang": {
+      "name": "Yuran Wang",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22194",
+      "photo": "https://nccsf.org/en/img/player/photo/221/22194_OsV8FZDn05.jpeg"
+    },
+    "nccsf:zachary zhang": {
+      "name": "Zachary Zhang",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21948",
+      "photo": "https://nccsf.org/en/img/player/photo/219/21948_0Jc3gzq7Ht.jpeg"
+    },
+    "nccsf:zhening zhang": {
+      "name": "Zhening Zhang",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21799",
+      "photo": "https://nccsf.org/en/img/player/photo/217/21799_HY0ZX31IVk.jpeg"
+    },
+    "nccsf:zizhou liu": {
+      "name": "Zizhou Liu",
+      "league": "nccsf",
+      "firstSeen": "2026-09-12",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21320",
+      "photo": "https://nccsf.org/en/img/player/photo/213/21320_18DSPNcbJg.jpg"
+    },
+    "swpl:bryan peltier": {
+      "name": "Bryan Peltier",
+      "league": "swpl",
+      "firstSeen": "2026-09-16",
+      "seeded": false,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/bryan-peltier",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16219/securefiles/1789054252_hs.png"
+    },
+    "swpl:chenge yang": {
+      "name": "Chenge Yang",
+      "league": "swpl",
+      "firstSeen": "2026-09-16",
+      "seeded": false,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/chenge-yang",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16265/securefiles/1789017301_hs.jpg"
+    },
+    "swpl:chengzhe feng": {
+      "name": "Chengzhe Feng",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/shawn-feng",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16189/securefiles/1788743112_hs.jpg"
+    },
+    "swpl:elshad kadeer": {
+      "name": "Elshad Kadeer",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/elshad-kadeer",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16223/securefiles/1788920142_hs.png"
+    },
+    "swpl:elzat kadeer": {
+      "name": "Elzat Kadeer",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/elzat-kadeer",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16215/securefiles/1788843140_hs.jpg"
+    },
+    "swpl:haorui zhu": {
+      "name": "Haorui Zhu",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/haorui-zhu",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16247/securefiles/1788935661_hs.jpg"
+    },
+    "swpl:huanghao zhang": {
+      "name": "Huanghao Zhang",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/huanghao-zhang",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16204/securefiles/1788828113_hs.jpg"
+    },
+    "swpl:justin wang": {
+      "name": "Justin Wang",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/justin-wang",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16214/securefiles/1788839747_hs.jpg"
+    },
+    "swpl:kevin gao": {
+      "name": "Kevin Gao",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/kevin-gao",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16252/securefiles/1788988232_hs.png"
+    },
+    "swpl:kevin yu": {
+      "name": "Kevin Yu",
+      "league": "swpl",
+      "firstSeen": "2026-09-16",
+      "seeded": false,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/kevin-yu",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16251/securefiles/1788978870_hs.jpg"
+    },
+    "swpl:matthew li": {
+      "name": "Matthew Li",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/matthew-li",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16173/securefiles/1788567534_hs.jpg"
+    },
+    "swpl:mingxuan zhao": {
+      "name": "Mingxuan Zhao",
+      "league": "swpl",
+      "firstSeen": "2026-09-16",
+      "seeded": false,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/mingxuan--zhao",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16290/securefiles/1789108698_hs.jpg"
+    },
+    "swpl:qibang zhu": {
+      "name": "Qibang Zhu",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/qibang-zhu",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16246/securefiles/1788988004_hs.png"
+    },
+    "swpl:rui zhang": {
+      "name": "Rui Zhang",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/rui-zhang",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16170/securefiles/1788545078_hs.jpg"
+    },
+    "swpl:sheng qin": {
+      "name": "Sheng Qin",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/sheng-qin",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16141/securefiles/1788406918_hs.jpg"
+    },
+    "swpl:siyu chen": {
+      "name": "Siyu Chen",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/siyu-chen",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/5614/securefiles/1788988073_hs.png"
+    },
+    "swpl:suhau kuo": {
+      "name": "Suhau Kuo",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/suhau-kuo",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16138/securefiles/1788366370_hs.jpg"
+    },
+    "swpl:wilson duan": {
+      "name": "Wilson Duan",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/wilson-duan",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16194/securefiles/1788760219_hs.jpg"
+    },
+    "swpl:xinghang sun": {
+      "name": "Xinghang Sun",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/xinghang-sun",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16217/securefiles/1788845503_hs.jpg"
+    },
+    "swpl:yongjie fu": {
+      "name": "Yongjie Fu",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/yongjie-fu",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16229/securefiles/1788919977_hs.png"
+    },
+    "swpl:yuan feng": {
+      "name": "Yuan Feng",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/yuan-feng",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16206/securefiles/1788832700_hs.jpg"
+    },
+    "swpl:yuran wang": {
+      "name": "Yuran Wang",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/yuran-wang",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16140/securefiles/1788467135_hs.jpg"
+    },
+    "swpl:zheng chang": {
+      "name": "Zheng Chang",
+      "league": "swpl",
+      "firstSeen": "2026-09-16",
+      "seeded": false,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/zheng-chang",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16392/securefiles/1789582833_hs.jpg"
+    },
+    "swpl:zizhou liu": {
+      "name": "Zizhou Liu",
+      "league": "swpl",
+      "firstSeen": "2026-09-13",
+      "seeded": true,
+      "lastSeen": "2026-09-16",
+      "profile": "https://pacific.swplsoccer.com/roster/zizhou-liu",
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16171/securefiles/1788547056_hs.jpg"
+    }
+  }
+}

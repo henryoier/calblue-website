@@ -7,6 +7,7 @@ Sources (newest first in the output):
   - gallery.html              match albums -> "Gallery" cards
   - data/matchday-posters.json + fixtures   next fixture with artwork -> one "Match day" preview card
   - data/instagram.json       posts imported by scripts/sync_instagram.py -> "Instagram" cards
+  - data/roster-history.json  players who joined a league roster after the season squad -> "Squad" cards
 
 Run: python3 scripts/build_news.py [--today YYYY-MM-DD] [--check]
 """
@@ -24,7 +25,9 @@ from zoneinfo import ZoneInfo
 ROOT = Path(__file__).resolve().parent.parent
 PACIFIC = ZoneInfo("America/Los_Angeles")
 DEFAULT_IMAGE = "assets/hero/match-huddle.jpg"
-CATEGORY_ORDER = {"Club": 0, "Match day": 1, "Result": 2, "Gallery": 3, "Instagram": 4}
+CATEGORY_ORDER = {"Club": 0, "Match day": 1, "Result": 2, "Squad": 3, "Gallery": 4, "Instagram": 5}
+LEAGUE_LABEL = {"swpl": "SWPL Pacific Premier League", "nccsf": "NCCSF Fall League"}
+LEAGUE_PAGE = {"swpl": "competition-swpl.html#roster", "nccsf": "competition-nccsf.html#roster"}
 
 
 def slugify(value: str) -> str:
@@ -216,6 +219,38 @@ def instagram_items(data: dict | None) -> list[dict]:
     return [item for item in items if re.match(r"\d{4}-\d{2}-\d{2}$", item["date"])]
 
 
+def squad_items(history: dict | None) -> list[dict]:
+    """One card per league per day on which new players first appeared on the official roster."""
+    groups: dict[tuple[str, str], list[dict]] = {}
+    for entry in ((history or {}).get("players") or {}).values():
+        if entry.get("seeded") or not entry.get("firstSeen"):
+            continue
+        groups.setdefault((entry["league"], entry["firstSeen"]), []).append(entry)
+    items = []
+    for (league, day), players in sorted(groups.items()):
+        players.sort(key=lambda p: p["name"])
+        names = [p["name"] for p in players]
+        label = LEAGUE_LABEL.get(league, league.upper())
+        slug = "squad-" + slugify(f"{day}-{league}")
+        listed = ", ".join(names[:-1]) + (" and " if len(names) > 1 else "") + names[-1] if names else ""
+        items.append(
+            {
+                "id": slug,
+                "slug": slug,
+                "category": "Squad",
+                "date": day,
+                "title": f"{len(names)} new {'face' if len(names) == 1 else 'faces'} on the {label.split()[0]} roster",
+                "summary": f"Welcome {listed}, now registered for the {label}.",
+                "image": next((p["photo"] for p in players if p.get("photo")), DEFAULT_IMAGE),
+                "imageAlt": f"{names[0]}, newly registered with CalBlue FC" if names else "CalBlue FC",
+                "href": LEAGUE_PAGE.get(league, "players.html"),
+                "cta": "Meet the squad",
+                "players": names,
+            }
+        )
+    return items
+
+
 def post_items(data: dict | None) -> list[dict]:
     items = []
     for post in (data or {}).get("posts", []) or []:
@@ -246,6 +281,7 @@ def build(root: Path, today: date) -> dict:
         post_items(load_json(root / "data" / "news-posts.json"))
         + preview_item(load_json(root / "data" / "matchday-posters.json"), feeds, today)
         + result_items(feeds, albums)
+        + squad_items(load_json(root / "data" / "roster-history.json"))
         + gallery_items(albums)
         + instagram_items(load_json(root / "data" / "instagram.json"))
     )

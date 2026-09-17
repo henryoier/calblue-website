@@ -35,7 +35,8 @@ The homepage "Latest" section and `news.html` render `data/news.json`, which `sc
 - match albums in `gallery.html`,
 - the next fixture that has match-day posters in `data/matchday-posters.json` (one preview card, including any storylines),
 - hand-written posts in `data/news-posts.json` (title, summary, body paragraphs, image; they open on `news.html?post=<slug>`),
-- Instagram posts in `data/instagram.json`.
+- Instagram posts in `data/instagram.json`,
+- newly registered players from `data/roster-history.json`: `scripts/sync_rosters.py` records when each player first appears on each league roster; the squad present when the history was created is the seeded season squad and is never announced, later arrivals become one "Squad" card per league per day. The history is committed; a scheduled deployment that notices a new player dates them to that deploy until a maintainer runs the roster sync locally and commits.
 
 The deploy workflow rebuilds the feed after the schedule syncs, so results appear within the six-hour cycle. After editing posts locally run `python3 scripts/build_news.py`; `tests/test_build_news.py` fails when the committed feed is stale.
 

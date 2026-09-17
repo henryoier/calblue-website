@@ -69,6 +69,13 @@ class BuildNewsTests(unittest.TestCase):
             {"id": "BAD", "permalink": "https://www.instagram.com/p/BAD/", "timestamp": "", "caption": "no date", "image": "x.jpg"},
         ]})
 
+        self.write("data/roster-history.json", {"players": {
+            "swpl:sheng qin": {"name": "Sheng Qin", "league": "swpl", "firstSeen": "2026-09-13", "seeded": True},
+            "swpl:zheng chang": {"name": "Zheng Chang", "league": "swpl", "firstSeen": "2026-09-16", "seeded": False, "photo": "https://x/zc.jpg"},
+            "swpl:kevin yu": {"name": "Kevin Yu", "league": "swpl", "firstSeen": "2026-09-16", "seeded": False},
+            "nccsf:lu fang": {"name": "Lu Fang", "league": "nccsf", "firstSeen": "2026-09-16", "seeded": False},
+        }})
+
     def tearDown(self):
         self.tmp.cleanup()
 
@@ -128,8 +135,18 @@ class BuildNewsTests(unittest.TestCase):
         self.assertEqual(len(slugs), len(set(slugs)))
         self.assertEqual(feed["items"][0]["category"], "Match day", "the upcoming preview leads the feed")
 
+    def test_new_roster_players_become_squad_cards_per_league_and_day(self):
+        feed = self.build()
+        squad = self.by(feed, "Squad")
+        self.assertEqual([s["title"] for s in squad], ["1 new face on the NCCSF roster", "2 new faces on the SWPL roster"])
+        swpl = squad[1]
+        self.assertEqual(swpl["summary"], "Welcome Kevin Yu and Zheng Chang, now registered for the SWPL Pacific Premier League.")
+        self.assertEqual(swpl["image"], "https://x/zc.jpg", "a new player's photo fronts the card when one exists")
+        self.assertEqual(swpl["href"], "competition-swpl.html#roster")
+        self.assertNotIn("Sheng Qin", json.dumps(squad), "the seeded season squad is never announced as new")
+
     def test_missing_sources_do_not_break_the_build(self):
-        for name in ("data/instagram.json", "data/news-posts.json", "data/matchday-posters.json", "data/nccsf.json"):
+        for name in ("data/instagram.json", "data/news-posts.json", "data/matchday-posters.json", "data/nccsf.json", "data/roster-history.json"):
             (self.root / name).unlink()
         feed = self.build()
         self.assertEqual({item["category"] for item in feed["items"]}, {"Result", "Gallery"})

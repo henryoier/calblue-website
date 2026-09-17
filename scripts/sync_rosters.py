@@ -2,6 +2,7 @@
 """Import public CalBlue roster fields from official competition team pages."""
 import argparse
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from html.parser import HTMLParser
 import json
 from pathlib import Path
@@ -14,6 +15,45 @@ SOURCES = {
     'nccsf': 'https://nccsf.org/en/league/team?a=tp&tid=621&tab=player',
 }
 SEASON_STARTS = {'swpl': '2026-09-13', 'nccsf': '2026-09-12'}
+HISTORY_PATH = Path('data/roster-history.json')
+PACIFIC = ZoneInfo('America/Los_Angeles')
+
+
+def player_key(name):
+    return name.normalize('NFKC').strip().lower() if hasattr(name, 'normalize') else ' '.join(name.strip().lower().split())
+
+
+def update_history(history, competitions, today):
+    """Track when each player first appeared on each league roster.
+
+    history: {'players': {'<league>:<name key>': {name, league, firstSeen, lastSeen, seeded, profile}}}
+    Players present when the history is first created are `seeded` (the pre-season squad) and never
+    reported as new; anyone who appears later gets firstSeen = the day the sync noticed them.
+    Returns (updated history, list of newly seen players).
+    """
+    players = dict((history or {}).get('players') or {})
+    seeding = not players
+    newly = []
+    for league, roster in competitions.items():
+        for player in roster['players']:
+            key = f"{league}:{player_key(player['name'])}"
+            entry = players.get(key)
+            if entry is None:
+                entry = {
+                    'name': player['name'], 'league': league,
+                    'firstSeen': roster.get('seasonStartsOn') if seeding else today,
+                    'seeded': seeding,
+                }
+                if not seeding:
+                    newly.append({**entry, 'photo': player.get('photo', '')})
+            entry['name'] = player['name']
+            entry['lastSeen'] = today
+            if player.get('profile'):
+                entry['profile'] = player['profile']
+            if player.get('photo'):
+                entry['photo'] = player['photo']
+            players[key] = entry
+    return {'schemaVersion': 1, 'updatedAt': today, 'players': dict(sorted(players.items()))}, newly
 
 
 def safe_url(base, value):
@@ -131,6 +171,8 @@ def main():
     args.add_argument('--swpl-file', type=Path)
     args.add_argument('--nccsf-file', type=Path)
     args.add_argument('--output', type=Path, default=Path('data/rosters.json'))
+    args.add_argument('--history', type=Path, default=HISTORY_PATH, help='first-seen dates per player and league')
+    args.add_argument('--today', help='override the date used for first-seen (YYYY-MM-DD, Pacific)')
     options = args.parse_args()
     photo_map = json.loads((Path(__file__).resolve().parent.parent / 'data/nccsf-player-photos.json').read_text())
     result = {'updatedAt': datetime.now(timezone.utc).isoformat(), 'competitions': {}}
@@ -153,6 +195,13 @@ def main():
     temporary = options.output.with_suffix('.tmp')
     temporary.write_text(json.dumps(result, indent=2, ensure_ascii=False) + '\n')
     temporary.replace(options.output)
+    today = options.today or datetime.now(PACIFIC).date().isoformat()
+    previous = json.loads(options.history.read_text()) if options.history.exists() else {}
+    history, newly = update_history(previous, result['competitions'], today)
+    options.history.parent.mkdir(parents=True, exist_ok=True)
+    options.history.write_text(json.dumps(history, indent=2, ensure_ascii=False) + '\n')
+    for player in newly:
+        print(f"new on the {player['league']} roster: {player['name']}")
 
 
 if __name__ == '__main__':
