@@ -5,7 +5,7 @@ import json
 import unittest
 from zoneinfo import ZoneInfo
 
-from scripts.sync_nccsf import build_snapshot
+from scripts.sync_nccsf import attach_goals, build_snapshot, merge_goals, parse_goals
 
 
 SAMPLE = json.dumps(
@@ -127,3 +127,60 @@ class BuildSnapshotTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+GOALS = json.dumps(
+    {
+        "data": [
+            {"week": '<a href="game?a=editGameForm&gid=3388&id=1669&tab=goals">Week01</a>', "player": '<a href="team?a=atpf&tid=621&pid=1137"><img src="x.jpg"> Kuo, Suhau</a>', "team": '<a href="team?a=tp&tid=621">CalBlue</a>', "opponent": '<a href="team?a=tp&tid=623">GSF United</a>', "video": "", "like": ""},
+            {"week": '<a href="game?a=editGameForm&gid=3388&id=1670&tab=goals">Week01</a>', "player": '<a href="team?a=atpf&tid=621&pid=22495"> Peng, William</a>', "team": '<a href="team?a=tp&tid=621">CalBlue</a>', "opponent": "", "video": ""},
+            {"week": '<a href="game?a=editGameForm&gid=3388&id=1671&tab=goals">Week01</a>', "player": '<a href="team?a=atpf&tid=621&pid=22495"> Peng, William</a>', "team": '<a href="team?a=tp&tid=621">CalBlue</a>', "opponent": "", "video": ""},
+            {"week": '<a href="game?a=editGameForm&gid=3388&id=1672&tab=goals">Week01</a>', "player": '<a href="team?a=atpf&tid=623&pid=900"> Doe, John*</a>', "team": '<a href="team?a=tp&tid=623">GSF United</a>', "opponent": "", "video": "https://youtu.be/x"},
+            {"week": '<a href="game?a=editGameForm&gid=3389&id=1680&tab=goals">Week01</a>', "player": '<a href="team?a=atpf&tid=700&pid=1"> Pu, Donglin</a>', "team": '<a href="team?a=tp&tid=700">GSF-Locomotive</a>', "opponent": "", "video": ""},
+            {"week": "no game id", "player": "Nobody", "team": "", "opponent": "", "video": ""},
+        ]
+    }
+)
+
+
+class GoalScorerTest(unittest.TestCase):
+    def test_goal_list_is_grouped_by_game_with_display_names(self):
+        goals = parse_goals(GOALS)
+        self.assertEqual(sorted(goals), ["3388", "3389"], "rows without a game id are ignored")
+        players = [(g["player"], g["teamId"], g["highlight"]) for g in goals["3388"]]
+        self.assertEqual(players, [("Suhau Kuo", 621, False), ("William Peng", 621, False), ("William Peng", 621, False), ("John Doe", 623, True)])
+        self.assertEqual(goals["3388"][0]["playerId"], 1137)
+
+    def test_scorers_attach_to_the_matching_result_by_side(self):
+        checked = datetime(2026, 9, 20, tzinfo=ZoneInfo("America/Los_Angeles"))
+        payload = json.loads(SAMPLE)
+        payload["data"][0]["score"] = "1:6"
+        snapshot = build_snapshot(json.dumps(payload), TEAMS, checked)
+        attached = attach_goals(snapshot, parse_goals(GOALS))
+        self.assertEqual(attached, 1)
+        result = snapshot["results"][0]
+        self.assertEqual(result["id"], "nccsf-3388")
+        self.assertEqual([(g["player"], g["side"]) for g in result["goals"] if not g["highlight"]],
+                         [("Suhau Kuo", "away"), ("William Peng", "away"), ("William Peng", "away")], "CalBlue were the away side")
+        self.assertEqual(result["goalsNote"], "partial", "three published goals do not yet explain a 1:6 score")
+        self.assertNotIn("goals", snapshot["fixtures"][0], "upcoming fixtures never carry scorers")
+
+    def test_complete_scorer_list_has_no_partial_note(self):
+        checked = datetime(2026, 9, 20, tzinfo=ZoneInfo("America/Los_Angeles"))
+        payload = json.loads(SAMPLE)
+        payload["data"][0]["score"] = "0:3"
+        snapshot = build_snapshot(json.dumps(payload), TEAMS, checked)
+        attach_goals(snapshot, parse_goals(GOALS))
+        self.assertNotIn("goalsNote", snapshot["results"][0])
+
+    def test_cache_merge_keeps_earlier_weeks(self):
+        cached = {"3300": [{"player": "Old Goal", "teamId": 621}], "3388": [{"player": "Stale", "teamId": 621}]}
+        merged = merge_goals(cached, parse_goals(GOALS))
+        self.assertEqual(list(merged), ["3300", "3388", "3389"])
+        self.assertEqual(merged["3388"][0]["player"], "Suhau Kuo", "fresh data replaces the cached game")
+
+    def test_bad_goal_list_is_rejected(self):
+        with self.assertRaises(ValueError):
+            parse_goals("not json")
+        with self.assertRaises(ValueError):
+            parse_goals("{}")

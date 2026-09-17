@@ -38,6 +38,13 @@
     }).format(instant);
   };
 
+  // "William Peng ×3, Suhau Kuo" in first-goal order.
+  const summariseScorers = (goals) => {
+    const counts = new Map();
+    goals.forEach((goal) => counts.set(goal.player, (counts.get(goal.player) || 0) + 1));
+    return [...counts].map(([player, count]) => (count > 1 ? `${player} ×${count}` : player)).join(', ');
+  };
+
   const createTeam = (team, role, score) => {
     const row = document.createElement('div');
     const name = document.createElement('strong');
@@ -107,6 +114,24 @@
       createTeam(fixture.home, 'Home', completed ? fixture.score.home : undefined),
       createTeam(fixture.away, 'Away', completed ? fixture.score.away : undefined),
     );
+    if (completed && Array.isArray(fixture.goals) && fixture.goals.length) {
+      const scorers = document.createElement('div');
+      scorers.className = 'season-fixture-scorers';
+      [['home', fixture.home], ['away', fixture.away]].forEach(([side, team]) => {
+        const summary = summariseScorers(fixture.goals.filter((goal) => goal.side === side && !goal.highlight));
+        if (!summary) return;
+        const line = document.createElement('span');
+        line.className = `season-scorers is-${side}${isCalBlue(team.name) ? ' is-calblue' : ''}`;
+        line.textContent = `${team.name}: ${summary}`;
+        scorers.append(line);
+      });
+      if (fixture.goalsNote === 'partial') {
+        const note = document.createElement('small');
+        note.textContent = 'Scorers as published so far';
+        scorers.append(note);
+      }
+      if (scorers.children.length) matchup.append(scorers);
+    }
 
     details.className = 'season-fixture-details';
     venue.textContent = fixture.venue.name;

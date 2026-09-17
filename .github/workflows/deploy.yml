@@ -65,9 +65,16 @@ jobs:
             --header 'User-Agent: CalBlueScheduleSync/1.0 (+https://calbluefc.com/)' \
             --output "$nccsf_sync_dir/teams.html" \
             'https://nccsf.org/en/league/team?a=teams&lid=36'
+          curl --fail --silent --show-error --location \
+            --header 'Accept: application/json' \
+            --header 'User-Agent: CalBlueScheduleSync/1.0 (+https://calbluefc.com/)' \
+            --output "$nccsf_sync_dir/goals.json" \
+            'https://nccsf.org/en/league/game?a=ajaxGoalList&lid=36' \
+            || printf '{"data":[]}' > "$nccsf_sync_dir/goals.json"
           python3 scripts/sync_nccsf.py \
             --source-file "$nccsf_sync_dir/games.json" \
-            --teams-file "$nccsf_sync_dir/teams.html"
+            --teams-file "$nccsf_sync_dir/teams.html" \
+            --goals-file "$nccsf_sync_dir/goals.json"
       - name: Sync official competition rosters
         run: python3 scripts/sync_rosters.py
       - name: Sync club Instagram posts

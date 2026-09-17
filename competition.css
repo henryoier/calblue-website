@@ -64,3 +64,10 @@
   .season-fixture-date { padding: 0 0 16px; border-right: 0; border-bottom: 1px solid var(--line); }
   .season-fixture-details { grid-column: auto; }
 }
+
+/* Published scorers under a completed fixture */
+.season-fixture-scorers { display: grid; gap: 5px; margin-top: 6px; padding-top: 10px; border-top: 1px dashed var(--line); color: var(--muted); font-size: 12px; line-height: 1.45; }
+.season-scorers::before { content: '⚽ '; }
+.season-scorers.is-calblue { color: var(--navy); font-weight: 600; }
+.season-fixture-scorers small { color: var(--muted); font-size: 11px; font-style: italic; }
+

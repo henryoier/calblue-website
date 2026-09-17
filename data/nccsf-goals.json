@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "source": "https://nccsf.org/en/league/game?a=ajaxGoalList&lid=36",
+  "note": "Published NCCSF scorers by game id, accumulated across weeks so earlier games keep their scorers if the league endpoint only lists the current week. Refreshed by scripts/sync_nccsf.py.",
+  "checkedAt": "2026-09-16T17:30:39-07:00",
+  "games": {
+    "3388": [
+      {
+        "player": "Suhau Kuo",
+        "playerId": 1137,
+        "team": "CalBlue",
+        "teamId": 621,
+        "week": "<a href=\"game?a=editGameForm&gid=3388&id=1669&tab=goals\">Week01</a>",
+        "highlight": false
+      },
+      {
+        "player": "Chenge Yang",
+        "playerId": 2544,
+        "team": "CalBlue",
+        "teamId": 621,
+        "week": "<a href=\"game?a=editGameForm&gid=3388&id=1670&tab=goals\">Week01</a>",
+        "highlight": false
+      },
+      {
+        "player": "Bennett Lee",
+        "playerId": 22087,
+        "team": "CalBlue",
+        "teamId": 621,
+        "week": "<a href=\"game?a=editGameForm&gid=3388&id=1671&tab=goals\">Week01</a>",
+        "highlight": false
+      },
+      {
+        "player": "William Peng",
+        "playerId": 22495,
+        "team": "CalBlue",
+        "teamId": 621,
+        "week": "<a href=\"game?a=editGameForm&gid=3388&id=1672&tab=goals\">Week01</a>",
+        "highlight": false
+      },
+      {
+        "player": "William Peng",
+        "playerId": 22495,
+        "team": "CalBlue",
+        "teamId": 621,
+        "week": "<a href=\"game?a=editGameForm&gid=3388&id=1673&tab=goals\">Week01</a>",
+        "highlight": false
+      },
+      {
+        "player": "William Peng",
+        "playerId": 22495,
+        "team": "CalBlue",
+        "teamId": 621,
+        "week": "<a href=\"game?a=editGameForm&gid=3388&id=1674&tab=goals\">Week01</a>",
+        "highlight": false
+      }
+    ],
+    "3389": [
+      {
+        "player": "Donglin Pu",
+        "playerId": 2617,
+        "team": "GSF-Locomotive",
+        "teamId": 624,
+        "week": "<a href=\"game?a=editGameForm&gid=3389&id=1676&tab=goals\">Week01</a>",
+        "highlight": false
+      },
+      {
+        "player": "Donglin Pu",
+        "playerId": 2617,
+        "team": "GSF-Locomotive",
+        "teamId": 624,
+        "week": "<a href=\"game?a=editGameForm&gid=3389&id=1677&tab=goals\">Week01</a>",
+        "highlight": false
+      },
+      {
+        "player": "Tingzhao Huang",
+        "playerId": 2749,
+        "team": "GSF-Locomotive",
+        "teamId": 624,
+        "week": "<a href=\"game?a=editGameForm&gid=3389&id=1679&tab=goals\">Week01</a>",
+        "highlight": false
+      },
+      {
+        "player": "Shijia Sun",
+        "playerId": 22496,
+        "team": "GSF-Locomotive",
+        "teamId": 624,
+        "week": "<a href=\"game?a=editGameForm&gid=3389&id=1678&tab=goals\">Week01</a>",
+        "highlight": false
+      }
+    ],
+    "3391": [
+      {
+        "player": "Rusen Yan",
+        "playerId": 1787,
+        "team": "PP United",
+        "teamId": 632,
+        "week": "<a href=\"game?a=editGameForm&gid=3391&id=1675&tab=goals\">Week01</a>",
+        "highlight": false
+      }
+    ],
+    "3393": [
+      {
+        "player": "Tianyu Liu",
+        "playerId": 2521,
+        "team": "Deep Shoreline",
+        "teamId": 631,
+        "week": "<a href=\"game?a=editGameForm&gid=3393&id=1667&tab=goals\">Week01</a>",
+        "highlight": false
+      },
+      {
+        "player": "Lei Xu",
+        "playerId": 2688,
+        "team": "Deep Shoreline",
+        "teamId": 631,
+        "week": "<a href=\"game?a=editGameForm&gid=3393&id=1668&tab=goals\">Week01</a>",
+        "highlight": false
+      }
+    ]
+  }
+}
