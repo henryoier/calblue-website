@@ -21,12 +21,27 @@
     link.href = item.href;
     if (item.external) { link.target = '_blank'; link.rel = 'noopener'; }
     const figure = document.createElement('figure');
-    const image = document.createElement('img');
-    image.src = item.image;
-    image.alt = item.imageAlt || item.title;
-    image.loading = 'lazy';
-    image.decoding = 'async';
-    figure.append(image);
+    if (Array.isArray(item.players) && item.players.length) {
+      // Squad cards: every new player's portrait, not just one image.
+      figure.className = `news-portraits has-${Math.min(item.players.length, 6)}`;
+      item.players.forEach((player) => {
+        const portrait = document.createElement('img');
+        portrait.src = player.photo || 'assets/calblue-logo-web.jpg';
+        portrait.alt = player.name;
+        portrait.title = player.name;
+        portrait.loading = 'lazy';
+        portrait.decoding = 'async';
+        portrait.addEventListener('error', () => { portrait.src = 'assets/calblue-logo-web.jpg'; }, { once: true });
+        figure.append(portrait);
+      });
+    } else {
+      const image = document.createElement('img');
+      image.src = item.image;
+      image.alt = item.imageAlt || item.title;
+      image.loading = 'lazy';
+      image.decoding = 'async';
+      figure.append(image);
+    }
     const copy = document.createElement('div');
     copy.className = 'news-card-copy';
     const meta = document.createElement('p');

@@ -142,6 +142,7 @@ class BuildNewsTests(unittest.TestCase):
         swpl = squad[0]
         self.assertEqual(swpl["summary"], "Welcome Kevin Yu and Zheng Chang, now registered for the SWPL Pacific Premier League.")
         self.assertEqual(swpl["image"], "https://x/zc.jpg", "a new player's photo fronts the card when one exists")
+        self.assertEqual([(p["name"], p["photo"]) for p in swpl["players"]], [("Kevin Yu", "assets/calblue-logo-web.jpg"), ("Zheng Chang", "https://x/zc.jpg")], "every new player is listed with a portrait, club crest when none is published")
         self.assertEqual(swpl["href"], "competition-swpl.html#roster")
         self.assertNotIn("Sheng Qin", json.dumps(squad), "the seeded season squad is never announced as new")
 

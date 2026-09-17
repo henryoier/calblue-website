@@ -518,3 +518,11 @@ footer { padding: 72px 0 24px; color: white; background: #04112a; }
   .news-heading { flex-direction: column; align-items: flex-start; gap: 16px; }
   .news-grid { grid-template-columns: 1fr; }
 }
+
+/* Squad cards: a row of new-player portraits */
+.news-card .news-portraits { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 26px 20px; background: linear-gradient(135deg, var(--navy), var(--navy-soft)); aspect-ratio: 16 / 10; }
+.news-card .news-portraits img { width: 34%; max-width: 150px; aspect-ratio: 1; height: auto; border-radius: 50%; border: 3px solid var(--cyan); object-fit: cover; object-position: center top; background: white; box-shadow: 0 10px 26px rgba(0,0,0,.35); transform: none; }
+.news-card .news-portraits.has-3 img { width: 27%; }
+.news-card .news-portraits.has-4 img, .news-card .news-portraits.has-5 img, .news-card .news-portraits.has-6 img { width: 21%; }
+.news-card .news-portraits.has-5, .news-card .news-portraits.has-6 { flex-wrap: wrap; }
+.news-card:hover .news-portraits img { transform: translateY(-3px); }

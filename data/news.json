@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-16T17:46:31-07:00",
+  "generatedAt": "2026-09-16T17:50:32-07:00",
   "today": "2026-09-16",
   "items": [
     {
@@ -28,8 +28,16 @@
       "href": "competition-swpl.html#roster",
       "cta": "Meet the squad",
       "players": [
-        "Mingxuan Zhao",
-        "Zheng Chang"
+        {
+          "name": "Mingxuan Zhao",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16290/securefiles/1789108698_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/mingxuan--zhao"
+        },
+        {
+          "name": "Zheng Chang",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16392/securefiles/1789582833_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/zheng-chang"
+        }
       ]
     },
     {
@@ -44,8 +52,16 @@
       "href": "competition-nccsf.html#roster",
       "cta": "Meet the squad",
       "players": [
-        "Jincheng Zhao",
-        "Lu Fang"
+        {
+          "name": "Jincheng Zhao",
+          "photo": "https://nccsf.org/en/img/player/photo/222/thumb-22210.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22210"
+        },
+        {
+          "name": "Lu Fang",
+          "photo": "https://nccsf.org/en/img/player/photo/12/thumb-1221.jpg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1221"
+        }
       ]
     },
     {

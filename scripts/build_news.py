@@ -246,7 +246,7 @@ def squad_items(history: dict | None) -> list[dict]:
                 "imageAlt": f"{names[0]}, newly registered with CalBlue FC" if names else "CalBlue FC",
                 "href": LEAGUE_PAGE.get(league, "players.html"),
                 "cta": "Meet the squad",
-                "players": names,
+                "players": [{"name": p["name"], "photo": p.get("photo") or "assets/calblue-logo-web.jpg", "profile": p.get("profile") or ""} for p in players],
             }
         )
     return items

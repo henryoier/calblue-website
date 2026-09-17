@@ -27,6 +27,7 @@ const items = [
   { slug: 'welcome', category: 'Club', date: '2026-09-15', title: 'Welcome', summary: 'Intro.', image: 'a.jpg', href: 'news.html?post=welcome', cta: 'Read more', body: ['One.', 'Two.'] },
   { slug: 'instagram-1', category: 'Instagram', date: '2026-09-14', title: 'Three points!', summary: '', image: 'assets/news/instagram/1.jpg', href: 'https://www.instagram.com/p/1/', external: true, cta: 'View on Instagram' },
   { slug: 'result-2026-09-13-sf-glens', category: 'Result', outcome: 'Win', date: '2026-09-13', title: 'CalBlue 3-2 SF Glens', summary: 'Win · Away', image: 'g.jpg', href: 'gallery-swpl-sf-glens.html', cta: 'See the photos' },
+  { slug: 'squad-2026-09-12-swpl', category: 'Squad', date: '2026-09-12', title: '2 new faces on the SWPL roster', summary: 'Welcome A and B.', image: 'a.jpg', href: 'competition-swpl.html#roster', cta: 'Meet the squad', players: [{ name: 'A Player', photo: 'a.jpg' }, { name: 'B Player', photo: '' }] },
   { slug: 'gallery-2026-09-13-sf-glens', category: 'Gallery', date: '2026-09-13', title: 'Photos: CalBlue vs SF Glens', summary: '99 photos', image: 'g.jpg', href: 'gallery-swpl-sf-glens.html', cta: 'Open the album' },
 ];
 var document; var fetch; var location = { search: '' };
@@ -65,12 +66,15 @@ assert(insta.target === '_blank' && insta.rel === 'noopener', 'External items op
 // 2. Result outcome shows in the tag.
 ({ feed } = run({}));
 cards = feed.querySelector('[data-news-grid]').children;
-assert(cards.length === 5, 'News page shows every item without a limit');
+assert(cards.length === 6, 'News page shows every item without a limit');
+const squadFigure = cards[4].children[0].children[0];
+assert(squadFigure.className === 'news-portraits has-2' && squadFigure.children.length === 2, 'Squad cards show one portrait per new player');
+assert(squadFigure.children[0].alt === 'A Player' && squadFigure.children[1].src === 'assets/calblue-logo-web.jpg', 'Portraits are labelled and fall back to the club crest');
 assert(cards[3].children[0].children[1].children[0].children[0].textContent === 'Result · Win', 'Result tag includes the outcome');
 
 // 3. Filters: buttons per category; clicking one filters the grid.
 const bar = feed.querySelector('[data-news-filters]');
-assert(bar.children.map(b => b.textContent).join('|') === 'All|Match day|Club|Instagram|Result|Gallery', 'Filter bar lists All plus each category once');
+assert(bar.children.map(b => b.textContent).join('|') === 'All|Match day|Club|Instagram|Result|Squad|Gallery', 'Filter bar lists All plus each category once');
 bar.children[4].click();
 assert(feed.querySelector('[data-news-grid]').children.length === 1, 'Filtering by Result shows one card');
 assert(bar.children[4].getAttribute('aria-pressed') === 'true' && bar.children[0].getAttribute('aria-pressed') === 'false', 'Pressed state follows the active filter');
