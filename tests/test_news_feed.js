@@ -15,7 +15,21 @@ class Element {
   }
   append(...children) { this.children.push(...children); }
   replaceChildren(...children) { this.children = children; }
-  querySelector(selector) { return this.nodes[selector] || (this.nodes[selector] = new Element()); }
+  querySelector(selector) {
+    if (!this.nodes[selector]) {
+      const node = new Element();
+      if (selector === '[data-news-filters]') {
+        // Browsers expose element.children as a live HTMLCollection: iterable and indexable, but without forEach/map.
+        let items = [];
+        Object.defineProperty(node, 'children', {
+          get: () => ({ length: items.length, [Symbol.iterator]: () => items[Symbol.iterator](), ...Object.fromEntries(items.map((item, index) => [index, item])) }),
+          set: (value) => { items = value; },
+        });
+      }
+      this.nodes[selector] = node;
+    }
+    return this.nodes[selector];
+  }
   setAttribute(name, value) { this.attributes[name] = value; }
   getAttribute(name) { return this.attributes[name]; }
   addEventListener(type, fn) { this.listeners[type] = fn; }
@@ -79,7 +93,7 @@ assert(clubFigure.className === 'news-generic', 'Cards with no image at all get 
 
 // 3. Filters: buttons per category; clicking one filters the grid.
 const bar = feed.querySelector('[data-news-filters]');
-assert(bar.children.map(b => b.textContent).join('|') === 'All|Match day|Club|Instagram|Result|Squad|Gallery', 'Filter bar lists All plus each category once');
+assert([...bar.children].map(b => b.textContent).join('|') === 'All|Match day|Club|Instagram|Result|Squad|Gallery', 'Filter bar lists All plus each category once');
 bar.children[4].click();
 assert(feed.querySelector('[data-news-grid]').children.length === 1, 'Filtering by Result shows one card');
 assert(bar.children[4].getAttribute('aria-pressed') === 'true' && bar.children[0].getAttribute('aria-pressed') === 'false', 'Pressed state follows the active filter');
