@@ -60,7 +60,7 @@ var t = {
 
 def strip_modules(source):
     """JavaScriptCore has no module loader: drop import lines and the `export ` keyword."""
-    source = re.sub(r"^\s*import[^;]*;\s*$", "", source, flags=re.MULTILINE)
+    source = re.sub(r"^\s*import\s+[^;]*;\s*$", "", source, flags=re.MULTILINE)
     source = re.sub(r"^export\s+", "", source, flags=re.MULTILINE)
     return source
 

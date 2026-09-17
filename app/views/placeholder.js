@@ -6,7 +6,7 @@ export function placeholderView(mainEl, { eyebrow, title, description, issue }) 
       <p class="app-eyebrow">${eyebrow}</p>
       <h1>${title}</h1>
       <p>${description}</p>
-      <p class="app-muted">This route is reserved for issue #${issue} and can now land without changing the app shell.</p>
+      <p class="app-muted">Not available yet. This is a placeholder for issue #${issue}; it does not read or change these records.</p>
     </section>
   `);
 }

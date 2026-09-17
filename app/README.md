@@ -1,11 +1,14 @@
 # CalBlue app
 
-The future member app: accounts, identities, game registration, check-in and billing. The public
-pages stay in the repository root. Issues #23–#24 provide the skeleton, rendering helpers, public
-configuration contract and credential checks—not working sign-in or member features. The entry
-page is still a placeholder and does not load `config.js` or connect to a backend. All frontend
-files are public; Supabase Auth and row-level security must protect private data when those
-features are implemented.
+Issue #29 / PR #83 adds the member **app shell**: hash routing, session-aware navigation, shared
+loading/error states and mobile layout. The public website stays unchanged in the repository root.
+The shell can restore an existing Supabase session and load its own profile; sign-in, registration,
+check-in and billing screens are not implemented here. Their routes explicitly show placeholders.
+All frontend files are public; Supabase Auth and row-level security protect backend data.
+
+See the [app-shell review and test guide](app-shell.md) for exactly what works, what is deferred,
+the route/role matrix and the browser checks required before merge. No database migration or seed
+needs to be rerun for this PR. The seed's synthetic Auth rows are not browser-login accounts.
 
 ## The one rule
 
@@ -16,8 +19,8 @@ reasoning and for the conditions under which we would revisit it.
 Practically that means:
 
 - Plain ES modules, imported by relative path with an explicit `.js` extension.
-- The planned external dependency is Supabase **2.45.4**, loaded from
-  `https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm` in issue #29. Keep its version in
+- The only direct external dependency is Supabase **2.45.4**, loaded from
+  `https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm`. Keep its version in
   one configuration constant and review upgrades; an exact version does not remove CDN risk.
 - Use `textContent`/DOM methods or the `html` helper in `js/dom.js`, not ad-hoc `innerHTML`.
   Interpolate only text or values inside quoted ordinary attributes. The helper does not sanitize
@@ -33,6 +36,10 @@ python3 -m http.server 8080 --bind 127.0.0.1     # from the repository root
 
 Then open `http://localhost:8080/app/`.
 
+Hash URLs such as `/app/#/games` work without server rewrites. A missing or malformed route
+renders a 404 screen. `/app/tests/` runs browser tests with injected SDK/session doubles and no
+real Auth, email, profile or database requests.
+
 There is no watch mode and nothing to compile. Edit a file, reload the page.
 
 Do not store real secrets anywhere under this directory or the repository root: the preview
@@ -44,16 +51,32 @@ the document root, including during local development.
 
 ```text
 app/
-  index.html        Placeholder entry point; no authentication yet
-  config.js         Real public URL/publishable key; no client loads them yet
+  index.html        Single no-build entry point and accessible landmarks
+  config.js         Existing public URL/key plus exact SDK version
+  css/app.css       Mobile app styles using public-site design variables
   js/
+    app.js          Composition, route definitions and startup/retry lifecycle
     dom.js          Escaping template helper
-  tests/            Pure-logic suites and browser DOM checks
+    router.js       Hash routing, access checks, abort/cleanup and focus
+    session.js      Session/JWT state and profile lifecycle
+    supabase.js     Pinned, memoized SDK/client loader
+    layout.js       Shared chrome, navigation and states
+  views/            Home, sign-in placeholder, feature placeholders and 404
+  tests/            Logic, async-session and browser integration checks
 ```
 
-Issue #24 adds `config.js` and secret scanning. Issue #29 will add the client loader, router,
-session state and `views/`; issue #30 implements authentication. Production app-origin
-configuration remains separate from this local `/app/` preview; see DESIGN.md §2.
+Issue #30 will implement magic-link sign-in. URL callback detection/exchange is deliberately
+disabled until that workflow is tested; this shell does not consume login callback URLs.
+Production app-origin hosting remains separate from this local `/app/` preview; see DESIGN.md §2.
+
+UI roles are decoded from the current access token, not mutable `user_metadata`, cached profile
+roles or a newer `session.user.app_metadata` snapshot. Decoding is not signature verification;
+Supabase and RLS remain authoritative. Exact role names match migration 0003. The operational
+admin routes are admin-only; developer/treasurer/scoped roles do not confer global admin access.
+
+Views receive `(params, query, { signal, isCurrent })` and may return a cleanup function. Fetch
+with the signal and check `isCurrent()` before delayed DOM writes. Navigation, access changes
+and teardown abort/dispose previous work; a router cannot undo arbitrary stale writes by a view.
 
 ## Checks
 
@@ -61,6 +84,7 @@ configuration remains separate from this local `/app/` preview; see DESIGN.md §
 python3 scripts/check_no_build.py
 python3 scripts/check_secrets.py
 python3 scripts/run_js_tests.py
+osascript -l JavaScript scripts/run_session_tests.jxa.js  # macOS, existing JavaScriptCore
 python3 -m unittest discover -s tests -v
 python3 scripts/check_site.py
 ```
@@ -68,7 +92,9 @@ python3 scripts/check_site.py
 Run these from the repository root. The JavaScript logic runner uses an existing Node executable
 or macOS `osascript`; no package installation is needed. For the separate DOM tests, serve the
 repository and open `http://localhost:8080/app/tests/`. Passing logic tests alone does not verify
-browser parsing or module loading.
+browser parsing or module loading. The separate macOS async diagnostic runs SDK/session doubles
+in JavaScriptCore, not a browser. The site check validates local module references and reachability,
+not JavaScript exports, execution, CDN availability or database authorization.
 
 The secret scanner is also called by `scripts/check_site.py` and runs explicitly in CI before
 the site is published. Its regression tests run in the normal Python suite; they can also be
@@ -113,8 +139,8 @@ This verifies public endpoint/key acceptance and those reported settings, not em
 an end-to-end magic-link round trip, database migrations or RLS. Site URL, redirect allow-list,
 SMTP and organization ownership are not exposed by this endpoint. On **2026-09-16**, the user
 confirmed the dashboard Site URL and exact redirect allow-list documented below. That completes
-the configuration work for issue #24; the app page itself remains a placeholder and does not
-initialize a client yet.
+the configuration work for issue #24. The app shell now initializes the client; real login/email
+testing and production hosting remain separate work.
 
 For administrator review or a future project replacement:
 
@@ -123,7 +149,7 @@ For administrator review or a future project replacement:
 2. Record the project URL and **public publishable or legacy anon key** in `app/config.js`.
    Keep the existing `SUPABASE_ANON_KEY` export name. Do not paste a service-role key, secret key
    or database password there. Run the secret checks before committing. The public config must
-   contain only these two values at this stage; version/loader wiring follows in issue #29.
+   contain only public browser settings; the SDK version is pinned separately in the same file.
 3. In Supabase Authentication settings, enable the Email provider and email confirmations;
    confirm email magic-link sign-in is available. End-to-end sign-in testing waits for issue #30.
 4. Use the planned production Site URL **`https://app.calbluefc.com/`**, matching DESIGN.md §2.
@@ -131,9 +157,9 @@ For administrator review or a future project replacement:
    `http://localhost:8080/app/` and `http://localhost:8091/app/` for these local previews.
    Avoid broad wildcard redirects. The production app origin is a plan, not a deployment made
    by this PR; do not launch private member features until it is correctly hosted and tested.
-5. Do not expect database tables or policies yet. Migrations and RLS are separate issues
-   #25–#28. Once those land, apply and verify them in order before storing real member data.
-   Public keys never replace database permissions or RLS.
+5. Migrations and RLS from issues #25–#27 and the disposable seed from #28 have owner-reported
+   scratch verification. This does not certify the production project; review its actual policies
+   before live member use. Do not reapply released migrations or put demo seed data in production.
 6. Keep any future scheduled-job service credential only in the job runner secret store.
    For local server-side jobs, use a protected credential file **outside all served directories**
    or the runner secret store. `.env.example` lists variable names only; no server-side job or
@@ -148,5 +174,5 @@ For administrator review or a future project replacement:
 - [x] Email provider, signup availability and email-confirmation requirement verified through public settings.
 - [x] Site URL and exact redirect allow-list configured and confirmed by the user on 2026-09-16.
 
-PR #78 can resolve issue #24 when merged. Actual client initialization is verified in issue #29,
-and email delivery/callback testing in #30; this setup confirmation does not replace those tests.
+PR #78 is merged and issue #24 is closed. Client initialization is reviewed in issue #29,
+and email delivery/callback testing in #30; setup confirmation does not replace those tests.

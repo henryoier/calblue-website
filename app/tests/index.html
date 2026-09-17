@@ -26,14 +26,21 @@
   <p class="hint">These browser checks include DOM parsing and native module loading. The page title reports PASS or FAIL for headless drivers.</p>
   <div id="out">running…</div>
   <script type="module">
-    import { report } from "./runner.js";
-    await import("./dom.test.js");
-    await import("./router.test.js");
-    await import("./session.test.js");
-    await import("./session.live.test.js");
-    await import("./layout.test.js");
-    await import("./supabase.test.js");
-    await report(document.getElementById("out"));
+    try {
+      const { report } = await import("./runner.js");
+      await import("./dom.test.js");
+      await import("./router.test.js");
+      await import("./session.test.js");
+      await import("./session.live.test.js");
+      await import("./layout.test.js");
+      await import("./supabase.test.js");
+      await import("./app.test.js");
+      await report(document.getElementById("out"));
+    } catch (error) {
+      document.title = "FAIL — test modules could not load";
+      document.getElementById("out").textContent = "FAIL: " + error.message;
+      window.__testResults = { total: 0, failed: 1, moduleLoadFailed: true };
+    }
   </script>
 </body>
 </html>

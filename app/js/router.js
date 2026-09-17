@@ -16,8 +16,20 @@ export function parseHash(hash) {
   const queryStart = raw.indexOf("?");
   const rawPath = (queryStart === -1 ? raw : raw.slice(0, queryStart)) || "/";
   const queryString = queryStart === -1 ? "" : raw.slice(queryStart + 1);
-  const segments = rawPath.split("/").filter(Boolean).map(safeDecode);
-  const query = {};
+  const rawSegments = rawPath === "/" ? [] : rawPath.replace(/\/$/, "").slice(1).split("/");
+  let valid = rawPath.startsWith("/") && !rawPath.includes("\\");
+  const decode = (value) => {
+    try {
+      return decodeURIComponent(value);
+    } catch (_) {
+      valid = false;
+      return value;
+    }
+  };
+  const segments = rawSegments.map(decode);
+  if (segments.some((segment) => !segment || segment === "." || segment === ".."
+      || /[\u0000-\u001f\u007f\\]/.test(segment))) valid = false;
+  const query = Object.create(null);
 
   for (const pair of queryString.split("&")) {
     if (!pair) continue;
@@ -25,25 +37,37 @@ export function parseHash(hash) {
     const rawKey = equals === -1 ? pair : pair.slice(0, equals);
     const rawValue = equals === -1 ? "" : pair.slice(equals + 1);
     if (!rawKey) continue;
-    const key = safeDecode(rawKey.replace(/\+/g, " "));
-    query[key] = safeDecode(rawValue.replace(/\+/g, " "));
+    const key = decode(rawKey.replace(/\+/g, " "));
+    query[key] = decode(rawValue.replace(/\+/g, " "));
   }
 
-  return { path: "/" + segments.join("/"), segments, query };
+  let path = rawPath;
+  try {
+    // An encoded slash remains one parameter, not a second path segment.
+    path = "/" + segments.map((segment) => encodeURIComponent(segment)).join("/");
+  } catch (_) {
+    valid = false;
+  }
+  return { path, segments, query, valid };
 }
 
 export function matchRoute(routes, hash) {
-  const { segments, query } = parseHash(hash);
+  const { segments, query, valid } = parseHash(hash);
+  if (!valid || !Array.isArray(routes)) return null;
   for (const route of routes) {
-    if (route.pattern === "*") continue;
+    if (!route || typeof route.pattern !== "string" || route.pattern === "*") continue;
     const patternSegments = route.pattern.split("/").filter(Boolean);
     if (patternSegments.length !== segments.length) continue;
-    const params = {};
+    const params = Object.create(null);
     let matches = true;
 
     for (let index = 0; index < patternSegments.length; index += 1) {
       const expected = patternSegments[index];
       if (expected.startsWith(":")) {
+        if (!/^:[A-Za-z_][A-Za-z0-9_]*$/.test(expected)) {
+          matches = false;
+          break;
+        }
         params[expected.slice(1)] = segments[index];
       } else if (expected !== segments[index]) {
         matches = false;
@@ -57,23 +81,42 @@ export function matchRoute(routes, hash) {
 }
 
 export function buildHash(pattern, params = {}, query = {}) {
-  let path = pattern;
-  for (const [key, value] of Object.entries(params)) {
-    path = path.replace(`:${key}`, encodeURIComponent(value));
+  if (typeof pattern !== "string" || /[?#\\\u0000-\u001f\u007f]/.test(pattern)) {
+    throw new TypeError("Route patterns must be paths without query strings or fragments.");
   }
+  const parts = pattern.replace(/^\//, "").replace(/\/$/, "");
+  const path = "/" + (parts ? parts.split("/").map((segment) => {
+    if (!segment || segment === "." || segment === "..") throw new TypeError("Invalid route path segment.");
+    if (!segment.startsWith(":")) return encodeURIComponent(segment);
+    const name = segment.slice(1);
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)
+        || params == null || !Object.prototype.hasOwnProperty.call(params, name)
+        || params[name] == null || String(params[name]) === "") {
+      throw new TypeError(`Missing or invalid route parameter: ${name}`);
+    }
+    const value = String(params[name]);
+    if (value === "." || value === ".." || /[\u0000-\u001f\u007f\\]/.test(value)) {
+      throw new TypeError(`Invalid route parameter: ${name}`);
+    }
+    return encodeURIComponent(value);
+  }).join("/") : "");
   const queryString = Object.entries(query)
     .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
     .join("&");
-  return `#${path.startsWith("/") ? path : "/" + path}${queryString ? "?" + queryString : ""}`;
+  return `#${path}${queryString ? "?" + queryString : ""}`;
 }
 
 export function routeAllowed(route, access = {}) {
-  const authenticated = Boolean(access.authenticated);
+  if (!route || typeof route !== "object") return false;
+  const authenticated = access?.authenticated === true;
   if (route.auth && !authenticated) return false;
-  if (!route.roles || route.roles.length === 0) return true;
+  if (route.roles == null) return true;
+  if (!Array.isArray(route.roles) || route.roles.some((role) => typeof role !== "string" || !role)) return false;
+  if (route.roles.length === 0) return true;
   if (!authenticated) return false;
-  const roles = new Set((access.roles || []).map((role) => String(role).toLowerCase()));
-  return route.roles.some((role) => roles.has(String(role).toLowerCase()));
+  const roles = new Set(Array.isArray(access.roles)
+    && access.roles.every((role) => typeof role === "string") ? access.roles : []);
+  return route.roles.some((role) => roles.has(role));
 }
 
 export function navigate(pattern, params, query) {
@@ -88,63 +131,118 @@ export function createRouter({
   onLoading,
   onError,
   onUnauthorized,
-}) {
-  const notFound = routes.find((route) => route.pattern === "*") || null;
+} = {}) {
+  if (!Array.isArray(routes)) throw new TypeError("Router routes must be an array.");
+  const notFound = routes.find((route) => route?.pattern === "*") || null;
   let renderGeneration = 0;
   let activeController = null;
+  let activeCleanup = null;
+  let destroyed = false;
+
+  function dispose(cleanup) {
+    if (typeof cleanup !== "function") return;
+    try {
+      // Cleanup releases this view's listeners/resources, not another view's DOM.
+      Promise.resolve(cleanup()).catch((error) => console.error(error));
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  function deactivate() {
+    const controller = activeController;
+    const cleanup = activeCleanup;
+    activeController = null;
+    activeCleanup = null;
+    if (controller) controller.abort();
+    dispose(cleanup);
+  }
+
+  function setBusy(value) {
+    if (typeof mountPoint?.setAttribute === "function") mountPoint.setAttribute("aria-busy", String(value));
+  }
+
+  function keepCleanup(cleanup, context) {
+    if (typeof cleanup !== "function") return;
+    if (context.isCurrent()) activeCleanup = cleanup;
+    else dispose(cleanup);
+  }
 
   async function render() {
+    if (destroyed) return;
     const generation = ++renderGeneration;
-    if (activeController) activeController.abort();
+    deactivate();
+    if (destroyed || generation !== renderGeneration) return;
     const controller = new AbortController();
     activeController = controller;
+    const hash = window.location.hash;
     const routeContext = {
       signal: controller.signal,
-      isCurrent: () => generation === renderGeneration && !controller.signal.aborted,
+      isCurrent: () => !destroyed && generation === renderGeneration
+        && !controller.signal.aborted && window.location.hash === hash,
     };
-    const match = matchRoute(routes, window.location.hash);
-    const target = match || (notFound ? { route: notFound, params: {}, query: {} } : null);
-
-    if (!target) {
-      const error = new Error("No route matched and no 404 route is registered.");
-      if (onError) onError(error);
-      else throw error;
-      return;
-    }
+    const parsed = parseHash(hash);
+    const matched = matchRoute(routes, hash);
+    const target = matched || (notFound ? { route: notFound, params: Object.create(null), query: parsed.query } : null);
+    let settled = false;
 
     try {
-      const path = parseHash(window.location.hash).path;
-      if (onRouteChange) onRouteChange({ ...target, path });
+      if (!target) throw new Error("No route matched and no 404 route is registered.");
+      if (onRouteChange) onRouteChange({ ...target, path: parsed.path }, routeContext);
+      if (!routeContext.isCurrent()) return;
       if (target.route.title) document.title = `${target.route.title} — CalBlue members`;
-      if (onLoading) onLoading(target);
+      setBusy(true);
+      if (onLoading) onLoading(target, routeContext);
+      if (!routeContext.isCurrent()) return;
 
       const access = getAccess() || {};
       if (!routeAllowed(target.route, access)) {
         if (onUnauthorized) {
-          await onUnauthorized(target, access, routeContext);
-          return;
+          keepCleanup(await onUnauthorized(target, access, routeContext), routeContext);
+          settled = true;
+        } else {
+          throw new Error("You do not have access to this screen.");
         }
-        throw new Error("You do not have access to this screen.");
+      } else {
+        if (!routeContext.isCurrent()) return;
+        keepCleanup(await target.route.view(target.params, target.query, routeContext), routeContext);
+        settled = true;
       }
-      await target.route.view(target.params, target.query, routeContext);
-      if (!routeContext.isCurrent()) return;
-      if (typeof mountPoint.focus === "function") mountPoint.focus({ preventScroll: true });
     } catch (error) {
-      if (!routeContext.isCurrent() || error?.name === "AbortError") return;
+      // Only cancellation of this route is silent. An unrelated AbortError from
+      // the current view still needs a visible error state instead of a spinner.
+      if (!routeContext.isCurrent()) return;
       console.error(error);
-      if (onError) onError(error);
+      if (onError) {
+        keepCleanup(await onError(error, routeContext), routeContext);
+        settled = true;
+      }
       else throw error;
+    } finally {
+      if (routeContext.isCurrent()) {
+        setBusy(false);
+        if (settled && typeof mountPoint?.focus === "function" && mountPoint.isConnected !== false) {
+          mountPoint.focus({ preventScroll: true });
+        }
+      }
     }
   }
 
-  window.addEventListener("hashchange", render);
+  // DOM event dispatch does not observe an async listener's rejected promise.
+  const onHashChange = () => { render().catch((error) => console.error(error)); };
+  window.addEventListener("hashchange", onHashChange);
   return {
     render,
-    navigate,
+    navigate(...args) {
+      if (!destroyed) navigate(...args);
+    },
     destroy() {
+      if (destroyed) return;
+      destroyed = true;
       renderGeneration += 1;
-      if (activeController) activeController.abort();
-      window.removeEventListener("hashchange", render);
+      deactivate();
+      setBusy(false);
+      window.removeEventListener("hashchange", onHashChange);
     },
   };
 }
