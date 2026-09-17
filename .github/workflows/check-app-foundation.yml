@@ -28,28 +28,3 @@ jobs:
         run: python3 scripts/run_js_tests.py
       - name: Validate the public site
         run: python3 scripts/check_site.py
-
-  # Temporary on this branch: import Instagram posts with the repository secret and hand the
-  # snapshot back as an artifact so it can be committed before the news feed ships.
-  instagram-snapshot:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-    steps:
-      - name: Check out source
-        uses: actions/checkout@v4
-      - name: Import posts
-        env:
-          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
-        run: |
-          test -n "$IG_ACCESS_TOKEN" || { echo "IG_ACCESS_TOKEN secret is not set"; exit 1; }
-          python3 scripts/sync_instagram.py --token "$IG_ACCESS_TOKEN" --limit 12
-          python3 scripts/build_news.py
-      - name: Upload snapshot
-        uses: actions/upload-artifact@v4
-        with:
-          name: instagram-snapshot
-          path: |
-            data/instagram.json
-            data/news.json
-            assets/news/instagram/
-          if-no-files-found: error

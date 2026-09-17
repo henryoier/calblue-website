@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-16T18:55:57-07:00",
-  "today": "2026-09-16",
+  "generatedAt": "2026-09-17T01:18:44-07:00",
+  "today": "2026-09-17",
   "items": [
     {
       "id": "matchday-2026-09-19-bay-area-united",
@@ -15,6 +15,19 @@
       "href": "index.html#matchday",
       "cta": "See the poster",
       "poster": true
+    },
+    {
+      "id": "instagram-17861354964692032",
+      "slug": "instagram-17861354964692032",
+      "category": "Instagram",
+      "date": "2026-09-17",
+      "title": "MATCHDAY 2 READY. ⚔️💙",
+      "summary": "Coming off an electric opening win, we’re back on the pitch this Saturday night to take on Bay Area United. Big test ahead and we’re hungry for another 3 points. Come out, pack the",
+      "image": "assets/news/instagram/17861354964692032.jpg",
+      "imageAlt": "Instagram post by @calbluefc: MATCHDAY 2 READY. ⚔️💙",
+      "href": "https://www.instagram.com/p/DdYFCRVvBw0/",
+      "external": true,
+      "cta": "View on Instagram"
     },
     {
       "id": "squad-2026-09-16-swpl",
@@ -63,6 +76,32 @@
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1221"
         }
       ]
+    },
+    {
+      "id": "instagram-18110066171521550",
+      "slug": "instagram-18110066171521550",
+      "category": "Instagram",
+      "date": "2026-09-15",
+      "title": "MAN OF THE MATCH: Ray Zhang @zhangrui_29 🌟⚡️",
+      "summary": "2 goals. 1 assist. Directly involved in every single goal of our 3-2 debut thriller. From the first whistle to the 90th minute, relentless pressing, off-the-ball running, and const",
+      "image": "assets/news/instagram/18110066171521550.jpg",
+      "imageAlt": "Instagram post by @calbluefc: MAN OF THE MATCH: Ray Zhang @zhangrui_29 🌟⚡️",
+      "href": "https://www.instagram.com/p/DdS0C0zmyg9/",
+      "external": true,
+      "cta": "View on Instagram"
+    },
+    {
+      "id": "instagram-17944369857305152",
+      "slug": "instagram-17944369857305152",
+      "category": "Instagram",
+      "date": "2026-09-15",
+      "title": "WHAT A DEBUT! 💙",
+      "summary": "A 3-2 thriller for our first-ever SWPL match at semi-pro level, and we took all 3 points the hard way! Down 0-1 early, we fought back to level it, took the lead 2-1, absorbed the p",
+      "image": "assets/news/instagram/17944369857305152.jpg",
+      "imageAlt": "Instagram post by @calbluefc: WHAT A DEBUT! 💙",
+      "href": "https://www.instagram.com/p/DdSlYdImvoO/",
+      "external": true,
+      "cta": "View on Instagram"
     },
     {
       "id": "result-2026-09-13-sf-glens",
@@ -129,6 +168,19 @@
       },
       "href": "competition-nccsf.html",
       "cta": "Full results and table"
+    },
+    {
+      "id": "instagram-18071859719541266",
+      "slug": "instagram-18071859719541266",
+      "category": "Instagram",
+      "date": "2026-09-11",
+      "title": "⚽ ⚽ New Season, New Chapter 💙💛",
+      "summary": "Bay Area powerhouse and Northern California Chinese Soccer League champions CalBlue FC are set to become the first all Chinese-American team to break into America‘s top semi-profes",
+      "image": "assets/news/instagram/18071859719541266.jpg",
+      "imageAlt": "Instagram post by @calbluefc: ⚽ ⚽ New Season, New Chapter 💙💛",
+      "href": "https://www.instagram.com/p/DdIqGOSPHQu/",
+      "external": true,
+      "cta": "View on Instagram"
     },
     {
       "id": "gallery-2026-09-06-los-angeles-kirin",
@@ -227,6 +279,19 @@
       "cta": "Open the album"
     },
     {
+      "id": "instagram-18102920515805297",
+      "slug": "instagram-18102920515805297",
+      "category": "Instagram",
+      "date": "2026-05-17",
+      "title": "As the Captain said, We are winning this game!👊",
+      "summary": "Locked in from the first whistle.   Captain’s words set the tone.  @bennettleee wins the penalty.  @duan_wilson steps up and buries it.  @bennettleee finds @duan_wilson again for t",
+      "image": "assets/news/instagram/18102920515805297.jpg",
+      "imageAlt": "Instagram post by @calbluefc: As the Captain said, We are winning this game!👊",
+      "href": "https://www.instagram.com/p/DYbecmzlQCr/",
+      "external": true,
+      "cta": "View on Instagram"
+    },
+    {
       "id": "gallery-2026-05-16-sfu",
       "slug": "gallery-2026-05-16-sfu",
       "category": "Gallery",
@@ -273,6 +338,97 @@
       "imageAlt": "CalBlue team before the UPSL California Cup match against Athletico San Jose",
       "href": "gallery-upsl-athletico.html",
       "cta": "Open the album"
+    },
+    {
+      "id": "instagram-18041526605274348",
+      "slug": "instagram-18041526605274348",
+      "category": "Instagram",
+      "date": "2025-05-28",
+      "title": "2025 NCCSF Cup champions—this is our journey, written in goals, grit, and glory. 🏆💙",
+      "summary": "https://youtu.be/c4cY6HKJKfQ  #JourneyToChampionship #TeamCALBLUE #NCCSFChampions #ForeverYoung #ox9lanzhouhandpullednoodles",
+      "image": "assets/news/instagram/18041526605274348.jpg",
+      "imageAlt": "Instagram post by @calbluefc: 2025 NCCSF Cup champions—this is our journey, written in goals, grit, and glory. 🏆💙",
+      "href": "https://www.instagram.com/p/DKM16yERhSp/",
+      "external": true,
+      "cta": "View on Instagram"
+    },
+    {
+      "id": "instagram-17931776001046472",
+      "slug": "instagram-17931776001046472",
+      "category": "Instagram",
+      "date": "2025-05-27",
+      "title": "The ONLY Goal in the final -> 1:0 against SV Tiger @andyduranttt @justin.wang14",
+      "summary": "",
+      "image": "assets/news/instagram/17931776001046472.jpg",
+      "imageAlt": "Instagram post by @calbluefc: The ONLY Goal in the final -> 1:0 against SV Tiger @andyduranttt @justin.wang14",
+      "href": "https://www.instagram.com/reel/DKI_UqIpmno/",
+      "external": true,
+      "cta": "View on Instagram"
+    },
+    {
+      "id": "instagram-18064885346122896",
+      "slug": "instagram-18064885346122896",
+      "category": "Instagram",
+      "date": "2025-05-26",
+      "title": "CHAMPIONS AGAIN 🏆⚽️",
+      "summary": "2022: We held the trophy. 2023: Up 3-1 in the semis… then lost 3-5. 2024: Didn’t even make the top 4. 2025: We fought back. We rose. We WON. Every setback fueled the fire. This one",
+      "image": "assets/news/instagram/18064885346122896.jpg",
+      "imageAlt": "Instagram post by @calbluefc: CHAMPIONS AGAIN 🏆⚽️",
+      "href": "https://www.instagram.com/reel/DKGyaRoxXS1/",
+      "external": true,
+      "cta": "View on Instagram"
+    },
+    {
+      "id": "instagram-18462120712075621",
+      "slug": "instagram-18462120712075621",
+      "category": "Instagram",
+      "date": "2025-05-19",
+      "title": "We had a point to prove—and we’ve proved it today as a team. 3:0 versus EBU fc #redemption",
+      "summary": "",
+      "image": "assets/news/instagram/18462120712075621.jpg",
+      "imageAlt": "Instagram post by @calbluefc: We had a point to prove—and we’ve proved it today as a team. 3:0 versus EBU fc #redemption",
+      "href": "https://www.instagram.com/reel/DJ1DYCgxXoH/",
+      "external": true,
+      "cta": "View on Instagram"
+    },
+    {
+      "id": "instagram-17910583875112225",
+      "slug": "instagram-17910583875112225",
+      "category": "Instagram",
+      "date": "2025-05-19",
+      "title": "Heading to semi-final😬",
+      "summary": "",
+      "image": "assets/news/instagram/17910583875112225.jpg",
+      "imageAlt": "Instagram post by @calbluefc: Heading to semi-final😬",
+      "href": "https://www.instagram.com/reel/DJ0jY-FxdHc/",
+      "external": true,
+      "cta": "View on Instagram"
+    },
+    {
+      "id": "instagram-17971708670847046",
+      "slug": "instagram-17971708670847046",
+      "category": "Instagram",
+      "date": "2025-04-28",
+      "title": "BTG div 1 game 1 vs 5150 fc 4:4",
+      "summary": "",
+      "image": "assets/news/instagram/17971708670847046.jpg",
+      "imageAlt": "Instagram post by @calbluefc: BTG div 1 game 1 vs 5150 fc 4:4",
+      "href": "https://www.instagram.com/reel/DI_zUliJHxb/",
+      "external": true,
+      "cta": "View on Instagram"
+    },
+    {
+      "id": "instagram-18492753991019302",
+      "slug": "instagram-18492753991019302",
+      "category": "Instagram",
+      "date": "2025-03-30",
+      "title": "8:1 vs shoreline",
+      "summary": "",
+      "image": "assets/news/instagram/18492753991019302.jpg",
+      "imageAlt": "Instagram post by @calbluefc: 8:1 vs shoreline",
+      "href": "https://www.instagram.com/p/DHz_zn1uAm4/",
+      "external": true,
+      "cta": "View on Instagram"
     }
   ]
 }
