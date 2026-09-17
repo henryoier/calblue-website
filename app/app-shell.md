@@ -1,5 +1,9 @@
 # App shell — issue #29 / PR #83
 
+This is the historical review guide for PR #83. For current functionality and testing, use
+[README](README.md), [Sign in](sign-in.md), and [My identity](identity.md). Sign-in and identity
+are no longer placeholders; the descriptions below record the shell's original scope.
+
 This PR replaces the old “shell lands in issue #29” entry page with a working navigation and
 session shell. It does **not** implement member workflows or require any Supabase SQL changes.
 Migrations 0001–0003, the verified seed, public league/gallery data and the configured public

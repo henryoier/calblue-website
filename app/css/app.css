@@ -289,6 +289,44 @@ body {
 .app-sign-in-guidance h2 { font-size: 1.1rem; margin-bottom: 0.5rem; }
 .app-sign-in-guidance p { margin-block: 0.75rem; }
 
+/* Private identity editing: summary lists never contain the detail fields. */
+.app-identity { display: grid; gap: 1rem; }
+.app-identity [hidden] { display: none; }
+.app-identity h1, .app-identity h2, .app-identity h3 { margin-top: 0; }
+.app-identity-toolbar, .app-identity-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+.app-identity-toolbar p, .app-identity [data-identity-status] { margin: 0; }
+.app-identity [data-identity-list] { display: grid; gap: 1rem; min-width: 0; }
+.app-identity-cards { padding: 0; list-style: none; display: grid; gap: 1rem; }
+.app-identity-card { min-width: 0; border-top: 1px solid #cbd5e1; padding-top: 1rem; }
+.app-identity-card p { margin-block: 0.5rem; }
+.app-identity-badge { font-weight: 700; color: var(--navy, #071b3f); }
+.app-identity-detail { min-width: 0; }
+.app-identity fieldset { padding: 0; margin: 1rem 0; border: 0; min-width: 0; }
+.app-identity legend { font-weight: 700; padding: 0 0 1rem; }
+.app-identity-fields { display: grid; gap: 1.15rem; min-width: 0; }
+.app-identity-field { display: grid; gap: 0.4rem; align-content: start; min-width: 0; }
+.app-identity-field label, .app-identity-label { font-weight: 700; }
+.app-identity-field input, .app-identity-field textarea {
+  width: 100%; min-width: 0; min-height: 44px; padding: 0.65rem 0.75rem;
+  font: inherit; font-size: 1rem; border: 1px solid #64748b; border-radius: 0.3rem;
+  background: #fff; color: var(--ink, #0b1730);
+}
+.app-identity-field textarea { resize: vertical; }
+.app-identity-field p { margin: 0; }
+.app-identity-help { font-size: 0.9rem; }
+.app-identity-field-error { color: #991b1b; font-weight: 600; }
+.app-identity [aria-invalid="true"] { border-color: #991b1b; border-width: 2px; }
+.app-identity-privacy { margin-block: 1.5rem; padding: 1rem; background: #f1f5f9; border-radius: 0.3rem; }
+.app-identity-checkbox { display: flex; gap: 0.75rem; min-height: 44px; align-items: center; font-weight: 700; }
+.app-identity-checkbox input { flex: 0 0 auto; width: 1.35rem; height: 1.35rem; accent-color: var(--navy, #071b3f); }
+.app-identity-primary { color: #fff; background: var(--navy, #071b3f); }
+.app-identity button:disabled { cursor: not-allowed; background: #e2e8f0; border-color: #94a3b8; color: #475569; }
+.app-identity fieldset:disabled input, .app-identity fieldset:disabled textarea { background: #f1f5f9; }
+@media (min-width: 640px) {
+  .app-identity-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .app-identity-field-wide { grid-column: 1 / -1; }
+}
+
 /* 360px mobile-first is default; widen at 640px */
 @media (max-width: 400px) {
   .app-header { padding: 0.65rem 0.75rem; }

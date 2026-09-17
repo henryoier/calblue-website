@@ -2,7 +2,8 @@
 
 This PR adds email magic-link sign-in to the member app. It does not change public-site navigation,
 deploy a new app subdomain, edit Supabase settings, or run/change database migrations or seed data.
-Identity editing remains issue #31; schedules, registration, check-in and billing remain placeholders.
+Identity editing is documented separately in [My identity](identity.md); schedules, registration,
+check-in and billing remain placeholders.
 
 ## What is implemented
 
@@ -75,7 +76,7 @@ The public site's `/app/` URL is not automatically an approved email callback or
 2. Click **Go to sign in**. Enter an email account you control and click **Send sign-in link**.
    There should be one request, then a generic inbox/spam notice, without revealing account existence.
 3. Open the latest email link in this same browser/profile/device. It should finish at **My identity**
-   (still an issue #31 placeholder), not always at home. Callback credentials must disappear from
+   (the identity summary/forms), not always at home. Callback credentials must disappear from
    the address bar. A new account with a blank display name must not crash or show `undefined`.
 4. Visit Members home and reload. You should still be signed in, with your own email/name.
 

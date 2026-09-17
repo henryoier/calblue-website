@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run DOM-free Auth/SDK/session doubles with an existing runtime, never install one.
+"""Run DOM-free Auth/session/identity doubles with an existing runtime, never install one.
 
 macOS uses the JavaScriptCore diagnostic. CI uses its preinstalled Node runtime.
 These are mocks, not browser modules, real Auth, SMTP or database verification.
@@ -23,6 +23,9 @@ SOURCES = [
     "app/js/auth.js",
     "app/tests/auth.logic.js",
     "app/tests/auth.test.js",
+    "app/js/identity.js",
+    "app/tests/identity.logic.js",
+    "app/tests/identity.data.test.js",
 ]
 
 HARNESS = """
@@ -37,6 +40,9 @@ const auth = { safeReturnTo, allowedRedirectUrl, normalizeEmail, parseAuthCallba
 """
 
 RUN = """
+const identity = { createIdentityService, validateIdentity, identityToday, IDENTITY_LIMITS };
+identityLogicTests(identity, { test, assert, equal });
+identityDataTests(identity, { testAsync });
 (async () => {
   const records = [];
   for (const item of tests) {
@@ -82,8 +88,8 @@ def main():
     failed = [record for record in records if record["failures"]]
     for record in failed:
         print(record["name"] + ": " + "; ".join(record["failures"]))
-    print(f"run_async_js_tests: {len(records) - len(failed)}/{len(records)} passed (existing Node, Auth doubles)")
-    print("note: browser DOM/modules, CDN, real Auth and SMTP remain separate checks.")
+    print(f"run_async_js_tests: {len(records) - len(failed)}/{len(records)} passed (existing Node, Auth/identity doubles)")
+    print("note: browser DOM/modules, CDN, real Auth, SMTP and RLS remain separate checks.")
     return int(bool(failed) or not records)
 
 

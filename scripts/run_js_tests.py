@@ -32,6 +32,7 @@ SUITES = [
     (APP / "js" / "layout.js", APP / "tests" / "layout.logic.js", "layoutLogicTests"),
     (APP / "js" / "supabase.js", APP / "tests" / "supabase.logic.js", "supabaseLogicTests"),
     (APP / "js" / "auth.js", APP / "tests" / "auth.logic.js", "authLogicTests"),
+    (APP / "js" / "identity.js", APP / "tests" / "identity.logic.js", "identityLogicTests"),
 ]
 
 HARNESS = """
@@ -80,7 +81,10 @@ def run_suite(module_path, logic_path, entry, runtime):
     logic_src = strip_modules(logic_path.read_text())
 
     # The suite takes the module's exports as an object; rebuild one from the stripped globals.
-    exported = re.findall(r"^export\s+function\s+(\w+)", module_path.read_text(), re.MULTILINE)
+    exported = re.findall(
+        r"^export\s+(?:(?:async\s+)?function|const)\s+(\w+)",
+        module_path.read_text(), re.MULTILINE,
+    )
     bindings = ", ".join(f"{name}: {name}" for name in exported)
 
     runtime_name, executable = runtime
