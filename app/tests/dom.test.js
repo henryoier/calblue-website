@@ -1,6 +1,6 @@
 import * as dom from "../js/dom.js";
 import { domLogicTests } from "./dom.logic.js";
-import { test, equal, assert, report } from "./runner.js";
+import { test, equal, assert, renderReport } from "./runner.js";
 
 // The pure-logic suite, shared with scripts/run_js_tests.py.
 domLogicTests(dom, { test, equal, assert });
@@ -48,7 +48,38 @@ test("[dom] el throws instead of returning null", () => {
 
 test("[dom] report renders <img> examples as text", () => {
   const host = document.createElement("div");
-  report(host);
+  const description = 'description <img src=x onerror="alert(1)"> & <script>example</script>';
+  const failure = "failure details <img> & <script>example</script>";
+  const result = renderReport(host, [{ name: description, failures: [failure] }]);
   equal(host.querySelector("img"), null, "test descriptions must not create HTML elements");
-  assert(host.textContent.includes("<img>"), "the original description should remain readable");
+  equal(host.querySelector("script"), null, "report examples must not create script elements");
+  assert(host.textContent.includes(description), "the original description should remain readable");
+  assert(host.textContent.includes(failure), "failure details should remain readable");
+  equal(result.total, 1);
+  equal(result.failed, 1, "synthetic failures belong only to this report fixture");
+});
+
+test("[dom] report counts rows and replaces an earlier rendering", () => {
+  const host = document.createElement("div");
+  const result = renderReport(host, [
+    { name: "Passing fixture", failures: [] },
+    { name: "Failing fixture", failures: ["Expected fixture failure"] },
+  ]);
+  equal(result.total, 2);
+  equal(result.failed, 1);
+  equal(host.querySelector(".summary.bad").textContent, "1 of 2 failed");
+  equal(host.querySelectorAll("li.ok").length, 1);
+  equal(host.querySelectorAll("li.bad").length, 1);
+  renderReport(host, [{ name: "Replacement fixture", failures: [] }]);
+  equal(host.querySelectorAll("li").length, 1);
+  equal(host.querySelector(".summary.ok").textContent, "all 1 passed");
+  assert(!host.textContent.includes("Expected fixture failure"));
+});
+
+test("[dom] rendering a report fixture does not publish suite status", () => {
+  const originalTitle = document.title;
+  const originalResults = window.__testResults;
+  renderReport(document.createElement("div"), [{ name: "Synthetic fixture", failures: ["not a real failure"] }]);
+  equal(document.title, originalTitle);
+  equal(window.__testResults, originalResults);
 });
