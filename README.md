@@ -40,7 +40,7 @@ The homepage "Latest" section and `news.html` render `data/news.json`, which `sc
 
 The deploy workflow rebuilds the feed after the schedule syncs, so results appear within the six-hour cycle. After editing posts locally run `python3 scripts/build_news.py`; `tests/test_build_news.py` fails when the committed feed is stale.
 
-Instagram does not serve posts to anonymous readers, so `scripts/sync_instagram.py` is run by a maintainer and its output committed. It accepts an Instagram API access token for the club account (`--token`), a saved API response (`--source-file`), or a list of public post URLs (`--post-urls`, one per line, using Instagram's public embed page for each post). It stores only caption, permalink, timestamp and one image per post under `assets/news/instagram/`.
+Instagram does not serve posts to anonymous readers, so `scripts/sync_instagram.py` needs credentials. The deploy workflow runs it on every deployment when the `IG_ACCESS_TOKEN` repository secret is set (an Instagram API token for the club's professional account, valid for 60 days), and falls back to the committed `data/instagram.json` when the secret is missing or the API call fails. A maintainer can also run it locally and commit the output. It accepts an Instagram API access token for the club account (`--token`), a saved API response (`--source-file`), or a list of public post URLs (`--post-urls`, one per line, using Instagram's public embed page for each post). It stores only caption, permalink, timestamp and one image per post under `assets/news/instagram/`.
 
 ## Match-day posters
 
