@@ -26,11 +26,17 @@ function sessionDouble({ authenticated = false, roles = [] } = {}) {
     disposeSession: () => listeners.clear(),
     set: (next) => { state = next; emit(); },
     signOut: async () => manager.set({ authenticated: false, roles: [] }),
+    refreshAccess: async () => {},
   };
   return manager;
 }
 
-function fixture(path, session = sessionDouble(), loadClient = async () => ({})) {
+function authDouble(overrides = {}) {
+  return { assertSafeToLoad() {}, completeCallback: async () => ({ handled: false }),
+    requestLink: async () => ({ sent: true }), clearPending() {}, ...overrides };
+}
+
+function fixture(path, session = sessionDouble(), loadClient = async () => ({}), authFlow = authDouble()) {
   const originalUrl = location.href;
   history.replaceState(null, "", "#" + path);
   const root = document.createElement("div");
@@ -43,7 +49,7 @@ function fixture(path, session = sessionDouble(), loadClient = async () => ({}))
     <footer id="app-footer" class="app-footer"></footer>
   `);
   document.body.append(root);
-  const app = createApp({ root, session, loadClient, configured: () => true });
+  const app = createApp({ root, session, loadClient, configured: () => true, authFlow });
   return { app, root, session,
     main: root.querySelector("#app"),
     dispose() { app.destroy(); root.remove(); history.replaceState(null, "", originalUrl); },
@@ -181,4 +187,133 @@ testAsync("[app] navigating away fences a late sign-out redirect", async (t) => 
     t.equal(location.hash, "#/games");
     t.equal(view.main.querySelector("h1").textContent, "Games");
   } finally { gate.resolve(); view.dispose(); }
+});
+
+testAsync("[app] protected deep links preserve their intended sign-in destination", async (t) => {
+  const view = fixture("/identity");
+  try {
+    await view.app.start();
+    const link = view.main.querySelector("a");
+    t.equal(link.getAttribute("href"), "#/sign-in?returnTo=%23%2Fidentity");
+    link.click();
+    await settle();
+    t.assert(Boolean(view.main.querySelector("input[type=email]")), "sign-in form is available");
+  } finally { view.dispose(); }
+});
+
+testAsync("[app] callback is checked before SDK load and exchanged before profile bootstrap", async (t) => {
+  const calls = [];
+  const session = sessionDouble();
+  session.initSession = async () => {
+    calls.push("session");
+    session.set({ authenticated: true, roles: [] });
+  };
+  const flow = authDouble({
+    assertSafeToLoad: () => calls.push("scrub-check"),
+    completeCallback: async () => { calls.push("callback"); return { handled: true, returnTo: "#/identity" }; },
+  });
+  const view = fixture("/", session, async () => { calls.push("client"); return {}; }, flow);
+  try {
+    await view.app.start();
+    t.equal(calls.join(","), "scrub-check,client,callback,session");
+    t.equal(location.hash, "#/identity");
+    t.equal(view.main.querySelector("h1").textContent, "My identity");
+    await view.app.start();
+    t.equal(calls.filter((item) => item === "callback").length, 1, "retry never consumes a callback twice");
+  } finally { view.dispose(); }
+});
+
+testAsync("[app] failed callback URL scrubbing never loads the SDK", async (t) => {
+  let loads = 0;
+  const view = fixture("/", sessionDouble(), async () => { loads += 1; return {}; }, authDouble({
+    assertSafeToLoad() { throw new Error("Cannot remove callback"); },
+  }));
+  try {
+    await view.app.start();
+    t.equal(loads, 0);
+    t.assert(Boolean(view.root.querySelector("#app-status [role=alert]")));
+  } finally { view.dispose(); }
+});
+
+testAsync("[app] expired callback opens a recovery form without rendering provider text", async (t) => {
+  const view = fixture("/", sessionDouble(), async () => ({}), authDouble({
+    completeCallback: async () => ({ handled: true, error: "expired", returnTo: "#/identity" }),
+  }));
+  try {
+    await view.app.start();
+    t.assert(location.hash.startsWith("#/sign-in?returnTo="));
+    t.assert(Boolean(view.main.querySelector("[role=alert]")));
+    t.assert(Boolean(view.main.querySelector("input[type=email]")));
+  } finally { view.dispose(); }
+});
+
+testAsync("[app] refresh access coalesces clicks and removes revoked admin navigation", async (t) => {
+  const gate = deferred();
+  let calls = 0;
+  const session = sessionDouble({ authenticated: true, roles: ["admin"] });
+  session.refreshAccess = async () => {
+    calls += 1;
+    await gate.promise;
+    session.set({ authenticated: true, roles: ["player"] });
+  };
+  const view = fixture("/admin/audit", session);
+  try {
+    await view.app.start();
+    view.root.querySelector("[data-refresh-access]").click();
+    view.root.querySelector("[data-refresh-access]").click();
+    t.equal(calls, 1);
+    t.assert(view.root.querySelector("[data-refresh-access]").disabled);
+    gate.resolve();
+    await settle();
+    t.equal(view.main.querySelector("h1").textContent, "You do not have access");
+    t.equal(view.root.querySelectorAll("#app-nav a[href^='#/admin/']").length, 0);
+    t.assert(view.root.querySelector("[data-access-status]").textContent.includes("Access refreshed"));
+  } finally { gate.resolve(); view.dispose(); }
+});
+
+testAsync("[app] failed access refresh is actionable and cannot claim success", async (t) => {
+  const session = sessionDouble({ authenticated: true, roles: ["player"] });
+  session.refreshAccess = async () => { throw new Error("private provider details"); };
+  const view = fixture("/", session);
+  try {
+    await view.app.start();
+    view.root.querySelector("[data-refresh-access]").click();
+    await settle();
+    const status = view.root.querySelector("[data-access-status]");
+    t.equal(status.getAttribute("role"), "alert");
+    t.assert(status.textContent.includes("could not be refreshed"));
+    t.assert(!view.root.textContent.includes("private provider details"));
+    t.assert(!view.root.querySelector("[data-refresh-access]").disabled);
+  } finally { view.dispose(); }
+});
+
+testAsync("[app] a first-login profile with no display name uses its email", async (t) => {
+  const session = sessionDouble({ authenticated: true, roles: [] });
+  session.getProfile = () => ({ displayName: "", email: "new-member@example.com", isEmpty: true });
+  const view = fixture("/", session);
+  try {
+    await view.app.start();
+    t.equal(view.root.querySelector(".app-user").textContent, "new-member@example.com");
+    t.assert(view.main.textContent.includes("does not have a display name yet"));
+    t.assert(!view.root.textContent.includes("undefined"));
+  } finally { view.dispose(); }
+});
+
+testAsync("[app] navigating away and back during callback exchange preserves the user's route", async (t) => {
+  const gate = deferred();
+  const view = fixture("/", sessionDouble({ authenticated: true, roles: [] }), async () => ({}), authDouble({
+    completeCallback: () => gate.promise,
+  }));
+  try {
+    const starting = view.app.start();
+    await settle();
+    location.hash = "/games";
+    await settle();
+    location.hash = "/";
+    await settle();
+    gate.resolve({ handled: true, returnTo: "#/identity" });
+    await starting;
+    t.equal(location.hash, "#/", "returning to the original hash is still deliberate navigation");
+    t.equal(view.main.querySelector("h1").textContent, "Members home");
+  } finally { gate.resolve({ handled: false }); view.dispose(); }
 });

@@ -41,6 +41,8 @@ export function createClientProvider({ url, anonKey, version, loadModule = (addr
         auth: {
           persistSession: true,
           autoRefreshToken: true,
+          // auth.js owns callback capture/exchange. For this pinned auth-js,
+          // PKCE detection can still run despite false: scrub before creation.
           detectSessionInUrl: false,
           flowType: "pkce",
         },

@@ -57,6 +57,10 @@ function run(argv) {
   };`);
   evaluate(source("app/tests/supabase.logic.js"));
   evaluate(source("app/tests/supabase.test.js"));
+  evaluate(source("app/js/auth.js"));
+  evaluate(`var auth = { safeReturnTo, allowedRedirectUrl, normalizeEmail, parseAuthCallback, createAuthFlow };`);
+  evaluate(source("app/tests/auth.logic.js"));
+  evaluate(source("app/tests/auth.test.js"));
 
   evaluate(`
     var done = false;

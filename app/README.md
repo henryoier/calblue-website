@@ -1,14 +1,16 @@
 # CalBlue app
 
-Issue #29 / PR #83 adds the member **app shell**: hash routing, session-aware navigation, shared
-loading/error states and mobile layout. The public website stays unchanged in the repository root.
-The shell can restore an existing Supabase session and load its own profile; sign-in, registration,
-check-in and billing screens are not implemented here. Their routes explicitly show placeholders.
+The member app includes the **app shell** from issue #29 / PR #83 and **email magic-link sign-in**
+from issue #30: hash routing, session-aware navigation, saved sessions, profile loading, sign-out
+and an explicit **Refresh my access** action. The public website stays unchanged in the repository
+root. Identity editing, registration, check-in and billing still show feature placeholders.
 All frontend files are public; Supabase Auth and row-level security protect backend data.
 
 See the [app-shell review and test guide](app-shell.md) for exactly what works, what is deferred,
 the route/role matrix and the browser checks required before merge. No database migration or seed
 needs to be rerun for this PR. The seed's synthetic Auth rows are not browser-login accounts.
+See the [sign-in review and test guide](sign-in.md) for the new login workflow, callback limitations
+and the real-email checks that mocks cannot replace.
 
 ## The one rule
 
@@ -56,17 +58,19 @@ app/
   css/app.css       Mobile app styles using public-site design variables
   js/
     app.js          Composition, route definitions and startup/retry lifecycle
+    auth.js         Magic-link requests, safe return destinations and PKCE callbacks
     dom.js          Escaping template helper
     router.js       Hash routing, access checks, abort/cleanup and focus
     session.js      Session/JWT state and profile lifecycle
     supabase.js     Pinned, memoized SDK/client loader
     layout.js       Shared chrome, navigation and states
-  views/            Home, sign-in placeholder, feature placeholders and 404
+  views/            Home, email sign-in, feature placeholders and 404
   tests/            Logic, async-session and browser integration checks
 ```
 
-Issue #30 will implement magic-link sign-in. URL callback detection/exchange is deliberately
-disabled until that workflow is tested; this shell does not consume login callback URLs.
+Issue #30 implements manual PKCE callback exchange. The app captures and removes callback fields
+before loading the SDK; automatic URL detection remains disabled. In the pinned SDK, PKCE can
+still auto-exchange despite that flag, so removing the callback before client creation is required.
 Production app-origin hosting remains separate from this local `/app/` preview; see DESIGN.md §2.
 
 UI roles are decoded from the current access token, not mutable `user_metadata`, cached profile
@@ -84,6 +88,7 @@ and teardown abort/dispose previous work; a router cannot undo arbitrary stale w
 python3 scripts/check_no_build.py
 python3 scripts/check_secrets.py
 python3 scripts/run_js_tests.py
+python3 scripts/run_async_js_tests.py  # JavaScriptCore on macOS, existing Node in CI
 osascript -l JavaScript scripts/run_session_tests.jxa.js  # macOS, existing JavaScriptCore
 python3 -m unittest discover -s tests -v
 python3 scripts/check_site.py
@@ -139,8 +144,8 @@ This verifies public endpoint/key acceptance and those reported settings, not em
 an end-to-end magic-link round trip, database migrations or RLS. Site URL, redirect allow-list,
 SMTP and organization ownership are not exposed by this endpoint. On **2026-09-16**, the user
 confirmed the dashboard Site URL and exact redirect allow-list documented below. That completes
-the configuration work for issue #24. The app shell now initializes the client; real login/email
-testing and production hosting remain separate work.
+the configuration work for issue #24. The app now provides email sign-in; real login/email
+acceptance testing and production hosting remain owner-coordinated work.
 
 For administrator review or a future project replacement:
 
@@ -151,7 +156,7 @@ For administrator review or a future project replacement:
    or database password there. Run the secret checks before committing. The public config must
    contain only public browser settings; the SDK version is pinned separately in the same file.
 3. In Supabase Authentication settings, enable the Email provider and email confirmations;
-   confirm email magic-link sign-in is available. End-to-end sign-in testing waits for issue #30.
+   confirm email magic-link sign-in is available. Follow the issue #30 sign-in guide for end-to-end tests.
 4. Use the planned production Site URL **`https://app.calbluefc.com/`**, matching DESIGN.md §2.
    Add exact redirect allow-list entries for `https://app.calbluefc.com/`,
    `http://localhost:8080/app/` and `http://localhost:8091/app/` for these local previews.
