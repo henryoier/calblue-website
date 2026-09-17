@@ -2,16 +2,18 @@
 // production always uses the configured SDK and the single session store.
 import { getClient, isConfigured } from "./supabase.js";
 import { createAuthFlow, safeReturnTo } from "./auth.js";
+import { createIdentityService } from "./identity.js";
 import * as defaultSession from "./session.js";
 import { createRouter, navigate, buildHash } from "./router.js";
 import { renderLayout, renderLoading, renderError, renderAccessDenied, renderConnectionStatus } from "./layout.js";
 import { homeView } from "../views/home.js";
 import { notFoundView } from "../views/not-found.js";
 import { signInView } from "../views/sign-in.js";
+import { identityView } from "../views/identity.js";
 import { placeholderView } from "../views/placeholder.js";
 
 export function createApp({ root = document, session = defaultSession, loadClient = getClient,
-  configured = isConfigured, authFlow = createAuthFlow() } = {}) {
+  configured = isConfigured, authFlow = createAuthFlow(), createIdentity = createIdentityService } = {}) {
   // Creating the flow captures and removes callback credentials BEFORE getClient.
   // auth-js 2.65.0 can auto-exchange PKCE even with detectSessionInUrl: false.
   const headerEl = root.querySelector("#app-header");
@@ -42,12 +44,32 @@ export function createApp({ root = document, session = defaultSession, loadClien
   let accessGeneration = 0;
   let accessAccount = session.getSession()?.user?.id || null;
   let navigationGeneration = 0;
+  let activeIdentity = null;
   const recordNavigation = () => { navigationGeneration += 1; };
   window.addEventListener("hashchange", recordNavigation);
 
   const signInHref = () => buildHash("/sign-in", {}, { returnTo: safeReturnTo(window.location.hash) });
 
   const placeholder = (details) => () => placeholderView(mainEl, details);
+
+  function identityIsCurrent() {
+    return Boolean(activeIdentity && currentPath === "/identity"
+      && activeIdentity.context.isCurrent() && activeIdentity.client === client
+      && session.isAuthenticated()
+      && activeIdentity.accountId === session.getSession()?.user?.id);
+  }
+
+  function renderIdentity(_params, _query, context) {
+    const accountId = session.getSession()?.user?.id;
+    const identityClient = client;
+    activeIdentity = { accountId, client: identityClient, context };
+    const service = createIdentity({ client: identityClient, accountId,
+      isCurrent: () => context.isCurrent() && client === identityClient
+        && session.isAuthenticated() && session.getSession()?.user?.id === accountId,
+    });
+    return identityView(mainEl, { service, context });
+  }
+
   const routes = [
     { pattern: "/", title: "Home", view: () => homeView(mainEl, {
       profile: session.getProfile(), roles: session.getRoles(),
@@ -79,9 +101,7 @@ export function createApp({ root = document, session = defaultSession, loadClien
     { pattern: "/games", title: "Games", view: placeholder({
       eyebrow: "Schedule", title: "Games", description: "Published fixtures and pickup sessions will live here.", issue: 34,
     }) },
-    { pattern: "/identity", title: "My identity", auth: true, view: placeholder({
-      eyebrow: "Member profile", title: "My identity", description: "Player details, verification, and guardian relationships will live here.", issue: 31,
-    }) },
+    { pattern: "/identity", title: "My identity", auth: true, view: renderIdentity },
     { pattern: "/admin/verify", title: "Verify players", auth: true, roles: ["admin"], view: placeholder({
       eyebrow: "Administration", title: "Verify players", description: "Identity review will live here.", issue: 32,
     }) },
@@ -116,7 +136,11 @@ export function createApp({ root = document, session = defaultSession, loadClien
   const router = createRouter({
     routes, mountPoint: mainEl,
     getAccess: () => ({ authenticated: session.isAuthenticated(), roles: session.getRoles() }),
-    onRouteChange: ({ path }) => { currentPath = path; updateChrome(); },
+    onRouteChange: ({ path }) => {
+      currentPath = path;
+      if (path !== "/identity") activeIdentity = null;
+      updateChrome();
+    },
     onLoading: () => renderLoading(mainEl),
     onError: () => renderError(mainEl, "This screen could not load. Try another route or reload the page."),
     onUnauthorized: (_target, access) => renderAccessDenied(mainEl, { ...access, signInHref: signInHref() }),
@@ -135,9 +159,12 @@ export function createApp({ root = document, session = defaultSession, loadClien
     accessAccount = nextAccount;
     updateChrome();
     if (!initialized) return; // Resolve the saved session before showing a guard.
-    // Let the in-flight sign-out view finish its own redirect. Every other
-    // screen rechecks access immediately, even when profile loading fails.
-    if (!(signingOut && currentPath === "/sign-out" && !session.isAuthenticated())) {
+    // A same-account token/profile refresh must not destroy an unfinished
+    // identity form. This route needs authentication, not a particular role;
+    // its personal queries stay explicitly scoped and RLS is authoritative.
+    // Account changes/sign-out still invalidate the private view immediately.
+    if (!identityIsCurrent()
+        && !(signingOut && currentPath === "/sign-out" && !session.isAuthenticated())) {
       void router.render();
     }
   });
@@ -170,7 +197,7 @@ export function createApp({ root = document, session = defaultSession, loadClien
       if (isCurrent()) {
         refreshing = false;
         updateChrome();
-        await router.render();
+        if (!identityIsCurrent()) await router.render();
       }
     }
   }
@@ -225,6 +252,7 @@ export function createApp({ root = document, session = defaultSession, loadClien
 
   function destroy() {
     destroyed = true;
+    activeIdentity = null;
     unsubscribe();
     router.destroy();
     window.removeEventListener("hashchange", recordNavigation);

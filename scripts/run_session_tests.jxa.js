@@ -61,6 +61,14 @@ function run(argv) {
   evaluate(`var auth = { safeReturnTo, allowedRedirectUrl, normalizeEmail, parseAuthCallback, createAuthFlow };`);
   evaluate(source("app/tests/auth.logic.js"));
   evaluate(source("app/tests/auth.test.js"));
+  evaluate(source("app/js/identity.js"));
+  evaluate(source("app/tests/identity.logic.js"));
+  evaluate(source("app/tests/identity.data.test.js"));
+  evaluate(`
+    var identity = { createIdentityService, validateIdentity, identityToday, IDENTITY_LIMITS };
+    identityLogicTests(identity, { test, assert, equal });
+    identityDataTests(identity, { testAsync });
+  `);
 
   evaluate(`
     var done = false;

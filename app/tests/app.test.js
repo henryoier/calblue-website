@@ -3,28 +3,34 @@ import { createApp } from "../js/app.js";
 import { html, mount } from "../js/dom.js";
 import { testAsync } from "./runner.js";
 
+const ACCOUNT_A = "a1100000-0000-4000-8000-000000000001";
+const ACCOUNT_B = "a1100000-0000-4000-8000-000000000002";
+const PLAYER_A = "b1100000-0000-4000-8000-000000000001";
+const PLAYER_B = "b1100000-0000-4000-8000-000000000002";
+
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 async function settle() { await tick(); await tick(); }
 function deferred() {
   let resolve;
-  const promise = new Promise((done) => { resolve = done; });
-  return { promise, resolve };
+  let reject;
+  const promise = new Promise((done, fail) => { resolve = done; reject = fail; });
+  return { promise, resolve, reject };
 }
 
-function sessionDouble({ authenticated = false, roles = [] } = {}) {
+function sessionDouble({ authenticated = false, roles = [], accountId = ACCOUNT_A } = {}) {
   const listeners = new Set();
-  let state = { authenticated, roles };
+  let state = { authenticated, roles, accountId };
   const emit = () => { for (const listener of listeners) listener(state); };
   const manager = {
-    initSession: async (client) => { if (!client) state = { authenticated: false, roles: [] }; emit(); },
-    getSession: () => state.authenticated ? { user: { id: "test-account", email: "member@example.com" } } : null,
-    getProfile: () => state.authenticated ? { displayName: "Demo Member" } : null,
+    initSession: async (client) => { if (!client) state = { ...state, authenticated: false, roles: [] }; emit(); },
+    getSession: () => state.authenticated ? { user: { id: state.accountId, email: "member@example.com" } } : null,
+    getProfile: () => state.authenticated ? { displayName: state.displayName || "Demo Member" } : null,
     getRoles: () => state.roles,
     getSessionError: () => null,
     isAuthenticated: () => state.authenticated,
     onSessionChange: (listener) => { listeners.add(listener); return () => listeners.delete(listener); },
     disposeSession: () => listeners.clear(),
-    set: (next) => { state = next; emit(); },
+    set: (next) => { state = { ...state, ...next }; emit(); },
     signOut: async () => manager.set({ authenticated: false, roles: [] }),
     refreshAccess: async () => {},
   };
@@ -36,7 +42,87 @@ function authDouble(overrides = {}) {
     requestLink: async () => ({ sent: true }), clearPending() {}, ...overrides };
 }
 
-function fixture(path, session = sessionDouble(), loadClient = async () => ({}), authFlow = authDouble()) {
+function identityRecord(accountId = ACCOUNT_A, overrides = {}) {
+  return {
+    id: accountId === ACCOUNT_A ? PLAYER_A : PLAYER_B,
+    account_id: accountId,
+    guardian_account_id: null,
+    display_name: accountId === ACCOUNT_A ? "First private identity" : "Second private identity",
+    verification_status: "pending",
+    is_public: false,
+    default_positions: [],
+    preferred_number: null,
+    legal_name: "Invented Example Member",
+    date_of_birth: "1990-02-14",
+    jersey_size: "M",
+    emergency_contact_name: "Invented Contact",
+    emergency_contact_phone: "",
+    medical_notes: "Private test medical note",
+    ...overrides,
+  };
+}
+
+function identitySummary(row) {
+  return Object.fromEntries(["id", "account_id", "guardian_account_id", "display_name",
+    "verification_status", "is_public", "default_positions", "preferred_number"]
+    .map((key) => [key, row[key]]));
+}
+
+function identityFactoryDouble(configure = () => ({})) {
+  const instances = [];
+  const createIdentity = (scope) => {
+    const implementations = {
+      list: async () => ({ own: null, children: [] }),
+      load: async () => identityRecord(scope.accountId),
+      create: async (_kind, values) => identityRecord(scope.accountId, values),
+      update: async (_id, values) => identityRecord(scope.accountId, values),
+      ...configure(scope),
+    };
+    const instance = { scope, requests: { list: [], load: [], create: [], update: [] }, service: {} };
+    for (const method of Object.keys(instance.requests)) {
+      instance.service[method] = (...args) => {
+        instance.requests[method].push(args);
+        return Promise.resolve().then(() => implementations[method](...args));
+      };
+    }
+    instances.push(instance);
+    return instance.service;
+  };
+  createIdentity.instances = instances;
+  return createIdentity;
+}
+
+function ownedIdentityFactory(overrides = () => ({})) {
+  return identityFactoryDouble((scope) => {
+    const row = identityRecord(scope.accountId);
+    return {
+      list: async () => ({ own: identitySummary(row), children: [] }),
+      load: async () => ({ ...row }),
+      ...overrides(scope),
+    };
+  });
+}
+
+async function openIdentity(view, id = PLAYER_A) {
+  const button = view.main.querySelector(`[data-identity-action="open"][data-identity-id="${id}"]`);
+  if (!button) throw new Error("Expected an identity summary to open.");
+  button.click();
+  await settle();
+  const form = view.main.querySelector("[data-identity-form]");
+  if (!form) throw new Error("Expected the selected identity editor.");
+  return form;
+}
+
+function changeIdentityName(form, value) {
+  const input = form.querySelector('[name="display_name"]');
+  if (!input) throw new Error("Expected the editable identity display name.");
+  input.value = value;
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  return input;
+}
+
+function fixture(path, session = sessionDouble(), loadClient = async () => ({}), authFlow = authDouble(),
+  createIdentity = identityFactoryDouble()) {
   const originalUrl = location.href;
   history.replaceState(null, "", "#" + path);
   const root = document.createElement("div");
@@ -49,8 +135,8 @@ function fixture(path, session = sessionDouble(), loadClient = async () => ({}),
     <footer id="app-footer" class="app-footer"></footer>
   `);
   document.body.append(root);
-  const app = createApp({ root, session, loadClient, configured: () => true, authFlow });
-  return { app, root, session,
+  const app = createApp({ root, session, loadClient, configured: () => true, authFlow, createIdentity });
+  return { app, root, session, identity: createIdentity,
     main: root.querySelector("#app"),
     dispose() { app.destroy(); root.remove(); history.replaceState(null, "", originalUrl); },
   };
@@ -316,4 +402,234 @@ testAsync("[app] navigating away and back during callback exchange preserves the
     t.equal(location.hash, "#/", "returning to the original hash is still deliberate navigation");
     t.equal(view.main.querySelector("h1").textContent, "Members home");
   } finally { gate.resolve({ handled: false }); view.dispose(); }
+});
+
+testAsync("[app] an authenticated account without roles opens its own identity screen", async (t) => {
+  const client = { testClient: "identity-client" };
+  const session = sessionDouble({ authenticated: true, roles: [], accountId: ACCOUNT_A });
+  const view = fixture("/identity", session, async () => client);
+  try {
+    await view.app.start();
+    await settle();
+    t.equal(view.main.querySelector("h1").textContent, "My identity");
+    t.assert(Boolean(view.main.querySelector('[data-identity-action="create-self"]')));
+    t.equal(view.root.querySelectorAll("#app-nav a[href^='#/admin/']").length, 0);
+    t.equal(view.identity.instances.length, 1);
+    const instance = view.identity.instances[0];
+    t.equal(instance.scope.accountId, ACCOUNT_A);
+    t.equal(instance.scope.client, client);
+    t.equal(instance.scope.isCurrent(), true);
+    t.equal(instance.requests.list.length, 1);
+    t.equal(instance.requests.load.length, 0, "private identity details require an explicit open action");
+    t.assert(Boolean(instance.requests.list[0][0]?.signal), "identity reads receive the route's cancellation signal");
+  } finally { view.dispose(); }
+});
+
+testAsync("[app] same-account notifications preserve the identity draft while updating chrome and roles", async (t) => {
+  const identities = ownedIdentityFactory();
+  const session = sessionDouble({ authenticated: true, roles: [] });
+  const view = fixture("/identity", session, async () => ({}), authDouble(), identities);
+  try {
+    await view.app.start();
+    await settle();
+    const form = await openIdentity(view);
+    const name = changeIdentityName(form, "Unsaved member draft");
+    session.set({ roles: ["admin"], displayName: "Updated account display" });
+    await settle();
+    t.equal(view.main.querySelector("[data-identity-form]"), form);
+    t.equal(name.value, "Unsaved member draft");
+    t.equal(view.root.querySelector(".app-user").textContent, "Updated account display");
+    t.equal(view.root.querySelectorAll("#app-nav a[href^='#/admin/']").length, 4);
+    session.set({ roles: [] });
+    await settle();
+    t.equal(view.main.querySelector("[data-identity-form]"), form);
+    t.equal(name.value, "Unsaved member draft");
+    t.equal(view.root.querySelectorAll("#app-nav a[href^='#/admin/']").length, 0);
+    t.equal(identities.instances.length, 1, "same account notifications must not recreate the identity service");
+    t.equal(identities.instances[0].requests.load.length, 1);
+    t.equal(identities.instances[0].requests.update.length, 0, "a role refresh must never auto-save a draft");
+  } finally { view.dispose(); }
+});
+
+testAsync("[app] manual access refresh preserves the identity form and unfinished edits", async (t) => {
+  const gate = deferred();
+  const identities = ownedIdentityFactory();
+  const session = sessionDouble({ authenticated: true, roles: ["admin"] });
+  let refreshCalls = 0;
+  session.refreshAccess = async () => {
+    refreshCalls += 1;
+    await gate.promise;
+    session.set({ roles: [] });
+  };
+  const view = fixture("/identity", session, async () => ({}), authDouble(), identities);
+  try {
+    await view.app.start();
+    await settle();
+    const form = await openIdentity(view);
+    const name = changeIdentityName(form, "Draft survives access refresh");
+    view.root.querySelector("[data-refresh-access]").click();
+    t.equal(refreshCalls, 1);
+    t.assert(view.root.querySelector("[data-refresh-access]").disabled);
+    t.equal(view.main.querySelector("[data-identity-form]"), form);
+    t.equal(name.value, "Draft survives access refresh");
+    gate.resolve();
+    await settle();
+    t.equal(view.main.querySelector("[data-identity-form]"), form);
+    t.equal(name.value, "Draft survives access refresh");
+    t.equal(identities.instances.length, 1);
+    t.equal(identities.instances[0].requests.load.length, 1);
+    t.equal(identities.instances[0].requests.update.length, 0);
+    t.equal(view.root.querySelectorAll("#app-nav a[href^='#/admin/']").length, 0);
+    t.assert(view.root.querySelector("[data-access-status]").textContent.includes("Access refreshed"));
+  } finally { gate.resolve(); view.dispose(); }
+});
+
+testAsync("[app] a same-account notification does not restart an in-flight identity list", async (t) => {
+  const gate = deferred();
+  const identities = ownedIdentityFactory(() => ({ list: () => gate.promise }));
+  const session = sessionDouble({ authenticated: true, roles: [] });
+  const view = fixture("/identity", session, async () => ({}), authDouble(), identities);
+  try {
+    const starting = view.app.start();
+    await settle();
+    session.set({ roles: ["player"] });
+    await settle();
+    t.equal(identities.instances.length, 1);
+    t.equal(identities.instances[0].requests.list.length, 1);
+    t.equal(identities.instances[0].scope.isCurrent(), true);
+    gate.resolve({ own: identitySummary(identityRecord()), children: [] });
+    await starting;
+    await settle();
+    t.assert(view.main.querySelector("[data-identity-list]").textContent.includes("First private identity"));
+  } finally { gate.resolve({ own: null, children: [] }); view.dispose(); }
+});
+
+testAsync("[app] switching accounts clears the old private editor and creates a newly scoped service", async (t) => {
+  const identities = ownedIdentityFactory();
+  const client = { testClient: "shared-sdk-client" };
+  const session = sessionDouble({ authenticated: true, roles: [], accountId: ACCOUNT_A });
+  const view = fixture("/identity", session, async () => client, authDouble(), identities);
+  try {
+    await view.app.start();
+    await settle();
+    const oldForm = await openIdentity(view);
+    const oldName = changeIdentityName(oldForm, "Private old-account draft");
+    const oldScope = identities.instances[0].scope;
+    const oldSignal = identities.instances[0].requests.load[0][1]?.signal;
+    session.set({ accountId: ACCOUNT_B, displayName: "Second account" });
+    t.equal(oldScope.isCurrent(), false, "old account access is invalid immediately");
+    await settle();
+    t.assert(!oldForm.isConnected);
+    t.equal(oldName.value, "", "cleanup clears private values even from the detached form");
+    t.assert(oldSignal?.aborted, "switching account aborts the old private read context");
+    t.equal(identities.instances.length, 2);
+    t.equal(identities.instances[1].scope.accountId, ACCOUNT_B);
+    t.equal(identities.instances[1].scope.client, client);
+    t.equal(identities.instances[1].scope.isCurrent(), true);
+    t.assert(view.main.querySelector("[data-identity-list]").textContent.includes("Second private identity"));
+    t.assert(!view.main.textContent.includes("First private identity"));
+    t.assert(!view.main.querySelector("[data-identity-form]"), "the next account has not opened private details");
+  } finally { view.dispose(); }
+});
+
+testAsync("[app] auth loss aborts the identity context and discards its unsaved private form", async (t) => {
+  const identities = ownedIdentityFactory();
+  const session = sessionDouble({ authenticated: true, roles: [] });
+  const view = fixture("/identity", session, async () => ({}), authDouble(), identities);
+  try {
+    await view.app.start();
+    await settle();
+    const form = await openIdentity(view);
+    const name = changeIdentityName(form, "Do not retain this private draft");
+    const old = identities.instances[0];
+    session.set({ authenticated: false, roles: [] });
+    t.equal(old.scope.isCurrent(), false);
+    await settle();
+    t.equal(view.main.querySelector("h1").textContent, "Sign in required");
+    t.assert(!form.isConnected);
+    t.equal(name.value, "");
+    t.assert(old.requests.load[0][1]?.signal?.aborted);
+    t.assert(!view.main.querySelector("[data-identity-form]"));
+    t.assert(!view.root.textContent.includes("First private identity"));
+    t.equal(identities.instances.length, 1, "a signed-out account must not create an identity service");
+  } finally { view.dispose(); }
+});
+
+testAsync("[app] an old account's late identity list cannot replace the new account's summaries", async (t) => {
+  const gate = deferred();
+  const identities = ownedIdentityFactory(({ accountId }) => accountId === ACCOUNT_A ? { list: () => gate.promise } : {});
+  const session = sessionDouble({ authenticated: true, roles: [] });
+  const view = fixture("/identity", session, async () => ({}), authDouble(), identities);
+  try {
+    const starting = view.app.start();
+    await settle();
+    session.set({ accountId: ACCOUNT_B });
+    await settle();
+    gate.resolve({ own: identitySummary(identityRecord()), children: [] });
+    await starting;
+    await settle();
+    t.equal(identities.instances[0].scope.isCurrent(), false);
+    t.assert(identities.instances[0].requests.list[0][0]?.signal?.aborted);
+    t.assert(view.main.querySelector("[data-identity-list]").textContent.includes("Second private identity"));
+    t.assert(!view.main.textContent.includes("First private identity"));
+  } finally { gate.resolve({ own: null, children: [] }); view.dispose(); }
+});
+
+testAsync("[app] late private-detail success and failure cannot render across account changes", async (t) => {
+  for (const rejectOld of [false, true]) {
+    const gate = deferred();
+    const identities = ownedIdentityFactory(({ accountId }) => accountId === ACCOUNT_A ? { load: () => gate.promise } : {});
+    const session = sessionDouble({ authenticated: true, roles: [] });
+    const view = fixture("/identity", session, async () => ({}), authDouble(), identities);
+    try {
+      await view.app.start();
+      await settle();
+      view.main.querySelector('[data-identity-action="open"]').click();
+      await settle();
+      t.equal(identities.instances[0].requests.load.length, 1);
+      session.set({ accountId: ACCOUNT_B });
+      await settle();
+      if (rejectOld) gate.reject(new Error("Old account private load failed"));
+      else gate.resolve(identityRecord());
+      await settle();
+      t.equal(identities.instances[0].scope.isCurrent(), false);
+      t.assert(identities.instances[0].requests.load[0][1]?.signal?.aborted);
+      t.assert(view.main.querySelector("[data-identity-list]").textContent.includes("Second private identity"));
+      t.assert(!view.main.querySelector("[data-identity-form]"));
+      t.equal(view.main.querySelector("[data-identity-error]")?.textContent.trim() || "", "");
+      t.assert(!view.main.textContent.includes("Private test medical note"));
+    } finally { gate.resolve(identityRecord()); view.dispose(); }
+  }
+});
+
+testAsync("[app] a late save cannot restore the old account's editor or show success after an account switch", async (t) => {
+  const gate = deferred();
+  const identities = ownedIdentityFactory(({ accountId }) => accountId === ACCOUNT_A ? { update: () => gate.promise } : {});
+  const session = sessionDouble({ authenticated: true, roles: [] });
+  const view = fixture("/identity", session, async () => ({}), authDouble(), identities);
+  try {
+    await view.app.start();
+    await settle();
+    const form = await openIdentity(view);
+    const name = changeIdentityName(form, "Old account pending save");
+    form.querySelector('[data-identity-action="save"]').click();
+    await settle();
+    const old = identities.instances[0];
+    t.equal(old.requests.update.length, 1);
+    t.equal(old.requests.update[0][0], PLAYER_A);
+    t.equal(old.requests.update[0][1].display_name, "Old account pending save");
+    session.set({ accountId: ACCOUNT_B });
+    await settle();
+    gate.resolve(identityRecord(ACCOUNT_A, { display_name: "Old account pending save" }));
+    await settle();
+    t.equal(old.scope.isCurrent(), false);
+    t.assert(old.requests.update[0][2]?.signal?.aborted);
+    t.assert(!form.isConnected);
+    t.equal(name.value, "");
+    t.assert(view.main.querySelector("[data-identity-list]").textContent.includes("Second private identity"));
+    t.assert(!view.main.querySelector("[data-identity-form]"));
+    t.assert(!view.main.textContent.includes("Old account pending save"));
+    t.equal(view.main.querySelector("[data-identity-status]")?.textContent.trim() || "", "");
+    t.equal(old.requests.list.length, 1, "late completion must not initiate another old-account list request");
+  } finally { gate.resolve(identityRecord()); view.dispose(); }
 });

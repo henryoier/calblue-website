@@ -2,8 +2,9 @@
 
 The member app includes the **app shell** from issue #29 / PR #83 and **email magic-link sign-in**
 from issue #30: hash routing, session-aware navigation, saved sessions, profile loading, sign-out
-and an explicit **Refresh my access** action. The public website stays unchanged in the repository
-root. Identity editing, registration, check-in and billing still show feature placeholders.
+and an explicit **Refresh my access** action. **My identity** (issue #31) adds personal player details,
+guardian-managed identities and public-roster opt-in. The public website stays unchanged in the
+repository root. Registration, check-in and billing still show feature placeholders.
 All frontend files are public; Supabase Auth and row-level security protect backend data.
 
 See the [app-shell review and test guide](app-shell.md) for exactly what works, what is deferred,
@@ -11,6 +12,8 @@ the route/role matrix and the browser checks required before merge. No database 
 needs to be rerun for this PR. The seed's synthetic Auth rows are not browser-login accounts.
 See the [sign-in review and test guide](sign-in.md) for the new login workflow, callback limitations
 and the real-email checks that mocks cannot replace.
+See the [My identity review and test guide](identity.md) for creation/editing, privacy boundaries,
+date-of-birth restrictions and owner-run persistence/RLS checks.
 
 ## The one rule
 
@@ -59,12 +62,13 @@ app/
   js/
     app.js          Composition, route definitions and startup/retry lifecycle
     auth.js         Magic-link requests, safe return destinations and PKCE callbacks
+    identity.js     Scoped player reads/writes and identity form validation
     dom.js          Escaping template helper
     router.js       Hash routing, access checks, abort/cleanup and focus
     session.js      Session/JWT state and profile lifecycle
     supabase.js     Pinned, memoized SDK/client loader
     layout.js       Shared chrome, navigation and states
-  views/            Home, email sign-in, feature placeholders and 404
+  views/            Home, sign-in, identity forms, feature placeholders and 404
   tests/            Logic, async-session and browser integration checks
 ```
 
@@ -162,9 +166,12 @@ For administrator review or a future project replacement:
    `http://localhost:8080/app/` and `http://localhost:8091/app/` for these local previews.
    Avoid broad wildcard redirects. The production app origin is a plan, not a deployment made
    by this PR; do not launch private member features until it is correctly hosted and tested.
-5. Migrations and RLS from issues #25–#27 and the disposable seed from #28 have owner-reported
-   scratch verification. This does not certify the production project; review its actual policies
-   before live member use. Do not reapply released migrations or put demo seed data in production.
+5. On 2026-09-17 the owner applied migrations 0001–0003 to the configured project, passed the
+   installation metadata checks, and created the missing profile for their pre-existing Auth
+   account using a narrowly scoped, checked transaction. The owner then reported successful
+   sign-in/return-route, session persistence, sign-out, access refresh and used-link recovery.
+   These checks do not certify all RLS scenarios; see the identity guide for separate isolation
+   tests. Do not reapply released migrations or put demo seed data in this real-account project.
 6. Keep any future scheduled-job service credential only in the job runner secret store.
    For local server-side jobs, use a protected credential file **outside all served directories**
    or the runner secret store. `.env.example` lists variable names only; no server-side job or
