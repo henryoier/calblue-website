@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-16T17:50:32-07:00",
+  "generatedAt": "2026-09-16T18:55:57-07:00",
   "today": "2026-09-16",
   "items": [
     {
@@ -74,6 +74,20 @@
       "summary": "Win · Home · SWPL Pacific Premier League · Central Park Soccer Field",
       "image": "https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/swpl-sf-glens/thumb/026.jpg",
       "imageAlt": "CalBlue team before the SWPL season opener against SF Glens",
+      "scoreline": {
+        "home": {
+          "name": "CalBlue FC",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "away": {
+          "name": "SF Glens",
+          "logo": "https://nisa.sportzstudio.com/team_images/1788196248_thumb_a.png"
+        },
+        "score": {
+          "home": 3,
+          "away": 2
+        }
+      },
       "href": "gallery-swpl-sf-glens.html",
       "cta": "See the photos"
     },
@@ -97,8 +111,22 @@
       "date": "2026-09-12",
       "title": "CalBlue 6-1 GSF United",
       "summary": "Win · Away · 2026 NCCSF Fall League · Nordvik Park",
-      "image": "assets/hero/match-huddle.jpg",
+      "image": "",
       "imageAlt": "CalBlue FC against GSF United",
+      "scoreline": {
+        "home": {
+          "name": "GSF United",
+          "logo": "https://nccsf.org/en/img/team/logo/623.jpeg"
+        },
+        "away": {
+          "name": "CalBlue",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "score": {
+          "home": 1,
+          "away": 6
+        }
+      },
       "href": "competition-nccsf.html",
       "cta": "Full results and table"
     },

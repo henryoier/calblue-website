@@ -100,6 +100,10 @@ class BuildNewsTests(unittest.TestCase):
         nccsf = results[1]
         self.assertEqual(nccsf["href"], "competition-nccsf.html")
         self.assertIn("Away", nccsf["summary"])
+        self.assertEqual(nccsf["image"], "", "a result without its own photos never borrows one")
+        self.assertEqual(nccsf["scoreline"]["score"], {"home": 1, "away": 6})
+        self.assertEqual(nccsf["scoreline"]["away"]["logo"], "assets/calblue-logo-web.jpg", "CalBlue uses the site crest")
+        self.assertEqual(nccsf["scoreline"]["home"]["name"], "GSF United")
 
     def test_gallery_cards_carry_competition_and_count(self):
         feed = self.build()

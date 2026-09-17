@@ -24,9 +24,9 @@ class Element {
 class Resolved { constructor(value) { this.value = value; } then(callback) { return new Resolved(callback(this.value)); } }
 const items = [
   { slug: 'matchday-2026-09-19-bay-area-united', category: 'Match day', date: '2026-09-19', title: 'Match day: CalBlue FC vs Bay Area United', summary: 'Saturday', image: 'assets/matchday/x.webp', href: 'index.html#matchday', cta: 'See the poster', poster: true },
-  { slug: 'welcome', category: 'Club', date: '2026-09-15', title: 'Welcome', summary: 'Intro.', image: 'a.jpg', href: 'news.html?post=welcome', cta: 'Read more', body: ['One.', 'Two.'] },
+  { slug: 'welcome', category: 'Club', date: '2026-09-15', title: 'Welcome', summary: 'Intro.', image: '', href: 'news.html?post=welcome', cta: 'Read more', body: ['One.', 'Two.'] },
   { slug: 'instagram-1', category: 'Instagram', date: '2026-09-14', title: 'Three points!', summary: '', image: 'assets/news/instagram/1.jpg', href: 'https://www.instagram.com/p/1/', external: true, cta: 'View on Instagram' },
-  { slug: 'result-2026-09-13-sf-glens', category: 'Result', outcome: 'Win', date: '2026-09-13', title: 'CalBlue 3-2 SF Glens', summary: 'Win · Away', image: 'g.jpg', href: 'gallery-swpl-sf-glens.html', cta: 'See the photos' },
+  { slug: 'result-2026-09-13-sf-glens', category: 'Result', outcome: 'Win', date: '2026-09-13', title: 'CalBlue 3-2 SF Glens', summary: 'Win · Away', image: '', href: 'gallery-swpl-sf-glens.html', cta: 'See the photos', scoreline: { home: { name: 'SF Glens', logo: 'https://cdn/glens.png' }, away: { name: 'CalBlue FC', logo: 'assets/calblue-logo-web.jpg' }, score: { home: 2, away: 3 } } },
   { slug: 'squad-2026-09-12-swpl', category: 'Squad', date: '2026-09-12', title: '2 new faces on the SWPL roster', summary: 'Welcome A and B.', image: 'a.jpg', href: 'competition-swpl.html#roster', cta: 'Meet the squad', players: [{ name: 'A Player', photo: 'a.jpg' }, { name: 'B Player', photo: '' }] },
   { slug: 'gallery-2026-09-13-sf-glens', category: 'Gallery', date: '2026-09-13', title: 'Photos: CalBlue vs SF Glens', summary: '99 photos', image: 'g.jpg', href: 'gallery-swpl-sf-glens.html', cta: 'Open the album' },
 ];
@@ -71,6 +71,11 @@ const squadFigure = cards[4].children[0].children[0];
 assert(squadFigure.className === 'news-portraits has-2' && squadFigure.children.length === 2, 'Squad cards show one portrait per new player');
 assert(squadFigure.children[0].alt === 'A Player' && squadFigure.children[1].src === 'assets/calblue-logo-web.jpg', 'Portraits are labelled and fall back to the club crest');
 assert(cards[3].children[0].children[1].children[0].children[0].textContent === 'Result · Win', 'Result tag includes the outcome');
+const scoreFigure = cards[3].children[0].children[0];
+assert(scoreFigure.className === 'news-scoreline' && scoreFigure.children.length === 3, 'A result without its own photo gets a generated scoreline tile');
+assert(scoreFigure.children[1].textContent === '2 – 3' && scoreFigure.children[0].children[0].src === 'https://cdn/glens.png', 'Scoreline shows home crest, score, away crest');
+const clubFigure = cards[1].children[0].children[0];
+assert(clubFigure.className === 'news-generic', 'Cards with no image at all get the club tile');
 
 // 3. Filters: buttons per category; clicking one filters the grid.
 const bar = feed.querySelector('[data-news-filters]');

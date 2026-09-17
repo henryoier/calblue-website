@@ -165,10 +165,12 @@ def main() -> int:
         if news.get("schemaVersion") != 1 or not isinstance(news.get("items"), list):
             errors.append("data/news.json: expected schemaVersion 1 with an items list")
         for item in news.get("items", []):
-            for key in ("slug", "category", "date", "title", "image", "href"):
+            for key in ("slug", "category", "date", "title", "href"):
                 if not item.get(key):
                     errors.append(f"data/news.json: item missing {key}: {item.get('slug') or item}")
                     break
+            if not item.get("image") and not item.get("scoreline") and not item.get("players") and item.get("category") not in {"Club", "Instagram"}:
+                errors.append(f"data/news.json: {item.get('slug')} has neither an image nor a generated tile")
             for key in ("image", "href"):
                 value = str(item.get(key, ""))
                 local = value.split("#", 1)[0].split("?", 1)[0]

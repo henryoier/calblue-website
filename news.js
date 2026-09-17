@@ -34,6 +34,36 @@
         portrait.addEventListener('error', () => { portrait.src = 'assets/calblue-logo-web.jpg'; }, { once: true });
         figure.append(portrait);
       });
+    } else if (!item.image && item.scoreline) {
+      // Result without photos of its own: crests and the final score, never a photo from another game.
+      figure.className = 'news-scoreline';
+      [['home', item.scoreline.home], ['away', item.scoreline.away]].forEach(([side, team], index) => {
+        if (index === 1) {
+          const score = document.createElement('strong');
+          score.textContent = `${item.scoreline.score.home} – ${item.scoreline.score.away}`;
+          score.setAttribute('aria-label', `Final score ${item.scoreline.score.home} to ${item.scoreline.score.away}`);
+          figure.append(score);
+        }
+        const team_ = document.createElement('span');
+        team_.className = `news-scoreline-team is-${side}`;
+        const crest = document.createElement('img');
+        crest.src = team.logo || 'assets/calblue-logo-web.jpg';
+        crest.alt = `${team.name} crest`;
+        crest.loading = 'lazy';
+        crest.addEventListener('error', () => { crest.src = 'assets/calblue-logo-web.jpg'; }, { once: true });
+        const name = document.createElement('small');
+        name.textContent = team.name;
+        team_.append(crest, name);
+        figure.append(team_);
+      });
+    } else if (!item.image) {
+      figure.className = 'news-generic';
+      const crest = document.createElement('img');
+      crest.src = 'assets/calblue-logo-web.jpg';
+      crest.alt = 'CalBlue FC crest';
+      const label = document.createElement('span');
+      label.textContent = item.category;
+      figure.append(crest, label);
     } else {
       const image = document.createElement('img');
       image.src = item.image;

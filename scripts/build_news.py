@@ -24,7 +24,8 @@ from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parent.parent
 PACIFIC = ZoneInfo("America/Los_Angeles")
-DEFAULT_IMAGE = "assets/hero/match-huddle.jpg"
+CLUB_CREST = "assets/calblue-logo-web.jpg"
+DEFAULT_IMAGE = ""   # no borrowed photos: cards without their own image get a generated tile in news.js
 CATEGORY_ORDER = {"Club": 0, "Match day": 1, "Result": 2, "Squad": 3, "Gallery": 4, "Instagram": 5}
 LEAGUE_LABEL = {"swpl": "SWPL Pacific Premier League", "nccsf": "NCCSF Fall League"}
 LEAGUE_PAGE = {"swpl": "competition-swpl.html#roster", "nccsf": "competition-nccsf.html#roster"}
@@ -144,8 +145,13 @@ def result_items(feeds: dict[str, dict | None], albums: list[dict]) -> list[dict
                     "summary": " · ".join(
                         [outcome, "Home" if calblue_home else "Away", competition, str(result.get("venue", {}).get("name") or "")]
                     ).rstrip(" ·"),
-                    "image": album["image"] if album else DEFAULT_IMAGE,
+                    "image": album["image"] if album else "",
                     "imageAlt": album["alt"] if album else f"CalBlue FC against {opponent}",
+                    "scoreline": {
+                        "home": {"name": home, "logo": CLUB_CREST if calblue_home else (result["home"].get("logo") or "")},
+                        "away": {"name": away, "logo": CLUB_CREST if not calblue_home else (result["away"].get("logo") or "")},
+                        "score": {"home": score["home"], "away": score["away"]},
+                    },
                     "href": album["href"] if album else ("competition-nccsf.html" if feed_name == "nccsf" else "competition-swpl.html"),
                     "cta": "See the photos" if album else "Full results and table",
                 }
@@ -210,7 +216,7 @@ def instagram_items(data: dict | None) -> list[dict]:
                 "date": str(post.get("timestamp") or "")[:10],
                 "title": title,
                 "summary": rest.strip().replace("\n", " ")[:180],
-                "image": post.get("image") or DEFAULT_IMAGE,
+                "image": post.get("image") or "",
                 "imageAlt": f"Instagram post by @calbluefc: {title}",
                 "href": post.get("permalink") or "https://www.instagram.com/calbluefc/",
                 "external": True,
@@ -242,11 +248,11 @@ def squad_items(history: dict | None) -> list[dict]:
                 "date": day,
                 "title": f"{len(names)} new {'face' if len(names) == 1 else 'faces'} on the {label.split()[0]} roster",
                 "summary": f"Welcome {listed}, now registered for the {label}.",
-                "image": next((p["photo"] for p in players if p.get("photo")), DEFAULT_IMAGE),
+                "image": next((p["photo"] for p in players if p.get("photo")), ""),
                 "imageAlt": f"{names[0]}, newly registered with CalBlue FC" if names else "CalBlue FC",
                 "href": LEAGUE_PAGE.get(league, "players.html"),
                 "cta": "Meet the squad",
-                "players": [{"name": p["name"], "photo": p.get("photo") or "assets/calblue-logo-web.jpg", "profile": p.get("profile") or ""} for p in players],
+                "players": [{"name": p["name"], "photo": p.get("photo") or CLUB_CREST, "profile": p.get("profile") or ""} for p in players],
             }
         )
     return items
@@ -264,7 +270,7 @@ def post_items(data: dict | None) -> list[dict]:
                 "date": post["date"],
                 "title": post["title"],
                 "summary": post.get("summary") or "",
-                "image": post.get("image") or DEFAULT_IMAGE,
+                "image": post.get("image") or "",
                 "imageAlt": post.get("imageAlt") or post["title"],
                 "href": f"news.html?post={slug}",
                 "cta": "Read more",

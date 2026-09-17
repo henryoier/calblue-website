@@ -526,3 +526,13 @@ footer { padding: 72px 0 24px; color: white; background: #04112a; }
 .news-card .news-portraits.has-4 img, .news-card .news-portraits.has-5 img, .news-card .news-portraits.has-6 img { width: 20%; }
 .news-card .news-portraits.has-5, .news-card .news-portraits.has-6 { flex-wrap: wrap; }
 .news-card:hover .news-portraits img { transform: translateY(-3px); }
+
+/* Generated tiles for cards without a photo of their own */
+.news-card .news-scoreline, .news-card .news-generic { display: flex; align-items: center; justify-content: center; gap: 22px; padding: 24px; background: linear-gradient(135deg, var(--navy), var(--navy-soft)); color: white; aspect-ratio: 16 / 10; }
+.news-card .news-scoreline-team { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 30%; text-align: center; }
+.news-card .news-scoreline img, .news-card .news-generic img { width: 76px; height: 76px; border-radius: 50%; border: 3px solid white; object-fit: contain; background: white; transform: none; }
+.news-card .news-scoreline small { font: 700 12px/1.2 var(--display); letter-spacing: .06em; text-transform: uppercase; }
+.news-card .news-scoreline strong { font: 800 clamp(40px, 4vw, 56px)/1 var(--display); color: var(--cyan); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.news-card .news-generic { flex-direction: column; gap: 14px; }
+.news-card .news-generic span { font: 700 13px/1 var(--display); letter-spacing: .16em; text-transform: uppercase; color: var(--cyan); }
+.news-card:hover .news-scoreline img, .news-card:hover .news-generic img { transform: none; }
