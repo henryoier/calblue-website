@@ -121,7 +121,7 @@
       button.setAttribute('aria-pressed', String((feed.dataset.newsActive || '') === category));
       button.addEventListener('click', () => {
         feed.dataset.newsActive = category;
-        bar.children.forEach((sibling) => sibling.setAttribute('aria-pressed', String(sibling === button)));
+        [...bar.children].forEach((sibling) => sibling.setAttribute('aria-pressed', String(sibling === button)));
         renderFeed(feed, items);
       });
       return button;
