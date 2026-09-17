@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-09T22:27:44.939850+00:00",
+  "updatedAt": "2026-09-17T00:37:00.667635+00:00",
   "competitions": {
     "swpl": {
       "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
@@ -90,6 +90,13 @@
           "profile": "https://pacific.swplsoccer.com/roster/xinghang-sun"
         },
         {
+          "name": "Bryan Peltier",
+          "number": "1",
+          "position": "Goalkeeper",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16219/securefiles/1789054252_hs.png",
+          "profile": "https://pacific.swplsoccer.com/roster/bryan-peltier"
+        },
+        {
           "name": "Elshad Kadeer",
           "number": "",
           "position": "Defender",
@@ -132,11 +139,39 @@
           "profile": "https://pacific.swplsoccer.com/roster/siyu-chen"
         },
         {
+          "name": "Kevin Yu",
+          "number": "",
+          "position": "Midfielder",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16251/securefiles/1788978870_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/kevin-yu"
+        },
+        {
           "name": "Kevin Gao",
           "number": "",
           "position": "Midfielder",
           "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16252/securefiles/1788988232_hs.png",
           "profile": "https://pacific.swplsoccer.com/roster/kevin-gao"
+        },
+        {
+          "name": "Chenge Yang",
+          "number": "",
+          "position": "Midfielder",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16265/securefiles/1789017301_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/chenge-yang"
+        },
+        {
+          "name": "Mingxuan Zhao",
+          "number": "",
+          "position": "Midfielder",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16290/securefiles/1789108698_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/mingxuan--zhao"
+        },
+        {
+          "name": "Zheng Chang",
+          "number": "",
+          "position": "Goalkeeper",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16392/securefiles/1789582833_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/zheng-chang"
         }
       ]
     },
@@ -176,6 +211,13 @@
             "https://nccsf.org/en/img/player/photo/11/1145_Gf3eMncAkx.jpg",
             "https://nccsf.org/en/img/player/photo/11/thumb-1145.jpg"
           ]
+        },
+        {
+          "name": "Lu Fang",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/12/thumb-1221.jpg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1221"
         },
         {
           "name": "Sheng Qin",
@@ -442,17 +484,6 @@
           ]
         },
         {
-          "name": "Robert Peng",
-          "number": "",
-          "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/220/22099_lrw2detQYu.jpeg",
-          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22099",
-          "photos": [
-            "https://nccsf.org/en/img/player/photo/220/22099_lrw2detQYu.jpeg",
-            "https://nccsf.org/en/img/player/photo/220/thumb-22099.jpeg"
-          ]
-        },
-        {
           "name": "Yuran Wang",
           "number": "",
           "position": "",
@@ -462,6 +493,13 @@
             "https://nccsf.org/en/img/player/photo/221/22194_OsV8FZDn05.jpeg",
             "https://nccsf.org/en/img/player/photo/221/thumb-22194.jpeg"
           ]
+        },
+        {
+          "name": "Jincheng Zhao",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/222/thumb-22210.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22210"
         },
         {
           "name": "Yujie Miao",

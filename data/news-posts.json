@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "note": "Hand-written club news. Each post: slug (optional), date (YYYY-MM-DD), title, summary, body (list of paragraphs), image (repo path or https URL), imageAlt, category (default Club), author (optional). Run python3 scripts/build_news.py after editing.",
+  "posts": []
+}

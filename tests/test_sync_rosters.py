@@ -43,3 +43,37 @@ class RosterTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class RosterHistoryTests(unittest.TestCase):
+    ROSTERS = {
+        'swpl': {'seasonStartsOn': '2026-09-13', 'players': [{'name': 'Sheng Qin', 'profile': 'https://x/sq', 'photo': 'https://x/sq.jpg'}, {'name': 'Suhau Kuo'}]},
+        'nccsf': {'seasonStartsOn': '2026-09-12', 'players': [{'name': 'Sheng Qin'}]},
+    }
+
+    def test_first_run_seeds_the_squad_without_reporting_anyone(self):
+        from scripts.sync_rosters import update_history
+        history, newly = update_history({}, self.ROSTERS, '2026-09-09')
+        self.assertEqual(newly, [])
+        self.assertEqual(sorted(history['players']), ['nccsf:sheng qin', 'swpl:sheng qin', 'swpl:suhau kuo'], 'players are tracked per league')
+        self.assertEqual(history['players']['swpl:sheng qin']['firstSeen'], '2026-09-13', 'seeded players are dated to the season start')
+        self.assertTrue(history['players']['swpl:sheng qin']['seeded'])
+        self.assertEqual(history['players']['swpl:sheng qin']['profile'], 'https://x/sq')
+
+    def test_later_runs_report_new_players_and_keep_everyone_else(self):
+        from scripts.sync_rosters import update_history
+        history, _ = update_history({}, self.ROSTERS, '2026-09-09')
+        rosters = {
+            'swpl': {'seasonStartsOn': '2026-09-13', 'players': [{'name': 'Sheng Qin'}, {'name': 'Zheng Chang', 'photo': 'https://x/zc.jpg'}]},
+            'nccsf': {'seasonStartsOn': '2026-09-12', 'players': [{'name': 'Sheng Qin'}, {'name': 'Lu Fang'}]},
+        }
+        history, newly = update_history(history, rosters, '2026-09-16')
+        self.assertEqual([(p['league'], p['name'], p['firstSeen'], p['seeded']) for p in newly],
+                         [('swpl', 'Zheng Chang', '2026-09-16', False), ('nccsf', 'Lu Fang', '2026-09-16', False)])
+        self.assertEqual(newly[0]['photo'], 'https://x/zc.jpg')
+        self.assertIn('swpl:suhau kuo', history['players'], 'a player missing from one sync is not forgotten')
+        self.assertEqual(history['players']['swpl:suhau kuo']['lastSeen'], '2026-09-09')
+        self.assertEqual(history['players']['swpl:sheng qin']['lastSeen'], '2026-09-16')
+        again, newly_again = update_history(history, rosters, '2026-09-17')
+        self.assertEqual(newly_again, [], 'already-known players are not reported twice')
+        self.assertEqual(again['players']['swpl:zheng chang']['firstSeen'], '2026-09-16', 'first-seen dates are stable')

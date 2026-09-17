@@ -20,12 +20,13 @@
     <title>CalBlue Soccer Club</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="preload" as="image" href="assets/hero/match-penalty.jpg" fetchpriority="high" />
-    <link rel="stylesheet" href="styles.css?v=20260913a" data-site-stylesheet />
+    <link rel="stylesheet" href="styles.css?v=20260916a" data-site-stylesheet />
     <link rel="stylesheet" href="designs/switcher.css?v=20260826a" />
     <script src="designs/registry.js?v=20260913a"></script>
     <script src="designs/switcher.js?v=20260826a"></script>
     <script defer src="home-gallery.js?v=20260826e"></script>
     <script defer src="swpl-schedule.js?v=20260916a"></script>
+    <script defer src="news.js?v=20260916a"></script>
     <script defer src="script.js?v=20260913a"></script>
     <script type="application/ld+json">
       {
@@ -66,6 +67,7 @@
           <a href="#teams">Teams</a>
           <a href="players.html">Players</a>
           <a href="gallery.html">Gallery</a>
+          <a href="news.html">News</a>
           <a href="competitions.html">Competitions</a>
           <a href="#contact">Contact</a>
           <a class="button button-small" href="#join">Join CalBlue</a>
@@ -103,6 +105,18 @@
             <span class="hero-ticker-set"><span>COMPETE WITH PURPOSE</span><b>◆</b><span>PLAY AS ONE</span><b>◆</b><span>REPRESENT THE BAY</span><b>◆</b></span>
             <span class="hero-ticker-set"><span>COMPETE WITH PURPOSE</span><b>◆</b><span>PLAY AS ONE</span><b>◆</b><span>REPRESENT THE BAY</span><b>◆</b></span>
           </div>
+        </div>
+      </section>
+
+      <section class="news section" id="news" data-news-feed data-news-limit="6">
+        <div class="shell">
+          <div class="news-heading">
+            <div><p class="section-tag">Latest</p><h2>Fresh from<br />the club.</h2></div>
+            <p class="news-lead">Results, the next match-day poster, new photo albums and club updates, newest first.</p>
+          </div>
+          <div class="news-grid" data-news-grid></div>
+          <p class="news-empty" data-news-empty hidden>Nothing published yet. Check back after the next match.</p>
+          <div class="news-actions"><a class="button button-dark" href="news.html">All club news</a></div>
         </div>
       </section>
 
@@ -172,7 +186,7 @@
         </div>
       </section>
 
-      <section class="matchday-poster section" data-matchday-poster aria-labelledby="matchday-poster-title">
+      <section class="matchday-poster section" id="matchday" data-matchday-poster aria-labelledby="matchday-poster-title">
         <div class="shell matchday-poster-grid">
           <figure class="matchday-poster-art">
             <a data-poster-link href="assets/matchday/2026-fall/2026-09-19-bay-area-united-styled-v2.webp" target="_blank" aria-label="Open the full-size CalBlue match-day poster">

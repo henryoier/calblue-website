@@ -27,6 +27,21 @@ Validate the site before publishing:
 python3 scripts/check_site.py
 ```
 
+## Club news feed
+
+The homepage "Latest" section and `news.html` render `data/news.json`, which `scripts/build_news.py` assembles from sources already in the repository, newest first:
+
+- published results in `data/swpl.json` and `data/nccsf.json` (with the matching gallery album when one exists),
+- match albums in `gallery.html`,
+- the next fixture that has match-day posters in `data/matchday-posters.json` (one preview card, including any storylines),
+- hand-written posts in `data/news-posts.json` (title, summary, body paragraphs, image; they open on `news.html?post=<slug>`),
+- Instagram posts in `data/instagram.json`,
+- newly registered players from `data/roster-history.json`: `scripts/sync_rosters.py` records when each player first appears on each league roster; the squad present when the history was created is the seeded season squad and is never announced, later arrivals become one "Squad" card per league per day. The history is committed; a scheduled deployment that notices a new player dates them to that deploy until a maintainer runs the roster sync locally and commits.
+
+The deploy workflow rebuilds the feed after the schedule syncs, so results appear within the six-hour cycle. After editing posts locally run `python3 scripts/build_news.py`; `tests/test_build_news.py` fails when the committed feed is stale.
+
+Instagram does not serve posts to anonymous readers, so `scripts/sync_instagram.py` needs credentials. The deploy workflow runs it on every deployment when the `IG_ACCESS_TOKEN` repository secret is set (an Instagram API token for the club's professional account, valid for 60 days), and falls back to the committed `data/instagram.json` when the secret is missing or the API call fails. A maintainer can also run it locally and commit the output. It accepts an Instagram API access token for the club account (`--token`), a saved API response (`--source-file`), or a list of public post URLs (`--post-urls`, one per line, using Instagram's public embed page for each post). It stores only caption, permalink, timestamp and one image per post under `assets/news/instagram/`.
+
 ## Match-day posters
 
 The homepage poster block follows the next fixture that has artwork in `data/matchday-posters.json`. Each fixture ships two no-photo designs under `assets/matchday/2026-fall/` (a distinctive per-game style and the classic navy/gold/cream layout, both 1296×1616 WebP with the SWPL and Pacific Premier League marks). `swpl-schedule.js` picks one of the two at random on every visit; append `?poster=1` or `?poster=2` to the homepage URL to force a design for review. Fixtures without artwork (for example NCCSF games) are skipped, and the block hides itself when nothing upcoming has a poster.
@@ -56,7 +71,7 @@ python3 scripts/sync_nccsf.py \
 rm -rf "$nccsf_sync_dir"
 ```
 
-The deploy workflow runs both syncs every six hours and before every Pages deployment. It writes small `data/swpl.json` and `data/nccsf.json` snapshots. The homepage merges both feeds chronologically and emphasizes the next five matches; dedicated SWPL and NCCSF pages show each complete season schedule and published results.
+The deploy workflow runs both syncs every six hours, hourly through match weekends (Saturday and Sunday, until Sunday evening Pacific), and before every Pages deployment. It writes small `data/swpl.json` and `data/nccsf.json` snapshots. The homepage merges both feeds chronologically and emphasizes the next five matches; dedicated SWPL and NCCSF pages show each complete season schedule and published results.
 
 SWPL published the full league and Abronzino Cup schedule on September 14, 2026. The sync reads CalBlue’s official team profile, which was verified against [the league-wide schedule](https://pacific.swplsoccer.com/schedule). All former preview fixtures have been retired from `data/swpl-overrides.json`; its empty `fixtures` list keeps manual-override support available without allowing obsolete previews to reappear if SWPL removes a fixture. Original image transcriptions remain in Git history. Times use Pacific Time with the correct daylight-saving offsets, and a published TBA kickoff stays undecided. Any future manual override should be deliberately reviewed; official rows replace matching overrides within the same competition, keeping league and Cup games against the same opponent separate.
 
