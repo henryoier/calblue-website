@@ -61,18 +61,16 @@ export function testAsync(name, fn) {
   });
 }
 
-export async function report(into) {
-  await pending;
-  const failed = results.filter((r) => r.failures.length);
-  const total = results.length;
-  window.__testResults = { total, failed: failed.length, results };
-  document.title = failed.length ? `FAIL ${failed.length}/${total}` : `PASS ${total}/${total}`;
-
+// Synchronous rendering is independently testable without waiting on the test
+// queue itself. Synthetic report fixtures must never become real test results.
+export function renderReport(into, records) {
+  const failed = records.filter((record) => record.failures.length);
+  const total = records.length;
   const summary = document.createElement("p");
   summary.className = `summary ${failed.length ? "bad" : "ok"}`;
   summary.textContent = failed.length ? `${failed.length} of ${total} failed` : `all ${total} passed`;
   const list = document.createElement("ul");
-  for (const r of results) {
+  for (const r of records) {
     const ok = r.failures.length === 0;
     const item = document.createElement("li");
     item.className = ok ? "ok" : "bad";
@@ -83,4 +81,14 @@ export async function report(into) {
     list.appendChild(item);
   }
   into.replaceChildren(summary, list);
+  return { total, failed: failed.length, results: records };
+}
+
+// Only the final page bootstrap calls this after registering every suite.
+// Calling it from a queued test would wait on that test's own completion.
+export async function report(into) {
+  await pending;
+  const result = renderReport(into, results);
+  window.__testResults = result;
+  document.title = result.failed ? `FAIL ${result.failed}/${result.total}` : `PASS ${result.total}/${result.total}`;
 }
