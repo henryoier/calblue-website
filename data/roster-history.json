@@ -320,20 +320,22 @@
     "swpl:bryan peltier": {
       "name": "Bryan Peltier",
       "league": "swpl",
-      "firstSeen": "2026-09-16",
-      "seeded": false,
+      "firstSeen": "2026-09-13",
+      "seeded": true,
       "lastSeen": "2026-09-16",
       "profile": "https://pacific.swplsoccer.com/roster/bryan-peltier",
-      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16219/securefiles/1789054252_hs.png"
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16219/securefiles/1789054252_hs.png",
+      "note": "Confirmed by the club as part of the season squad; the SWPL page listed them late."
     },
     "swpl:chenge yang": {
       "name": "Chenge Yang",
       "league": "swpl",
-      "firstSeen": "2026-09-16",
-      "seeded": false,
+      "firstSeen": "2026-09-13",
+      "seeded": true,
       "lastSeen": "2026-09-16",
       "profile": "https://pacific.swplsoccer.com/roster/chenge-yang",
-      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16265/securefiles/1789017301_hs.jpg"
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16265/securefiles/1789017301_hs.jpg",
+      "note": "Confirmed by the club as part of the season squad; the SWPL page listed them late."
     },
     "swpl:chengzhe feng": {
       "name": "Chengzhe Feng",
@@ -401,11 +403,12 @@
     "swpl:kevin yu": {
       "name": "Kevin Yu",
       "league": "swpl",
-      "firstSeen": "2026-09-16",
-      "seeded": false,
+      "firstSeen": "2026-09-13",
+      "seeded": true,
       "lastSeen": "2026-09-16",
       "profile": "https://pacific.swplsoccer.com/roster/kevin-yu",
-      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16251/securefiles/1788978870_hs.jpg"
+      "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16251/securefiles/1788978870_hs.jpg",
+      "note": "Confirmed by the club as part of the season squad; the SWPL page listed them late."
     },
     "swpl:matthew li": {
       "name": "Matthew Li",
