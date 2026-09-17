@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-16T17:45:53-07:00",
+  "generatedAt": "2026-09-16T17:46:31-07:00",
   "today": "2026-09-16",
   "items": [
     {
@@ -17,22 +17,6 @@
       "poster": true
     },
     {
-      "id": "squad-2026-09-16-nccsf",
-      "slug": "squad-2026-09-16-nccsf",
-      "category": "Squad",
-      "date": "2026-09-16",
-      "title": "2 new faces on the NCCSF roster",
-      "summary": "Welcome Jincheng Zhao and Lu Fang, now registered for the NCCSF Fall League.",
-      "image": "https://nccsf.org/en/img/player/photo/222/thumb-22210.jpeg",
-      "imageAlt": "Jincheng Zhao, newly registered with CalBlue FC",
-      "href": "competition-nccsf.html#roster",
-      "cta": "Meet the squad",
-      "players": [
-        "Jincheng Zhao",
-        "Lu Fang"
-      ]
-    },
-    {
       "id": "squad-2026-09-16-swpl",
       "slug": "squad-2026-09-16-swpl",
       "category": "Squad",
@@ -46,6 +30,22 @@
       "players": [
         "Mingxuan Zhao",
         "Zheng Chang"
+      ]
+    },
+    {
+      "id": "squad-2026-09-16-nccsf",
+      "slug": "squad-2026-09-16-nccsf",
+      "category": "Squad",
+      "date": "2026-09-16",
+      "title": "2 new faces on the NCCSF roster",
+      "summary": "Welcome Jincheng Zhao and Lu Fang, now registered for the NCCSF Fall League.",
+      "image": "https://nccsf.org/en/img/player/photo/222/thumb-22210.jpeg",
+      "imageAlt": "Jincheng Zhao, newly registered with CalBlue FC",
+      "href": "competition-nccsf.html#roster",
+      "cta": "Meet the squad",
+      "players": [
+        "Jincheng Zhao",
+        "Lu Fang"
       ]
     },
     {

@@ -28,6 +28,7 @@ DEFAULT_IMAGE = "assets/hero/match-huddle.jpg"
 CATEGORY_ORDER = {"Club": 0, "Match day": 1, "Result": 2, "Squad": 3, "Gallery": 4, "Instagram": 5}
 LEAGUE_LABEL = {"swpl": "SWPL Pacific Premier League", "nccsf": "NCCSF Fall League"}
 LEAGUE_PAGE = {"swpl": "competition-swpl.html#roster", "nccsf": "competition-nccsf.html#roster"}
+LEAGUE_ORDER = {"swpl": 0, "nccsf": 1}   # SWPL first when cards share a day
 
 
 def slugify(value: str) -> str:
@@ -227,7 +228,7 @@ def squad_items(history: dict | None) -> list[dict]:
             continue
         groups.setdefault((entry["league"], entry["firstSeen"]), []).append(entry)
     items = []
-    for (league, day), players in sorted(groups.items()):
+    for (league, day), players in sorted(groups.items(), key=lambda item: (item[0][1], LEAGUE_ORDER.get(item[0][0], 9), item[0][0])):
         players.sort(key=lambda p: p["name"])
         names = [p["name"] for p in players]
         label = LEAGUE_LABEL.get(league, league.upper())

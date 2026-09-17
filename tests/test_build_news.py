@@ -138,8 +138,8 @@ class BuildNewsTests(unittest.TestCase):
     def test_new_roster_players_become_squad_cards_per_league_and_day(self):
         feed = self.build()
         squad = self.by(feed, "Squad")
-        self.assertEqual([s["title"] for s in squad], ["1 new face on the NCCSF roster", "2 new faces on the SWPL roster"])
-        swpl = squad[1]
+        self.assertEqual([s["title"] for s in squad], ["2 new faces on the SWPL roster", "1 new face on the NCCSF roster"], "SWPL leads when cards share a day")
+        swpl = squad[0]
         self.assertEqual(swpl["summary"], "Welcome Kevin Yu and Zheng Chang, now registered for the SWPL Pacific Premier League.")
         self.assertEqual(swpl["image"], "https://x/zc.jpg", "a new player's photo fronts the card when one exists")
         self.assertEqual(swpl["href"], "competition-swpl.html#roster")
