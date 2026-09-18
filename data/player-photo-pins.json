@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "note": "Club-supplied photos that should lead wherever the player appears (Players page and competition rosters). Keyed by player name as shown on the site; league photos remain fallbacks.",
+  "pins": {
+    "Bennett Lee": "assets/roster/bennett-lee.jpg"
+  }
+}
