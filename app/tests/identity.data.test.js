@@ -14,7 +14,7 @@ export function identityDataTests(identity, t) {
       verification_status: "pending", is_public: false, default_positions: ["CM"], preferred_number: 0,
       legal_name: "PRIVATE LEGAL", date_of_birth: "1990-01-01", jersey_size: "M",
       emergency_contact_name: "PRIVATE CONTACT", emergency_contact_phone: "PRIVATE PHONE",
-      medical_notes: "PRIVATE MEDICAL", ...overrides };
+      medical_notes: "PRIVATE MEDICAL", verification_note: null, ...overrides };
   }
 
   function deferred() {
@@ -78,7 +78,7 @@ export function identityDataTests(identity, t) {
   }
 
   t.testAsync("[identity] list queries only summaries, explicitly scopes ownership and strips injected private fields", async (a) => {
-    const own = row({ claim_code: "PROVIDER SECRET", roles: ["admin"] });
+    const own = row({ claim_code: "PROVIDER SECRET", roles: ["admin"], verification_note: "PRIVATE ADMIN NOTE" });
     const child = row({ id: playerB, account_id: null, guardian_account_id: accountA, display_name: "Child" });
     const foreign = row({ id: playerC, account_id: accountB, display_name: "Someone else" });
     const client = database({ data: [own, child, foreign], error: null });
@@ -88,7 +88,7 @@ export function identityDataTests(identity, t) {
     a.equal(result.children[0].id, playerB);
     a.equal(step(client.calls[0], "or")[0], ownerFilter);
     const projection = step(client.calls[0], "select")[0];
-    for (const privateField of ["medical_notes", "emergency_contact_name", "emergency_contact_phone", "legal_name", "date_of_birth", "claim_code"]) {
+    for (const privateField of ["medical_notes", "emergency_contact_name", "emergency_contact_phone", "legal_name", "date_of_birth", "claim_code", "verification_note"]) {
       a.assert(!projection.includes(privateField));
       a.assert(!Object.prototype.hasOwnProperty.call(result.own, privateField));
       a.assert(!Object.prototype.hasOwnProperty.call(result.children[0], privateField));
@@ -125,10 +125,12 @@ export function identityDataTests(identity, t) {
     const client = database({ data: source, error: null });
     const detail = await service(client).load(playerA);
     a.equal(detail.medical_notes, "PRIVATE MEDICAL");
+    a.equal(detail.verification_note, "PRIVATE ADMIN NOTE");
+    a.assert(step(client.calls[0], "select")[0].includes("verification_note"));
     a.equal(step(client.calls[0], "eq").join("|"), "id|" + playerA);
     a.equal(step(client.calls[0], "or")[0], ownerFilter);
     a.assert(Boolean(step(client.calls[0], "maybeSingle")));
-    for (const field of ["verification_note", "claim_code", "payer_account_id", "created_at", "photo_url", "home_club_id"]) {
+    for (const field of ["claim_code", "payer_account_id", "created_at", "photo_url", "home_club_id"]) {
       a.assert(!Object.prototype.hasOwnProperty.call(detail, field));
       a.assert(!step(client.calls[0], "select")[0].split(",").includes(field));
     }
@@ -144,7 +146,7 @@ export function identityDataTests(identity, t) {
   t.testAsync("[identity] missing, foreign, mismatched and malformed detail results fail closed", async (a) => {
     for (const data of [null, [], row({ id: playerB }), row({ account_id: accountB }),
       row({ preferred_number: "0" }), row({ is_public: "false" }), row({ date_of_birth: "2026-02-31" }),
-      row({ verification_status: "admin" }), row({ medical_notes: undefined })]) {
+      row({ verification_status: "admin" }), row({ medical_notes: undefined }), row({ verification_note: 123 })]) {
       await rejectCode(service(database({ data, error: null })).load(playerA), "identity_unavailable", a);
     }
   });

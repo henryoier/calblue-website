@@ -17,6 +17,7 @@ export function homeView(mainEl, { profile, roles, authenticated, session }) {
       <ul class="app-home-links">
         <li><a href="#/games">Games</a> — placeholder for issue #34</li>
         ${authenticated ? html`<li><a href="#/identity">My identity</a> — your player details and guardian-managed identities</li>` : null}
+        ${authenticated && roles.includes("admin") ? html`<li><a href="#/admin/verify">Verify players</a> — review pending identities and search decisions</li>` : null}
       </ul>
     </section>
   `);

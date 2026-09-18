@@ -69,6 +69,14 @@ function run(argv) {
     identityLogicTests(identity, { test, assert, equal });
     identityDataTests(identity, { testAsync });
   `);
+  evaluate(source("app/js/verification.js"));
+  evaluate(source("app/tests/verification.logic.js"));
+  evaluate(source("app/tests/verification.data.test.js"));
+  evaluate(`
+    var verification = { createVerificationService, validateVerificationSearch, validateVerificationDecision, VERIFICATION_LIMITS };
+    verificationLogicTests(verification, { test, assert, equal });
+    verificationDataTests(verification, { testAsync });
+  `);
 
   evaluate(`
     var done = false;

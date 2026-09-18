@@ -3,17 +3,20 @@
 The member app includes the **app shell** from issue #29 / PR #83 and **email magic-link sign-in**
 from issue #30: hash routing, session-aware navigation, saved sessions, profile loading, sign-out
 and an explicit **Refresh my access** action. **My identity** (issue #31) adds personal player details,
-guardian-managed identities and public-roster opt-in. The public website stays unchanged in the
+guardian-managed identities and public-roster opt-in. **Player verification** (issue #32) adds an
+admin-only queue, name search and individual/bulk decisions. The public website stays unchanged in the
 repository root. Registration, check-in and billing still show feature placeholders.
 All frontend files are public; Supabase Auth and row-level security protect backend data.
 
 See the [app-shell review and test guide](app-shell.md) for exactly what works, what is deferred,
-the route/role matrix and the browser checks required before merge. No database migration or seed
-needs to be rerun for this PR. The seed's synthetic Auth rows are not browser-login accounts.
+the historical route/role matrix and shell checks. Never rerun released database migrations or seed
+data. The seed's synthetic Auth rows are not browser-login accounts.
 See the [sign-in review and test guide](sign-in.md) for the new login workflow, callback limitations
 and the real-email checks that mocks cannot replace.
 See the [My identity review and test guide](identity.md) for creation/editing, privacy boundaries,
 date-of-birth restrictions and owner-run persistence/RLS checks.
+See the [player verification guide](verification.md) for the admin workflow, new forward-only
+migration 0004, private member decision notes and separate owner-run database/browser checks.
 
 ## The one rule
 
@@ -63,12 +66,13 @@ app/
     app.js          Composition, route definitions and startup/retry lifecycle
     auth.js         Magic-link requests, safe return destinations and PKCE callbacks
     identity.js     Scoped player reads/writes and identity form validation
+    verification.js Admin verification RPCs, decision validation and concurrency tokens
     dom.js          Escaping template helper
     router.js       Hash routing, access checks, abort/cleanup and focus
     session.js      Session/JWT state and profile lifecycle
     supabase.js     Pinned, memoized SDK/client loader
     layout.js       Shared chrome, navigation and states
-  views/            Home, sign-in, identity forms, feature placeholders and 404
+  views/            Home, sign-in, identity forms, verification queue, placeholders and 404
   tests/            Logic, async-session and browser integration checks
 ```
 

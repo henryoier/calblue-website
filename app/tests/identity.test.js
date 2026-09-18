@@ -19,7 +19,7 @@ function identityRow(id = SELF_ID, overrides = {}) {
     is_public: false, default_positions: ["CM"], preferred_number: 0,
     legal_name: "PRIVATE LEGAL NAME", date_of_birth: "2000-01-03", jersey_size: "M",
     emergency_contact_name: "PRIVATE CONTACT", emergency_contact_phone: "PRIVATE PHONE",
-    medical_notes: "PRIVATE MEDICAL NOTES", ...overrides,
+    medical_notes: "PRIVATE MEDICAL NOTES", verification_note: null, ...overrides,
   };
 }
 function identityService(overrides = {}) {
@@ -63,6 +63,32 @@ function submitIdentity(form) {
   form.dispatchEvent(event);
   return event;
 }
+
+testAsync("[identity view] member and guardian decision notes are private, escaped and read-only", async (t) => {
+  const reason = '<img src=x onerror="alert(1)"> Please confirm your name.';
+  for (const id of [SELF_ID, CHILD_ID]) {
+    const record = identityRow(id, { verification_status: "rejected", verification_note: reason });
+    const service = identityService({
+      list: async () => ({ own: id === SELF_ID ? record : null, children: id === CHILD_ID ? [record] : [] }),
+      load: async () => record,
+    });
+    await withIdentity({ service }, async (view) => {
+      t.assert(!view.main.textContent.includes(reason), "summary must not include the private decision note");
+      view.button("open").click();
+      await settleIdentity();
+      const note = view.main.querySelector("[data-identity-verification-note]");
+      t.assert(note.textContent.includes(reason));
+      t.assert(note.textContent.includes("Reason not approved"));
+      t.equal(note.querySelector("img"), null);
+      t.equal(view.input("verification_note"), null);
+      submitIdentity(view.form());
+      await settleIdentity();
+      t.equal(service.calls.update.length, 1);
+      t.assert(!Object.prototype.hasOwnProperty.call(service.calls.update[0].values, "verification_note"));
+      t.assert(!view.main.textContent.includes(reason), "closing the editor clears its private note");
+    });
+  }
+});
 
 testAsync("[identity view] starts with summaries, one-self creation and guardian child controls", async (t) => {
   await withIdentity({}, async (view) => {

@@ -7,9 +7,14 @@ Apply migrations in order, once each:
    [billing migration and test guide](0002-money.md) before running it.
 3. [0003_rls.sql](migrations/0003_rls.sql): issue #27 / merged PR #81. Read the
    [access-policy migration and test guide](0003-rls.md).
+4. [0004_player_verification.sql](migrations/0004_player_verification.sql): issue #32. Read the
+   [player verification migration and test guide](0004-player-verification.md). This adds decision
+   metadata and checked admin RPCs; it does not apply itself or grant anyone an admin role.
 
-All three migrations have owner-reported scratch verification. The next step, issue #28 / PR #82,
-is the optional [disposable development seed](seed.md). It **commits demo data**, requires explicit
+The first three migrations have owner-reported scratch verification. Migration 0004 needs its own
+separate execution checks. If 0001–0003 are already installed, apply **0004 only**, once; do not
+rerun earlier migrations. Issue #28 / PR #82 provides an optional [disposable development seed](seed.md).
+It **commits demo data**, requires explicit
 opt-in and an empty, idle scratch project, and must never run on production. If all three
 migrations already passed, run only the seed/verification steps in that guide; do not reapply migrations.
 
@@ -57,7 +62,8 @@ python3 scripts/check_sql.py
 python3 -m unittest discover -s tests -v
 ```
 
-Default generation/checking now requires **0001, 0002 and 0003**. Future files require explicit repeatable
+Default generation/checking now requires **0001, 0002, 0003 and 0004**. Section 11 appends the
+forward-only verification changes without rewriting released sections. Future files require explicit repeatable
 `--target` selections; they are not silently created as part of this issue. `--check` never writes
 files or creates directories and fails if a required file is missing or different.
 

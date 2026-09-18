@@ -216,6 +216,11 @@ export function identityView(mainEl, { service, context = {} } = {}) {
       <h2>${heading}</h2>
       <p class="app-muted">Private details are available to the person, their guardian where applicable, and administrators. Authorized match staff can access emergency contacts and medical information for their match duties.</p>
       <p><strong>Verification:</strong> <span data-identity-verification>${statusLabel(row?.verification_status || "pending")}</span>. Verification is managed by administrators, not by this form.</p>
+      ${row?.verification_note ? html`<div data-identity-verification-note>
+        <p><strong>${row.verification_status === "rejected" ? "Reason not approved" : "Verification note"}:</strong></p>
+        <p>${text(row.verification_note)}</p>
+        <p class="app-muted">Contact a club administrator if you have questions about this decision. Editing your details does not automatically request another review.</p>
+      </div>` : ""}
       <form data-identity-form novalidate autocomplete="off" aria-label="${heading}" aria-busy="false">
         <fieldset>
           <legend>Player details</legend>

@@ -17,7 +17,7 @@ const IDENTITY_SUMMARY_FIELDS = [
 ];
 const IDENTITY_PRIVATE_FIELDS = [
   "legal_name", "date_of_birth", "jersey_size", "emergency_contact_name",
-  "emergency_contact_phone", "medical_notes",
+  "emergency_contact_phone", "medical_notes", "verification_note",
 ];
 const IDENTITY_DETAIL_FIELDS = [...IDENTITY_SUMMARY_FIELDS, ...IDENTITY_PRIVATE_FIELDS];
 const IDENTITY_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
