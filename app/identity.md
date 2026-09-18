@@ -15,7 +15,7 @@ public-site change, profile backfill or production-hosting change is part of thi
 - Add a child identity without a login: `account_id` is null and `guardian_account_id` is your
   signed-in account. Existing guardian-linked identities remain manageable even if an authorized
   later workflow has linked them to their own login.
-- See verification status without controls to change it. New identities use the database's
+- See verification status and private decision notes without controls to change them. New identities use the database's
   pending status. Creating a person does not grant the `player` role or change the sign-in
   account's display name, email or roles.
 - Preserve an open draft during same-account session notifications and **Refresh my access**.
@@ -59,7 +59,12 @@ checked match-contact function. Do not describe medical data as visible only to 
 
 Verification is one gate, not a registration entitlement. Official league/cup participation also
 depends on the player role where applicable and competition approval; pickup/training does not
-require verification. Registration and administrator verification UI are later issues.
+require verification. Registration remains a later issue; the administrator review workflow is
+documented in [Player verification — issue #32](verification.md).
+
+Decision notes are loaded only when the member/guardian opens the private detail. A rejection
+reason is read-only, escaped as text and absent from summary lists and the public projection.
+Editing member details does not automatically reopen a completed verification decision.
 
 Every personal read and update includes explicit account/guardian ownership filters, even when
 the signed-in account is an admin. RLS is the actual authorization boundary. A forged identifier,

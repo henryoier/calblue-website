@@ -347,3 +347,35 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .app-spinner { animation: none; }
 }
+
+/* Administrator verification stays readable without wide tables on phones. */
+.app-verification { display: grid; gap: 1rem; }
+.app-verification [hidden] { display: none; }
+.app-verification h1, .app-verification h2, .app-verification h3 { margin-top: 0; }
+.app-verification fieldset { min-width: 0; padding: 0; margin: 0; border: 0; }
+.app-verification legend { padding: 0 0 0.75rem; font-weight: 700; }
+.app-verification label { font-weight: 700; }
+.app-verification input[type="search"], .app-verification textarea {
+  display: block; width: 100%; min-width: 0; min-height: 44px; margin-top: 0.5rem;
+  padding: 0.65rem 0.75rem; border: 1px solid #64748b; border-radius: 0.3rem;
+  color: var(--ink, #0b1730); background: #fff; font: inherit; font-size: 1rem;
+}
+.app-verification textarea { resize: vertical; }
+.app-verification-toolbar, .app-verification-actions, .app-verification-pagination {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem;
+}
+.app-verification-toolbar p, .app-verification [data-verification-status] { margin: 0; }
+.app-verification-pagination { margin-top: 1rem; }
+.app-verification-selection { padding-block: 0.5rem 1rem; border-bottom: 1px solid #cbd5e1; }
+.app-verification-checkbox { display: flex; align-items: center; gap: 0.65rem; min-height: 44px; }
+.app-verification-checkbox input { flex: 0 0 auto; width: 1.35rem; height: 1.35rem; accent-color: var(--navy, #071b3f); }
+.app-verification-rows { list-style: none; padding: 0; margin: 0; }
+.app-verification-row { padding-block: 1.25rem; border-bottom: 1px solid #cbd5e1; min-width: 0; }
+.app-verification-row p { margin-block: 0.5rem; }
+.app-verification-review-list { padding-left: 1.25rem; }
+.app-verification-review-list li { margin-bottom: 0.75rem; overflow-wrap: anywhere; }
+.app-verification-field-error { color: #991b1b; font-weight: 700; }
+.app-verification [aria-invalid="true"] { border: 2px solid #991b1b; }
+.app-verification-primary { color: #fff; background: var(--navy, #071b3f); }
+.app-verification button:disabled { cursor: not-allowed; background: #e2e8f0; color: #475569; border-color: #94a3b8; }
+.app-verification fieldset:disabled input, .app-verification fieldset:disabled textarea { background: #f1f5f9; }

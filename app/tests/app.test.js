@@ -58,6 +58,7 @@ function identityRecord(accountId = ACCOUNT_A, overrides = {}) {
     emergency_contact_name: "Invented Contact",
     emergency_contact_phone: "",
     medical_notes: "Private test medical note",
+    verification_note: null,
     ...overrides,
   };
 }
@@ -121,8 +122,49 @@ function changeIdentityName(form, value) {
   return input;
 }
 
+function verificationRecord(overrides = {}) {
+  return { id: PLAYER_A, display_name: "Invented pending member", legal_name: "Invented legal name",
+    verification_status: "pending", verification_note: null,
+    created_at: "2026-09-18T10:00:00.123456+00:00", updated_at: "2026-09-18T10:00:00.123456+00:00",
+    decided_by: null, decided_at: null, ...overrides };
+}
+
+function verificationFactoryDouble(configure = () => ({})) {
+  const instances = [];
+  const factory = (scope) => {
+    const implementations = {
+      list: async () => ({ rows: [verificationRecord()], hasMore: false }),
+      decide: async (rows, status, note) => rows.map((row) => verificationRecord({ ...row,
+        verification_status: status, verification_note: note || null, decided_by: ACCOUNT_A,
+        decided_at: "2026-09-18T11:00:00.123456+00:00", updated_at: "2026-09-18T11:00:00.123456+00:00" })),
+      ...configure(scope),
+    };
+    const instance = { scope, requests: { list: [], decide: [] }, service: {} };
+    for (const method of ["list", "decide"]) {
+      instance.service[method] = (...args) => {
+        instance.requests[method].push(args);
+        return Promise.resolve().then(() => implementations[method](...args));
+      };
+    }
+    instances.push(instance);
+    return instance.service;
+  };
+  factory.instances = instances;
+  return factory;
+}
+
+async function openVerificationDraft(view) {
+  view.main.querySelector('[data-verification-action="reject"]').click();
+  await settle();
+  const form = view.main.querySelector("[data-verification-form]");
+  const note = form.querySelector('[name="note"]');
+  note.value = "Private unsaved decision note";
+  note.dispatchEvent(new Event("input", { bubbles: true }));
+  return { form, note };
+}
+
 function fixture(path, session = sessionDouble(), loadClient = async () => ({}), authFlow = authDouble(),
-  createIdentity = identityFactoryDouble()) {
+  createIdentity = identityFactoryDouble(), createVerification = verificationFactoryDouble()) {
   const originalUrl = location.href;
   history.replaceState(null, "", "#" + path);
   const root = document.createElement("div");
@@ -135,12 +177,144 @@ function fixture(path, session = sessionDouble(), loadClient = async () => ({}),
     <footer id="app-footer" class="app-footer"></footer>
   `);
   document.body.append(root);
-  const app = createApp({ root, session, loadClient, configured: () => true, authFlow, createIdentity });
+  const app = createApp({ root, session, loadClient, configured: () => true, authFlow, createIdentity, createVerification });
   return { app, root, session, identity: createIdentity,
     main: root.querySelector("#app"),
     dispose() { app.destroy(); root.remove(); history.replaceState(null, "", originalUrl); },
   };
 }
+
+testAsync("[app] verification denies signed-out and non-admin routes without loading private records", async (t) => {
+  for (const state of [{}, { authenticated: true, roles: [] }, { authenticated: true, roles: ["developer", "treasurer"] }]) {
+    const factory = verificationFactoryDouble();
+    const view = fixture("/admin/verify", sessionDouble(state), undefined, undefined, undefined, factory);
+    try {
+      await view.app.start(); await settle();
+      t.equal(factory.instances.length, 0);
+      t.equal(view.main.querySelector("h1").textContent, state.authenticated ? "You do not have access" : "Sign in required");
+    } finally { view.dispose(); }
+  }
+});
+
+testAsync("[app] verification loads with a captured client and admin-bound lifetime", async (t) => {
+  const factory = verificationFactoryDouble();
+  const client = { testClient: "verification" };
+  const view = fixture("/admin/verify", sessionDouble({ authenticated: true, roles: ["admin"] }),
+    async () => client, undefined, undefined, factory);
+  try {
+    await view.app.start(); await settle();
+    t.equal(view.main.querySelector("h1").textContent, "Verify players");
+    t.equal(factory.instances.length, 1);
+    t.equal(factory.instances[0].scope.client, client);
+    t.equal(factory.instances[0].scope.isCurrent(), true);
+    t.assert(factory.instances[0].requests.list[0][0].signal);
+  } finally { view.dispose(); }
+});
+
+testAsync("[app] same-admin notifications and access refresh preserve the decision draft", async (t) => {
+  const factory = verificationFactoryDouble();
+  const session = sessionDouble({ authenticated: true, roles: ["admin"] });
+  session.refreshAccess = async () => session.set({ roles: ["admin", "player"] });
+  const view = fixture("/admin/verify", session, undefined, undefined, undefined, factory);
+  try {
+    await view.app.start(); await settle();
+    const { form, note } = await openVerificationDraft(view);
+    session.set({ displayName: "Updated administrator" });
+    await settle();
+    view.root.querySelector("[data-refresh-access]").click();
+    await settle();
+    t.equal(view.main.querySelector("[data-verification-form]"), form);
+    t.equal(note.value, "Private unsaved decision note");
+    t.equal(factory.instances.length, 1);
+    t.equal(factory.instances[0].requests.list.length, 1);
+    t.equal(factory.instances[0].requests.decide.length, 0);
+    t.assert(view.root.querySelector("[data-access-status]").textContent.includes("Access refreshed"));
+  } finally { view.dispose(); }
+});
+
+testAsync("[app] role revocation or sign-out wipes private verification notes and invalidates service access", async (t) => {
+  for (const next of [{ roles: [] }, { authenticated: false, roles: [] }]) {
+    const factory = verificationFactoryDouble();
+    const session = sessionDouble({ authenticated: true, roles: ["admin"] });
+    const view = fixture("/admin/verify", session, undefined, undefined, undefined, factory);
+    try {
+      await view.app.start(); await settle();
+      const { form, note } = await openVerificationDraft(view);
+      const old = factory.instances[0];
+      session.set(next);
+      t.equal(old.scope.isCurrent(), false);
+      await settle();
+      t.equal(note.value, "");
+      t.assert(!form.isConnected);
+      t.assert(old.requests.list[0][0].signal.aborted);
+      t.equal(view.main.querySelector("[data-verification-form]"), null);
+      t.assert(!view.main.textContent.includes("Invented legal name"));
+      t.equal(factory.instances.length, 1);
+      t.equal(old.requests.decide.length, 0);
+    } finally { view.dispose(); }
+  }
+});
+
+testAsync("[app] a switch between admin accounts clears the prior verification draft and scope", async (t) => {
+  const factory = verificationFactoryDouble();
+  const session = sessionDouble({ authenticated: true, roles: ["admin"] });
+  const view = fixture("/admin/verify", session, undefined, undefined, undefined, factory);
+  try {
+    await view.app.start(); await settle();
+    const { form, note } = await openVerificationDraft(view);
+    const old = factory.instances[0];
+    session.set({ accountId: ACCOUNT_B });
+    t.equal(old.scope.isCurrent(), false);
+    await settle();
+    t.equal(note.value, "");
+    t.assert(!form.isConnected);
+    t.equal(factory.instances.length, 2);
+    t.equal(factory.instances[1].scope.isCurrent(), true);
+    t.equal(view.main.querySelector("[data-verification-form]"), null);
+  } finally { view.dispose(); }
+});
+
+testAsync("[app] late verification results cannot render after admin access is lost", async (t) => {
+  const gate = deferred();
+  const factory = verificationFactoryDouble(() => ({ list: () => gate.promise }));
+  const session = sessionDouble({ authenticated: true, roles: ["admin"] });
+  const view = fixture("/admin/verify", session, undefined, undefined, undefined, factory);
+  try {
+    await view.app.start(); await settle();
+    session.set({ roles: [] });
+    gate.resolve({ rows: [verificationRecord()], hasMore: false });
+    await settle();
+    t.equal(factory.instances[0].scope.isCurrent(), false);
+    t.assert(factory.instances[0].requests.list[0][0].signal.aborted);
+    t.equal(view.main.querySelector("h1").textContent, "You do not have access");
+    t.assert(!view.main.textContent.includes("Invented pending member"));
+  } finally { gate.resolve({ rows: [], hasMore: false }); view.dispose(); }
+});
+
+testAsync("[app] a dispatched decision cannot restore private data or follow-up work after revocation", async (t) => {
+  const gate = deferred();
+  const factory = verificationFactoryDouble(() => ({ decide: () => gate.promise }));
+  const session = sessionDouble({ authenticated: true, roles: ["admin"] });
+  const view = fixture("/admin/verify", session, undefined, undefined, undefined, factory);
+  try {
+    await view.app.start(); await settle();
+    const { form, note } = await openVerificationDraft(view);
+    form.querySelector('[data-verification-action="confirm"]').click();
+    await settle();
+    const old = factory.instances[0];
+    t.equal(old.requests.decide.length, 1);
+    session.set({ roles: [] });
+    gate.resolve([verificationRecord({ verification_status: "rejected", verification_note: "Private unsaved decision note" })]);
+    await settle();
+    t.assert(old.requests.decide[0][3].signal.aborted);
+    t.equal(old.scope.isCurrent(), false);
+    t.equal(note.value, "");
+    t.equal(view.main.querySelector("h1").textContent, "You do not have access");
+    t.equal(old.requests.list.length, 1);
+    t.equal(old.requests.decide.length, 1);
+    t.assert(!view.main.textContent.includes("Private unsaved decision note"));
+  } finally { gate.resolve([]); view.dispose(); }
+});
 
 testAsync("[app] public routes, direct guards and a real 404", async (t) => {
   const view = fixture("/");

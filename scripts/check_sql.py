@@ -22,7 +22,8 @@ MIG_DIR = ROOT / "supabase" / "migrations"
 CORE = "0001_core.sql"
 MONEY = "0002_money.sql"
 POLICIES = "0003_rls.sql"
-LANDED_TARGETS = (CORE, MONEY, POLICIES)
+VERIFICATION = "0004_player_verification.sql"
+LANDED_TARGETS = (CORE, MONEY, POLICIES, VERIFICATION)
 CORE_TABLES = {
     "profiles", "players", "venues", "clubs", "teams", "competitions",
     "games", "role_grants", "competition_registrations", "game_registrations",
@@ -194,6 +195,8 @@ def function_signature(name, args, declaration=False):
     # This does not attempt to parse every PostgreSQL argument mode/default/type.
     types = []
     for arg in args.split(","):
+        if declaration:
+            arg = re.split(r"\bdefault\b|=", arg, maxsplit=1, flags=re.I)[0]
         words = arg.lower().split()
         if words:
             types.append(words[-1] if declaration else " ".join(words))
@@ -611,6 +614,124 @@ def policy_checks(scan, enabled_rls, problems):
             problems.append(f"{POLICIES}: every v_public_roster replacement must preserve the checked safe invoker projection")
 
 
+def verification_checks(scan, problems):
+    """Bounded issue32 shape/security checks, not a proof of function semantics."""
+    parts = list(statements(scan))
+    plain = [statement.strip().lower() for _, _, statement in parts]
+    if not plain or plain[0] != "begin" or plain[-1] != "commit":
+        problems.append(f"{VERIFICATION}: verification installation needs one BEGIN/COMMIT transaction")
+    if any(matches(r"^(begin|commit|rollback|start\s+transaction)\b", text) for text in plain[1:-1]):
+        problems.append(f"{VERIFICATION}: transaction boundaries cannot appear inside installation")
+    expected = {
+        "guard_player_verification_decision()": "invoker",
+        "list_player_verifications(text,integer)": "invoker",
+        "decide_player_verifications(uuid[],timestamptz[],text,text)": "definer",
+    }
+    public_rpc = set(expected) - {"guard_player_verification_decision()"}
+    projection = ("id", "display_name", "legal_name", "verification_status", "verification_note",
+                  "created_at", "updated_at", "decided_by", "decided_at")
+    functions, revoked, granted = {}, {}, set()
+    for start, end, statement in parts:
+        function = matches(FUNCTION, statement)
+        if function:
+            signature = function_signature(function[1], function[2], declaration=True)
+            bodies = [(pos, body) for pos, _, body in scan.bodies if start <= pos < end]
+            if len(bodies) != 1 or signature not in expected:
+                problems.append(f"{VERIFICATION}: only the three checked verification functions are allowed")
+                continue
+            position, source = bodies[0]
+            declaration = scan.comments_removed[start:position]
+            body = scan_sql(source)
+            functions[signature] = body
+            if not matches(r"\bsecurity\s+" + expected[signature] + r"\b", declaration):
+                problems.append(f"{VERIFICATION}: {signature} must keep SECURITY {expected[signature].upper()}")
+            if not matches(r"\bset\s+search_path\s*=\s*''", declaration):
+                problems.append(f"{VERIFICATION}: {signature} needs fixed empty search_path")
+            if signature in public_rpc:
+                returned = matches(r"\breturns\s+table\s*\(([^()]*)\)", declaration)
+                names = tuple(column.split()[0].lower() for column in split_columns(returned[1])) if returned else ()
+                if names != projection:
+                    problems.append(f"{VERIFICATION}: {signature} must return only the nine safe verification columns")
+                if not matches(r"\bif\s+(?:auth\.uid\(\)|actor)\s+is\s+null\s+or\s+public\.is_admin\(\)\s+is\s+not\s+true\s+then", body.clean):
+                    problems.append(f"{VERIFICATION}: {signature} needs explicit fail-closed JWT admin authorization")
+                if matches(r"\bcurrent_user\b", body.clean):
+                    problems.append(f"{VERIFICATION}: public RPCs must not authorize their SECURITY DEFINER owner")
+            continue
+        if matches(r"^\s*(grant|revoke)\b", statement):
+            is_revoke = bool(matches(r"^\s*revoke\b", statement))
+            parsed = parse_grant(statement, revoke=is_revoke)
+            if not parsed:
+                problems.append(f"{VERIFICATION}: unsupported privilege change")
+                continue
+            kind, roles, targets, privileges = parsed
+            allowed = (kind == "function" and set(targets) <= set(expected)
+                       and set(roles) <= API_ROLES and privileges == [("all", ())]) if is_revoke else (
+                kind == "function" and set(targets) <= public_rpc
+                and roles == ["authenticated"] and privileges == [("execute", ())])
+            if not allowed:
+                problems.append(f"{VERIFICATION}: privileges may expose only the two authenticated verification RPCs")
+            elif is_revoke:
+                for target in targets:
+                    revoked.setdefault(target, set()).update(roles)
+            else:
+                granted.update(targets)
+            continue
+        if not (matches(r"^\s*(?:begin|commit)\s*$", statement)
+                or matches(r"^\s*alter\s+table\s+public\.players\s+add\s+column\b", statement)
+                or matches(r"^\s*create\s+index\s+players_pending_verification\s+on\s+public\.players\b", statement)
+                or matches(r"^\s*create\s+trigger\s+players_verification_decision_guard\s+before\s+insert\s+or\s+update\s+on\s+public\.players\s+for\s+each\s+row\s+execute\s+function\s+public\.guard_player_verification_decision\(\)\s*$", statement)):
+            problems.append(f"{VERIFICATION}: statement is outside the additive verification contract")
+
+    for signature in expected:
+        if signature not in functions:
+            problems.append(f"{VERIFICATION}: missing verification helper {signature}")
+        if revoked.get(signature, set()) != API_ROLES:
+            problems.append(f"{VERIFICATION}: {signature} must revoke PUBLIC/anon/authenticated before narrow grants")
+    if granted != public_rpc:
+        problems.append(f"{VERIFICATION}: authenticated execution grants are incomplete")
+    for pattern, label in [
+        (r"\badd\s+column\s+decided_by\s+uuid\s+references\s+public\.profiles\s*\(id\)", "reviewer foreign key"),
+        (r"\badd\s+column\s+decided_at\s+timestamptz\b", "decision timestamp"),
+        (r"\badd\s+constraint\s+players_verification_decision_pair\b", "paired decision metadata constraint"),
+        (r"\badd\s+constraint\s+players_pending_without_decision\b", "pending metadata constraint"),
+        (r"\bcreate\s+trigger\s+players_verification_decision_guard\b", "direct-write decision guard"),
+        (r"\bcreate\s+index\s+players_pending_verification\b", "pending queue index"),
+    ]:
+        if not matches(pattern, scan.clean):
+            problems.append(f"{VERIFICATION}: missing {label}")
+    guard = functions.get("guard_player_verification_decision()", scan_sql(""))
+    for pattern, label in [
+        (r"actor\s+is\s+null\s+and\s+current_user\s*=\s*pg_catalog\.pg_get_userbyid", "NULL-actor-only owner maintenance"),
+        (r"\bfrom\s+pg_catalog\.pg_class\b", "qualified owner catalog"),
+        (r"new\.decided_by\s*:=\s*actor", "trusted reviewer stamp"),
+        (r"new\.decided_at\s*:=\s*statement_timestamp\(\)", "trusted decision timestamp"),
+        (r"new\.updated_at\s*:=\s*statement_timestamp\(\)", "insert version normalization"),
+        (r"\(new\.decided_by,\s*new\.decided_at\)\s+is\s+distinct\s+from\s*\(old\.decided_by,\s*old\.decided_at\)", "metadata tampering protection"),
+    ]:
+        if not matches(pattern, guard.clean):
+            problems.append(f"{VERIFICATION}: guard needs {label}")
+    queue = functions.get("list_player_verifications(text,integer)", scan_sql(""))
+    if not matches(r"order\s+by\s+p\.created_at\s+desc,\s*p\.id\s+desc\s+limit\s+51\s+offset\s+p_offset", queue.clean):
+        problems.append(f"{VERIFICATION}: queue needs stable newest-first 51-row pagination")
+    if not matches(r"strpos\s*\(\s*lower\(p\.display_name\)", queue.clean) or matches(r"\bilike\b|\bexecute\b", queue.clean):
+        problems.append(f"{VERIFICATION}: search must stay literal, not dynamic SQL or wildcard matching")
+    decision = functions.get("decide_player_verifications(uuid[],timestamptz[],text,text)", scan_sql(""))
+    lock = matches(r"perform\s+public\.lock_billing\(\)", decision.clean)
+    rows = matches(r"\bfrom\s+public\.players\b", decision.clean)
+    if not lock or not rows or lock.start() > rows.start() or not matches(r"\bfor\s+update\b", decision.clean):
+        problems.append(f"{VERIFICATION}: billing lock must precede player reads/row locks")
+    for pattern, label in [
+        (r"requested\s+not\s+between\s+1\s+and\s+50", "bounded batch size"),
+        (r"array_ndims\(p_player_ids\)\s+is\s+distinct\s+from\s+1", "one-dimensional arrays"),
+        (r"count\(distinct\s+target\)", "unique player ids"),
+        (r"p\.updated_at\s*=\s*wanted\.expected_at", "optimistic version comparison"),
+        (r"get\s+diagnostics\s+affected\s*=\s*row_count", "affected-row assertion"),
+        (r"if\s+affected\s*<>\s*requested\s+then", "all-or-nothing result check"),
+    ]:
+        if not matches(pattern, decision.clean):
+            problems.append(f"{VERIFICATION}: decision RPC needs {label}")
+
+
 def check_migrations(migrations, required_targets=LANDED_TARGETS):
     """Return findings; focused fixtures may explicitly require only core."""
     problems = []
@@ -655,6 +776,8 @@ def check_migrations(migrations, required_targets=LANDED_TARGETS):
             money_checks(scan, tables, problems)
         if name == POLICIES:
             policy_checks(scan, all_rls, problems)
+        if name == VERIFICATION:
+            verification_checks(scan, problems)
     if POLICIES in migrations:
         for table in sorted(seen - all_rls):
             problems.append(f"{POLICIES}: public.{table} never has row-level security enabled")
