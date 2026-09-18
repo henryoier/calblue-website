@@ -17,8 +17,13 @@ window.CALBLUE_PLAYERS = (() => {
       for (const player of source.players) {
         const id = identity(player.name);
         const previous = people.get(id) || {};
-        const photos = [...new Set([player.photo, ...(player.photos || []), ...(previous.photos || [])].filter(Boolean))];
-        people.set(id, { ...previous, ...Object.fromEntries(Object.entries(player).filter(([, value]) => value)), photos });
+        // A club card marked data-pinned-photo keeps its own photo first; otherwise the newest competition photo leads.
+        const pinnedPhoto = previous.pinnedPhoto || (player.pinned ? player.photo : '');
+        const photos = [...new Set([pinnedPhoto, player.photo, ...(player.photos || []), ...(previous.photos || [])].filter(Boolean))];
+        const merged = { ...previous, ...Object.fromEntries(Object.entries(player).filter(([, value]) => value)), photos };
+        if (pinnedPhoto) { merged.pinnedPhoto = pinnedPhoto; merged.photo = pinnedPhoto; }
+        delete merged.pinned;
+        people.set(id, merged);
       }
     }
     return [...people.values()].sort((a, b) => a.name.localeCompare(b.name));
