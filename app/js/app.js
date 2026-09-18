@@ -3,6 +3,7 @@
 import { getClient, isConfigured } from "./supabase.js";
 import { createAuthFlow, safeReturnTo } from "./auth.js";
 import { createIdentityService } from "./identity.js";
+import { createVerificationService } from "./verification.js";
 import * as defaultSession from "./session.js";
 import { createRouter, navigate, buildHash } from "./router.js";
 import { renderLayout, renderLoading, renderError, renderAccessDenied, renderConnectionStatus } from "./layout.js";
@@ -10,10 +11,12 @@ import { homeView } from "../views/home.js";
 import { notFoundView } from "../views/not-found.js";
 import { signInView } from "../views/sign-in.js";
 import { identityView } from "../views/identity.js";
+import { verificationView } from "../views/verification.js";
 import { placeholderView } from "../views/placeholder.js";
 
 export function createApp({ root = document, session = defaultSession, loadClient = getClient,
-  configured = isConfigured, authFlow = createAuthFlow(), createIdentity = createIdentityService } = {}) {
+  configured = isConfigured, authFlow = createAuthFlow(), createIdentity = createIdentityService,
+  createVerification = createVerificationService } = {}) {
   // Creating the flow captures and removes callback credentials BEFORE getClient.
   // auth-js 2.65.0 can auto-exchange PKCE even with detectSessionInUrl: false.
   const headerEl = root.querySelector("#app-header");
@@ -45,6 +48,7 @@ export function createApp({ root = document, session = defaultSession, loadClien
   let accessAccount = session.getSession()?.user?.id || null;
   let navigationGeneration = 0;
   let activeIdentity = null;
+  let activeVerification = null;
   const recordNavigation = () => { navigationGeneration += 1; };
   window.addEventListener("hashchange", recordNavigation);
 
@@ -68,6 +72,24 @@ export function createApp({ root = document, session = defaultSession, loadClien
         && session.isAuthenticated() && session.getSession()?.user?.id === accountId,
     });
     return identityView(mainEl, { service, context });
+  }
+
+  function verificationIsCurrent() {
+    return Boolean(activeVerification && currentPath === "/admin/verify"
+      && activeVerification.context.isCurrent());
+  }
+
+  function renderVerification(_params, _query, context) {
+    const accountId = session.getSession()?.user?.id;
+    const verificationClient = client;
+    // Both view and service recheck admin access, including during a same-account
+    // token refresh. An account switch or revoked role invalidates private work.
+    const adminContext = { ...context, isCurrent: () => context.isCurrent()
+      && client === verificationClient && session.isAuthenticated()
+      && session.getSession()?.user?.id === accountId && session.getRoles().includes("admin") };
+    activeVerification = { context: adminContext };
+    const service = createVerification({ client: verificationClient, isCurrent: adminContext.isCurrent });
+    return verificationView(mainEl, { service, context: adminContext });
   }
 
   const routes = [
@@ -102,9 +124,7 @@ export function createApp({ root = document, session = defaultSession, loadClien
       eyebrow: "Schedule", title: "Games", description: "Published fixtures and pickup sessions will live here.", issue: 34,
     }) },
     { pattern: "/identity", title: "My identity", auth: true, view: renderIdentity },
-    { pattern: "/admin/verify", title: "Verify players", auth: true, roles: ["admin"], view: placeholder({
-      eyebrow: "Administration", title: "Verify players", description: "Identity review will live here.", issue: 32,
-    }) },
+    { pattern: "/admin/verify", title: "Verify players", auth: true, roles: ["admin"], view: renderVerification },
     // These operational routes follow released RLS, not aspirational role names.
     // Treasurer/developer roles alone do not grant club-wide finances or audit.
     { pattern: "/admin/payments", title: "Payments", auth: true, roles: ["admin"], view: placeholder({
@@ -139,6 +159,7 @@ export function createApp({ root = document, session = defaultSession, loadClien
     onRouteChange: ({ path }) => {
       currentPath = path;
       if (path !== "/identity") activeIdentity = null;
+      if (path !== "/admin/verify") activeVerification = null;
       updateChrome();
     },
     onLoading: () => renderLoading(mainEl),
@@ -163,7 +184,8 @@ export function createApp({ root = document, session = defaultSession, loadClien
     // identity form. This route needs authentication, not a particular role;
     // its personal queries stay explicitly scoped and RLS is authoritative.
     // Account changes/sign-out still invalidate the private view immediately.
-    if (!identityIsCurrent()
+    // Verification drafts survive refresh only while the admin claim remains.
+    if (!identityIsCurrent() && !verificationIsCurrent()
         && !(signingOut && currentPath === "/sign-out" && !session.isAuthenticated())) {
       void router.render();
     }
@@ -197,7 +219,7 @@ export function createApp({ root = document, session = defaultSession, loadClien
       if (isCurrent()) {
         refreshing = false;
         updateChrome();
-        if (!identityIsCurrent()) await router.render();
+        if (!identityIsCurrent() && !verificationIsCurrent()) await router.render();
       }
     }
   }
@@ -253,6 +275,7 @@ export function createApp({ root = document, session = defaultSession, loadClien
   function destroy() {
     destroyed = true;
     activeIdentity = null;
+    activeVerification = null;
     unsubscribe();
     router.destroy();
     window.removeEventListener("hashchange", recordNavigation);

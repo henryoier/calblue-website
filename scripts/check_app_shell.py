@@ -62,8 +62,8 @@ def check_app_shell(root):
     errors = []
     required = (
         "index.html", "config.js", "css/app.css", "js/app.js", "js/router.js",
-        "js/session.js", "js/supabase.js", "js/layout.js", "js/dom.js", "js/identity.js",
-        "views/home.js", "views/sign-in.js", "views/identity.js", "views/not-found.js", "views/placeholder.js",
+        "js/session.js", "js/supabase.js", "js/layout.js", "js/dom.js", "js/identity.js", "js/verification.js",
+        "views/home.js", "views/sign-in.js", "views/identity.js", "views/verification.js", "views/not-found.js", "views/placeholder.js",
         "tests/index.html", "tests/runner.js", "tests/app.test.js",
     )
     for name in required:

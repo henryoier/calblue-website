@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate supabase/migrations/*.sql from docs/design/schema.sql.
 
-    python3 scripts/build_migrations.py           # write landed migrations 0001, 0002 and 0003
+    python3 scripts/build_migrations.py           # write landed migrations 0001 through 0004
     python3 scripts/build_migrations.py --check   # fail if any is missing or has drifted
     python3 scripts/build_migrations.py --target 0003_rls.sql  # explicitly select one migration
 
@@ -18,9 +18,10 @@ as one idea:
     0001_core   conventions + identity, events, participation
     0002_money  money tables, the functions that do the work, views, audit triggers
     0003_rls    every row-level security policy in one file
+    0004_player_verification  decision metadata and checked administrator RPCs
 
-Phase-2 sections (9 hosted tournaments, 10 push/notifications) are not emitted yet; they become
-0005 and 0004 when their milestones land. Generation is reproducible; executing a generated
+Phase-2 sections (9 hosted tournaments, 10 push/notifications) are not emitted yet; their later
+migration numbers will be assigned when those milestones land. Generation is reproducible; executing a generated
 migration is NOT replay-idempotent. Apply each migration once with a migration ledger. BEGIN/COMMIT
 make a fresh installation atomic, rather than preserving half a schema after a failed statement.
 """
@@ -39,8 +40,9 @@ PLAN = {
     "0001_core.sql": ("identity, events and participation", [0, 1, 2, 3]),
     "0002_money.sql": ("money, the functions that do the work, views and audit", [4, 5, 6, 8]),
     "0003_rls.sql": ("row-level security policies and role helpers", [7]),
+    "0004_player_verification.sql": ("administrator player verification decisions", [11]),
 }
-LANDED_TARGETS = ("0001_core.sql", "0002_money.sql", "0003_rls.sql")
+LANDED_TARGETS = ("0001_core.sql", "0002_money.sql", "0003_rls.sql", "0004_player_verification.sql")
 
 BANNER = re.compile(r"^--[ \t]+(\d+)\.[ \t]+\S.*$")
 NUMBERED_COMMENT = re.compile(r"^--[ \t]*\d+(?:\.|[ \t]|$)")

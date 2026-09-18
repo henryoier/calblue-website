@@ -2499,3 +2499,166 @@ begin
 
   return coalesce(applied, false);   -- false = a newer mark already won
 end $$;
+
+-- =====================================================================
+-- 11. PLAYER VERIFICATION  (issue #32 — additive after released 0001–0003)
+-- =====================================================================
+
+-- Historical verified/rejected identities have no recorded reviewer/time.
+-- Preserve that unknown history: this migration performs no data backfill.
+alter table public.players
+  add column decided_by uuid references public.profiles(id),
+  add column decided_at timestamptz,
+  add constraint players_verification_decision_pair
+    check ((decided_by is null) = (decided_at is null)),
+  add constraint players_pending_without_decision
+    check (verification_status <> 'pending' or (decided_by is null and decided_at is null));
+
+create index players_pending_verification on public.players(created_at desc, id desc)
+  where verification_status = 'pending';
+
+-- Keep the released ownership/DOB guard intact. This extra INVOKER guard
+-- protects the new columns, including direct authenticated table writes.
+-- The checked decision RPC runs as the owner, but retains a non-null JWT
+-- actor and therefore does NOT take the owner-only maintenance exception.
+create or replace function public.guard_player_verification_decision() returns trigger
+language plpgsql security invoker set search_path = '' as $$
+declare actor uuid := auth.uid();
+begin
+  if actor is null and current_user = pg_catalog.pg_get_userbyid(
+      (select relowner from pg_catalog.pg_class where oid = tg_relid)) then
+    return new;
+  end if;
+  if tg_op = 'INSERT' then
+    -- The original identity guard normalizes created_at, but not updated_at.
+    -- Do not let a client poison queue/version parsing with infinity or a
+    -- fabricated timestamp. Privileged imports remain explicit maintenance.
+    new.updated_at := statement_timestamp();
+    if new.decided_by is not null or new.decided_at is not null then
+      raise exception 'verification_metadata_forbidden' using errcode = '42501';
+    end if;
+    if new.verification_status = 'pending' and new.verification_note is null then
+      return new;
+    end if;
+  else
+    if (new.decided_by, new.decided_at) is distinct from (old.decided_by, old.decided_at) then
+      raise exception 'verification_metadata_forbidden' using errcode = '42501';
+    end if;
+    if (new.verification_status, new.verification_note)
+       is not distinct from (old.verification_status, old.verification_note) then
+      return new;
+    end if;
+  end if;
+  if actor is null or public.is_admin() is not true then
+    raise exception 'verification_forbidden' using errcode = '42501';
+  end if;
+  if tg_op = 'UPDATE' and old.verification_status <> 'pending' then
+    raise exception 'verification_conflict' using errcode = 'P0001';
+  end if;
+  if new.verification_status not in ('verified', 'rejected') then
+    raise exception 'verification_status_invalid' using errcode = '22023';
+  end if;
+  new.verification_note := nullif(regexp_replace(new.verification_note,
+    '^[[:space:]]+|[[:space:]]+$', '', 'g'), '');
+  if char_length(new.verification_note) > 1000
+     or translate(new.verification_note, E'\t\n\r', '') ~ '[[:cntrl:]]'
+     or (new.verification_status = 'rejected' and new.verification_note is null) then
+    raise exception 'verification_note_invalid' using errcode = '22023';
+  end if;
+  new.decided_by := actor;
+  new.decided_at := statement_timestamp();
+  return new;
+end $$;
+create trigger players_verification_decision_guard before insert or update on public.players
+  for each row execute function public.guard_player_verification_decision();
+
+-- A blank search is the pending queue. A literal name search includes all
+-- statuses, so administrators can find a prior decision without changing it.
+-- Fetch 51 rows: clients display 50 and use the extra row only as a next-page
+-- indicator. No private medical/contact/account/guardian fields are returned.
+create or replace function public.list_player_verifications(p_search text default '', p_offset integer default 0)
+returns table(id uuid, display_name text, legal_name text, verification_status text,
+              verification_note text, created_at timestamptz, updated_at timestamptz,
+              decided_by uuid, decided_at timestamptz)
+language plpgsql stable security invoker set search_path = '' as $$
+declare needle text;
+begin
+  if auth.uid() is null or public.is_admin() is not true then
+    raise exception 'verification_forbidden' using errcode = '42501';
+  end if;
+  needle := lower(regexp_replace(coalesce(p_search, ''), '^[[:space:]]+|[[:space:]]+$', '', 'g'));
+  if char_length(needle) > 100 or needle ~ '[[:cntrl:]]' or p_offset is null or p_offset < 0 then
+    raise exception 'verification_search_invalid' using errcode = '22023';
+  end if;
+  return query
+    select p.id, p.display_name, p.legal_name, p.verification_status,
+           p.verification_note, p.created_at, p.updated_at, p.decided_by, p.decided_at
+      from public.players p
+     where (needle = '' and p.verification_status = 'pending')
+        or (needle <> '' and (strpos(lower(p.display_name), needle) > 0
+                             or strpos(lower(coalesce(p.legal_name, '')), needle) > 0))
+     order by p.created_at desc, p.id desc
+     limit 51 offset p_offset;
+end $$;
+
+-- The only verification writer exposed as an RPC. It authorizes the JWT,
+-- validates the complete batch and locks billing BEFORE any player rows.
+-- A stale, missing or already-decided row aborts the entire batch; callers
+-- reload rather than silently overwrite a concurrent edit or retry a write.
+create or replace function public.decide_player_verifications(
+  p_player_ids uuid[], p_expected_updated_at timestamptz[], p_status text, p_note text)
+returns table(id uuid, display_name text, legal_name text, verification_status text,
+              verification_note text, created_at timestamptz, updated_at timestamptz,
+              decided_by uuid, decided_at timestamptz)
+language plpgsql security definer set search_path = '' as $$
+declare actor uuid := auth.uid(); note text; requested integer; affected integer;
+begin
+  if actor is null or public.is_admin() is not true then
+    raise exception 'verification_forbidden' using errcode = '42501';
+  end if;
+  note := nullif(regexp_replace(p_note, '^[[:space:]]+|[[:space:]]+$', '', 'g'), '');
+  if array_ndims(p_player_ids) is distinct from 1
+     or array_ndims(p_expected_updated_at) is distinct from 1
+     or array_lower(p_player_ids, 1) is distinct from 1
+     or array_lower(p_expected_updated_at, 1) is distinct from 1 then
+    raise exception 'verification_batch_invalid' using errcode = '22023';
+  end if;
+  requested := cardinality(p_player_ids);
+  if requested not between 1 and 50 or cardinality(p_expected_updated_at) <> requested
+     or array_position(p_player_ids, null) is not null
+     or array_position(p_expected_updated_at, null) is not null
+     or (select count(distinct target) from unnest(p_player_ids) target) <> requested
+     or p_status is null or p_status not in ('verified', 'rejected')
+     or char_length(note) > 1000 or translate(note, E'\t\n\r', '') ~ '[[:cntrl:]]'
+     or (p_status = 'rejected' and note is null) then
+    raise exception 'verification_batch_invalid' using errcode = '22023';
+  end if;
+  perform public.lock_billing();
+  if not exists (select 1 from public.profiles a where a.id = actor) then
+    raise exception 'verification_admin_profile_required' using errcode = '42501';
+  end if;
+  perform 1 from public.players p where p.id = any(p_player_ids) order by p.id for update;
+  if (select count(*) from public.players p
+       join unnest(p_player_ids, p_expected_updated_at) as wanted(player_id, expected_at)
+         on wanted.player_id = p.id
+      where p.verification_status = 'pending' and p.updated_at = wanted.expected_at) <> requested then
+    raise exception 'verification_conflict' using errcode = 'P0001';
+  end if;
+  return query
+    update public.players p set verification_status = p_status, verification_note = note
+      from unnest(p_player_ids, p_expected_updated_at) as wanted(player_id, expected_at)
+     where p.id = wanted.player_id and p.verification_status = 'pending'
+       and p.updated_at = wanted.expected_at
+    returning p.id, p.display_name, p.legal_name, p.verification_status,
+              p.verification_note, p.created_at, p.updated_at, p.decided_by, p.decided_at;
+  get diagnostics affected = row_count;
+  if affected <> requested then
+    raise exception 'verification_conflict' using errcode = 'P0001';
+  end if;
+end $$;
+
+revoke all on function public.guard_player_verification_decision() from public, anon, authenticated;
+revoke all on function public.list_player_verifications(text, integer) from public, anon, authenticated;
+revoke all on function public.decide_player_verifications(uuid[], timestamptz[], text, text) from public, anon, authenticated;
+grant execute on function public.list_player_verifications(text, integer),
+  public.decide_player_verifications(uuid[], timestamptz[], text, text) to authenticated;

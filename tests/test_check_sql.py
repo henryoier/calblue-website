@@ -536,7 +536,7 @@ class PolicyMigrationCheckTest(unittest.TestCase):
         return check_sql.check_migrations({
             check_sql.CORE: core_fixture(), check_sql.MONEY: money_fixture(),
             check_sql.POLICIES: source,
-        })
+        }, required_targets=(check_sql.CORE, check_sql.MONEY, check_sql.POLICIES))
 
     def assert_problem(self, source, fragment):
         self.assertTrue(any(fragment in finding for finding in self.findings(source)), fragment)
@@ -544,7 +544,7 @@ class PolicyMigrationCheckTest(unittest.TestCase):
     def test_independent_policy_contract_passes(self):
         self.assertEqual(self.findings(policy_fixture()), [])
 
-    def test_cli_accepts_three_complete_installations(self):
+    def test_cli_requires_verification_after_three_complete_installations(self):
         with tempfile.TemporaryDirectory() as directory:
             for name, source in ((check_sql.CORE, core_fixture()),
                                  (check_sql.MONEY, money_fixture()),
@@ -552,8 +552,8 @@ class PolicyMigrationCheckTest(unittest.TestCase):
                 (Path(directory) / name).write_text(source, encoding="utf-8")
             with mock.patch.object(check_sql, "MIG_DIR", Path(directory)), \
                     mock.patch("sys.argv", ["check_sql.py"]), redirect_stdout(io.StringIO()) as output:
-                self.assertEqual(check_sql.main(), 0)
-            self.assertIn("3 migration(s); structural checks only", output.getvalue())
+                self.assertEqual(check_sql.main(), 1)
+            self.assertIn("0004_player_verification.sql", output.getvalue())
 
     def test_missing_third_is_required_by_default(self):
         self.assertIn("0003_rls.sql: required RLS migration is missing",
