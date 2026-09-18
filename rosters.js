@@ -38,6 +38,7 @@
       const existing = [...directory.querySelectorAll('.player-card')].map(node => ({
         name: node.querySelector('h2').textContent,
         photo: node.querySelector('img').getAttribute('src'),
+        pinned: node.hasAttribute('data-pinned-photo'),
       }));
       const players = window.CALBLUE_PLAYERS.merge(existing, data.competitions);
       directory.replaceChildren(...players.map(({ name, photo, photos }) => card({ name, photo, photos })));
