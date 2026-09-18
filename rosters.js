@@ -23,14 +23,21 @@
     }
     return article;
   }
-  fetch('data/rosters.json').then(response => {
-    if (!response.ok) throw new Error('Roster unavailable');
-    return response.json();
-  }).then(data => {
+  const loadPins = () => fetch('data/player-photo-pins.json')
+    .then(response => (response.ok ? response.json() : {}))
+    .then(payload => (payload && payload.pins) || {}, () => ({}));
+  const pinPhotos = (players, pins) => (window.CALBLUE_PLAYERS ? window.CALBLUE_PLAYERS.applyPins(players, pins) : players);
+  Promise.all([
+    fetch('data/rosters.json').then(response => {
+      if (!response.ok) throw new Error('Roster unavailable');
+      return response.json();
+    }),
+    loadPins(),
+  ]).then(([data, pins]) => {
     if (competition) {
       const roster = data.competitions[competition.dataset.competitionRoster];
       if (!Array.isArray(roster?.players) || !roster.players.length) throw new Error('Roster unavailable');
-      competition.querySelector('[data-roster-grid]').replaceChildren(...roster.players.map(card));
+      competition.querySelector('[data-roster-grid]').replaceChildren(...pinPhotos(roster.players, pins).map(card));
       const updated = new Date(data.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       competition.querySelector('[data-roster-status]').textContent = `${roster.players.length} players listed by the competition. Updated ${updated}.`;
     }
@@ -40,7 +47,7 @@
         photo: node.querySelector('img').getAttribute('src'),
         pinned: node.hasAttribute('data-pinned-photo'),
       }));
-      const players = window.CALBLUE_PLAYERS.merge(existing, data.competitions);
+      const players = pinPhotos(window.CALBLUE_PLAYERS.merge(existing, data.competitions), pins);
       directory.replaceChildren(...players.map(({ name, photo, photos }) => card({ name, photo, photos })));
       document.querySelector('[data-player-count]').textContent = `${players.length} CalBlue players`;
     }

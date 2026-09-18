@@ -28,5 +28,15 @@ window.CALBLUE_PLAYERS = (() => {
     }
     return [...people.values()].sort((a, b) => a.name.localeCompare(b.name));
   }
-  return { merge };
+  /* Club-supplied photos (data/player-photo-pins.json) lead wherever the player appears; league photos stay as fallbacks. */
+  function applyPins(players, pins) {
+    const byIdentity = new Map(Object.entries(pins || {}).map(([name, photo]) => [identity(name), photo]));
+    return players.map((player) => {
+      const pin = byIdentity.get(identity(player.name));
+      if (!pin) return player;
+      const photos = [...new Set([pin, ...(player.photos || []), player.photo].filter(Boolean))];
+      return { ...player, photo: pin, photos };
+    });
+  }
+  return { merge, applyPins, identity };
 })();

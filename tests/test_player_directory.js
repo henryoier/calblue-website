@@ -32,3 +32,11 @@ assert(actual.filter(p => p.name === 'Qibang Zhu').length === 1, 'Live Qibang du
 assert(actual.find(p => p.name === 'Sheng Qin').photo.includes('sportzstudio.com'), 'Live newer SWPL photo takes precedence');
 assert(actual.find(p => p.name === 'Lan An').photos[1].includes('thumb-21641'), 'Preserve official thumbnail fallback behind the full-size photo');
 console.log(`Player directory checks passed: ${actual.length} unique players`);
+const pinnedRoster = window.CALBLUE_PLAYERS.applyPins(
+  [{ name: 'Bennett Lee', photo: 'https://nccsf.org/league.jpeg', photos: ['https://nccsf.org/league.jpeg', 'https://nccsf.org/thumb.jpeg'] }, { name: 'Other Player', photo: 'https://nccsf.org/other.jpeg' }],
+  { 'bennett lee': 'assets/roster/bennett-lee.jpg' },
+);
+assert(pinnedRoster[0].photo === 'assets/roster/bennett-lee.jpg' && pinnedRoster[0].photos.join() === 'assets/roster/bennett-lee.jpg,https://nccsf.org/league.jpeg,https://nccsf.org/thumb.jpeg', 'Competition rosters lead with a pinned club photo and keep league photos as fallbacks');
+assert(pinnedRoster[1].photo === 'https://nccsf.org/other.jpeg', 'Unpinned players are untouched');
+console.log('Photo pin checks passed');
+
