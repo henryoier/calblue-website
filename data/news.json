@@ -1,20 +1,32 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-17T01:18:44-07:00",
-  "today": "2026-09-17",
+  "generatedAt": "2026-09-20T12:17:07-07:00",
+  "today": "2026-09-20",
   "items": [
     {
-      "id": "matchday-2026-09-19-bay-area-united",
-      "slug": "matchday-2026-09-19-bay-area-united",
+      "id": "matchday-2026-10-03-albion-sc-silicon-valley",
+      "slug": "matchday-2026-10-03-albion-sc-silicon-valley",
       "category": "Match day",
-      "date": "2026-09-19",
-      "title": "Match day: CalBlue FC vs Bay Area United",
-      "summary": "Saturday, September 19 · 7:30 pm PT · Fair Oaks Park Field 3 · Luca's farewell game · Bay Area United are the UPSL 2026 spring season champions",
-      "image": "assets/matchday/2026-fall/2026-09-19-bay-area-united-styled-v2.webp",
-      "imageAlt": "Match-day poster: CalBlue FC vs Bay Area United",
+      "date": "2026-10-03",
+      "title": "Match day: Albion SC Silicon Valley vs CalBlue FC",
+      "summary": "Saturday, October 3 · 8:00 pm PT · Red Morton Park - Bechet Field",
+      "image": "assets/matchday/2026-fall/2026-10-03-albion-sc-silicon-valley-styled.webp",
+      "imageAlt": "Match-day poster: CalBlue FC vs Albion SC Silicon Valley",
       "href": "index.html#matchday",
       "cta": "See the poster",
       "poster": true
+    },
+    {
+      "id": "gallery-2026-09-19-bay-area-united",
+      "slug": "gallery-2026-09-19-bay-area-united",
+      "category": "Gallery",
+      "date": "2026-09-19",
+      "title": "Photos: CalBlue vs Bay Area United",
+      "summary": "341 photos · 2026 SWPL Pacific Premier League · Home match",
+      "image": "https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/swpl-bay-area-united/thumb/150.jpg",
+      "imageAlt": "CalBlue number 31 dribbling past a Bay Area United defender",
+      "href": "gallery-swpl-bay-area-united.html",
+      "cta": "Open the album"
     },
     {
       "id": "instagram-17861354964692032",

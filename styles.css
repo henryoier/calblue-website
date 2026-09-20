@@ -331,6 +331,7 @@ footer { padding: 72px 0 24px; color: white; background: #04112a; }
 .album-hero-kylin-dallas-group { background-image: url('https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/kylin-dallas-group/full/029.jpg'); background-position: center 44%; }
 .album-hero-kylin-kirin { background-image: url('https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/kylin-kirin/full/020.jpg'); background-position: center 45%; }
 .album-hero-kylin-dallas-third { background-image: url('https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/kylin-dallas-third/full/005.jpg'); background-position: center 42%; }
+.album-hero-swpl-bay-area-united { background-image: url('https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/swpl-bay-area-united/full/150.jpg'); background-position: center 42%; }
 .album-hero-btg h1 { font-size: clamp(58px, 8vw, 112px); }
 .album-hero-upsl-athletico h1,
 .album-hero-upsl-bay-area h1,
@@ -338,7 +339,8 @@ footer { padding: 72px 0 24px; color: white; background: #04112a; }
 .album-hero-kylin-aurora h1,
 .album-hero-kylin-dallas-group h1,
 .album-hero-kylin-kirin h1,
-.album-hero-kylin-dallas-third h1 { font-size: clamp(50px, 7vw, 100px); }
+.album-hero-kylin-dallas-third h1,
+.album-hero-swpl-bay-area-united h1 { font-size: clamp(50px, 7vw, 100px); }
 .album-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 22px; margin-top: 30px; }
 .album-actions .text-link { color: white; }
 .album-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
