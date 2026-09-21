@@ -35,15 +35,20 @@ class MatchdayPosterManifestTests(unittest.TestCase):
                 self.assertLess(path.stat().st_size, 700_000, f"{key}: {poster['src']} is too large for the homepage")
                 self.assertEqual((poster["width"], poster["height"]), (1296, 1616), key)
 
+    @staticmethod
+    def key_for(fixture):
+        opponent = fixture["away"] if fixture["home"]["name"].startswith("CalBlue") else fixture["home"]
+        return f"{fixture['date']}-{slug(opponent['name'])}"
+
     def test_keys_match_schedule_fixtures(self):
-        expected = {}
-        for fixture in self.swpl["fixtures"]:
-            opponent = fixture["away"] if fixture["home"]["name"].startswith("CalBlue") else fixture["home"]
-            expected[f"{fixture['date']}-{slug(opponent['name'])}"] = fixture
+        """Every poster belongs to a published game, upcoming or already played; every upcoming game has posters."""
+        upcoming = {self.key_for(f): f for f in self.swpl["fixtures"]}
+        played = {self.key_for(f): f for f in self.swpl.get("results", [])}
+        known = {**played, **upcoming}
         for key, entry in self.manifest["fixtures"].items():
-            self.assertIn(key, expected, f"{key}: no such fixture in data/swpl.json (schedule changed? regenerate posters)")
-            self.assertEqual(entry["date"], expected[key]["date"], key)
-        missing = sorted(set(expected) - set(self.manifest["fixtures"]))
+            self.assertIn(key, known, f"{key}: no such game in data/swpl.json (schedule changed? regenerate and re-key posters)")
+            self.assertEqual(entry["date"], known[key]["date"], key)
+        missing = sorted(set(upcoming) - set(self.manifest["fixtures"]))
         self.assertEqual(missing, [], f"upcoming SWPL fixtures without posters: {missing}")
 
 
