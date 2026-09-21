@@ -105,6 +105,16 @@ class BuildNewsTests(unittest.TestCase):
         self.assertEqual(nccsf["scoreline"]["away"]["logo"], "assets/calblue-logo-web.jpg", "CalBlue uses the site crest")
         self.assertEqual(nccsf["scoreline"]["home"]["name"], "GSF United")
 
+    def test_losses_are_not_announced(self):
+        swpl = json.loads((self.root / "data/swpl.json").read_text())
+        swpl["results"].append(dict(fixture("r2", "2026-09-19", CALBLUE, BAU, status="completed", score={"home": 0, "away": 4})))
+        swpl["results"].append(dict(fixture("r3", "2026-09-20", CALBLUE, BAU, status="completed", score={"home": 2, "away": 2})))
+        self.write("data/swpl.json", swpl)
+        titles = [r["title"] for r in self.by(self.build(today="2026-09-21"), "Result")]
+        self.assertNotIn("CalBlue 0-4 Bay Area United", titles, "a loss never becomes a news card")
+        self.assertIn("CalBlue 2-2 Bay Area United", titles, "draws are still announced")
+        self.assertIn("CalBlue 3-2 SF Glens", titles)
+
     def test_gallery_cards_carry_competition_and_count(self):
         feed = self.build()
         galleries = self.by(feed, "Gallery")

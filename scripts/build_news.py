@@ -3,7 +3,7 @@
 
 Sources (newest first in the output):
   - data/news-posts.json      hand-written club posts (title, summary, body paragraphs, image)
-  - data/swpl.json, data/nccsf.json   published results -> "Result" cards
+  - data/swpl.json, data/nccsf.json   published wins and draws -> "Result" cards (losses are not announced)
   - gallery.html              match albums -> "Gallery" cards
   - data/matchday-posters.json + fixtures   next fixture with artwork -> one "Match day" preview card
   - data/instagram.json       posts imported by scripts/sync_instagram.py -> "Instagram" cards
@@ -128,6 +128,8 @@ def result_items(feeds: dict[str, dict | None], albums: list[dict]) -> list[dict
             scored = score["home"] if calblue_home else score["away"]
             conceded = score["away"] if calblue_home else score["home"]
             outcome = "Win" if scored > conceded else "Draw" if scored == conceded else "Loss"
+            if outcome == "Loss":
+                continue   # club decision: losses are not announced in the news feed (they stay on the competition pages)
             album = next(
                 (a for a in albums if a["date"] == result["date"] and slugify(a["opponent"]) and slugify(a["opponent"]) in slugify(opponent)),
                 None,
