@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parent.parent
 PAGES = tuple(ROOT.glob("*.html"))
 ALBUMS = {
     "swpl-sf-glens": 99,
+    "swpl-bay-area-united": 341,
     "tiger": 135,
     "nbh": 58,
     "sfu": 24,
