@@ -31,7 +31,7 @@ python3 scripts/check_site.py
 
 The homepage "Latest" section and `news.html` render `data/news.json`, which `scripts/build_news.py` assembles from sources already in the repository, newest first:
 
-- published results in `data/swpl.json` and `data/nccsf.json` (with the matching gallery album when one exists),
+- published wins and draws in `data/swpl.json` and `data/nccsf.json` (with the matching gallery album when one exists); losses are not announced and stay on the competition pages,
 - match albums in `gallery.html`,
 - the next fixture that has match-day posters in `data/matchday-posters.json` (one preview card, including any storylines),
 - hand-written posts in `data/news-posts.json` (title, summary, body paragraphs, image; they open on `news.html?post=<slug>`),
