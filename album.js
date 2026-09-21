@@ -5,6 +5,7 @@ if (albumPage) {
   const mediaBaseUrl = (media.baseUrl || '').replace(/\/$/, '');
   const albums = {
     'swpl-sf-glens': { opponent: 'SF Glens', date: 'September 13, 2026', count: 99, competition: '2026 SWPL Pacific Premier League' },
+    'swpl-bay-area-united': { opponent: 'Bay Area United', date: 'September 19, 2026', count: 341, competition: '2026 SWPL Pacific Premier League' },
     tiger: { opponent: 'Tiger', date: 'May 24, 2026', count: 135, competition: '2026 NCCSF' },
     nbh: { opponent: 'NBH', date: 'May 23, 2026', count: 58, competition: '2026 NCCSF' },
     sfu: { opponent: 'SFU', date: 'May 16, 2026', count: 24, competition: '2026 NCCSF' },
