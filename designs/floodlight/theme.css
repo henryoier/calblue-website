@@ -901,7 +901,8 @@ footer > .shell { position: relative; }
 .news-card-link { display: flex; flex-direction: column; width: 100%; color: inherit; }
 .news-card figure { margin: 0; aspect-ratio: 16 / 10; background: var(--midnight); overflow: hidden; }
 .news-card figure img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
-.news-card.is-poster figure img { object-position: center top; }
+.news-card.is-poster figure { background: linear-gradient(135deg, var(--midnight), var(--navy-800)); }
+.news-card.is-poster figure img { object-fit: contain; object-position: center; }   /* the 4:5 match-day poster is shown whole, not cropped */
 .news-card:hover figure img { transform: scale(1.04); }
 .news-card-copy { display: flex; flex: 1; flex-direction: column; gap: 10px; padding: 22px 24px 26px; }
 .news-card-meta { display: flex; align-items: center; gap: 14px; margin: 0; color: var(--muted); font-size: 12px; }
