@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://nccsf.org/en/league/game?a=ajaxGoalList&lid=36",
   "note": "Published NCCSF scorers by game id, accumulated across weeks so earlier games keep their scorers if the league endpoint only lists the current week. Refreshed by scripts/sync_nccsf.py.",
-  "checkedAt": "2026-09-16T17:30:39-07:00",
+  "checkedAt": "2026-09-21T21:41:56-07:00",
   "games": {
     "3388": [
       {
@@ -113,6 +113,34 @@
         "team": "Deep Shoreline",
         "teamId": 631,
         "week": "<a href=\"game?a=editGameForm&gid=3393&id=1668&tab=goals\">Week01</a>",
+        "highlight": false
+      }
+    ],
+    "3398": [
+      {
+        "player": "Rusen Yan",
+        "playerId": 1787,
+        "team": "PP United",
+        "teamId": 632,
+        "week": "<a href=\"game?a=editGameForm&gid=3398&id=1681&tab=goals\">Week02</a>",
+        "highlight": false
+      },
+      {
+        "player": "Lawrence Lee",
+        "playerId": 22520,
+        "team": "PP United",
+        "teamId": 632,
+        "week": "<a href=\"game?a=editGameForm&gid=3398&id=1680&tab=goals\">Week02</a>",
+        "highlight": false
+      }
+    ],
+    "3399": [
+      {
+        "player": "Geoffrey Xiang",
+        "playerId": 22422,
+        "team": "THU West",
+        "teamId": 630,
+        "week": "<a href=\"game?a=editGameForm&gid=3399&id=1682&tab=goals\">Week02</a>",
         "highlight": false
       }
     ]

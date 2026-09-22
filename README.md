@@ -83,7 +83,7 @@ The NCCSF importer also reads the official team directory so every club uses its
 
 ## Content to confirm before launch
 
-Official schedule imports also retain completed games in each feed's `results` array, with numeric `score.home` and `score.away` fields. Only published scorelines on or before the check date become results; elapsed dates without scores are not treated as completed matches. Competition pages show published final scores inline on each completed fixture, alongside upcoming games in chronological order. The homepage remains focused on upcoming games. Results use the existing six-hour deployment sync, including score corrections. Completed SWPL rows suppress matching provisional fixtures.
+Official schedule imports also retain completed games in each feed's `results` array, with numeric `score.home` and `score.away` fields. Only published scorelines on or before the check date become results; an elapsed date without a published score stays in `fixtures` with `status: "played"` and the competition page lists it as "Result pending" (never with an invented score) until the league posts it. Competition pages show published final scores inline on each completed fixture, alongside upcoming games in chronological order. The homepage remains focused on upcoming games. Results use the existing six-hour deployment sync, including score corrections. Completed SWPL rows suppress matching provisional fixtures.
 
 - Confirm that `calblue1996@gmail.com` is the approved public contact address.
 - Add confirmed league, team, training, and fixture information.
