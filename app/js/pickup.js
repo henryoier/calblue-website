@@ -27,6 +27,7 @@ const pickupBadUnicode = (value) => [...value].some((character) => character.len
 const pickupTextControls = (field) => ["notes", "reason"].includes(field)
   ? /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/ : /[\u0000-\u001f\u007f-\u009f]/;
 const pickupFormatters = new Map();
+const pickupPositiveEras = new WeakMap();
 
 function pickupError(code, fields) {
   const error = new Error(code);
@@ -85,7 +86,12 @@ function pickupFormatter(timezone) {
       timeZone: timezone, era: "short", year: "numeric", month: "2-digit", day: "2-digit",
       hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23",
     });
-    formatter.formatToParts(new Date(0));
+    // ICU versions/locales differ in era wording (AD, CE, etc.). Compare the
+    // era against a known positive-year instant using this exact formatter,
+    // rather than treating any particular translated label as a protocol.
+    const positiveEra = formatter.formatToParts(new Date(0)).find((part) => part.type === "era")?.value;
+    if (typeof positiveEra !== "string" || !positiveEra) throw new Error("Era unavailable");
+    pickupPositiveEras.set(formatter, positiveEra);
     if (pickupFormatters.size >= 32) pickupFormatters.delete(pickupFormatters.keys().next().value);
     pickupFormatters.set(timezone, formatter);
     return formatter;
@@ -101,7 +107,8 @@ function pickupZonedParts(instant, formatter) {
     if (["year", "month", "day", "hour", "minute", "second"].includes(part.type)) found[part.type] = Number(part.value);
   }
   const parts = [found.year, found.month, found.day, found.hour, found.minute, found.second];
-  if (found.era !== "AD" || !pickupCalendar(...parts)) throw pickupError("invalid_pickup", { _form: "Choose a date from year 0001 through 9999." });
+  if (!pickupPositiveEras.has(formatter) || found.era !== pickupPositiveEras.get(formatter)
+    || !pickupCalendar(...parts)) throw pickupError("invalid_pickup", { _form: "Choose a date from year 0001 through 9999." });
   return parts;
 }
 

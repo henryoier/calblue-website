@@ -24,6 +24,36 @@ export function pickupLogicTests(pickup, t) {
     t.equal(pickup.PICKUP_LIMITS.reason, 2000);
   });
 
+  t.test("pickup compares era tokens from its formatter instead of assuming AD or BC labels", () => {
+    const nativeDateTimeFormat = Intl.DateTimeFormat;
+    const variants = [
+      { zone: "America/Chicago", positive: "CE", negative: "BCE", instant: "2026-10-04T15:00:00Z" },
+      { zone: "America/New_York", positive: "Common Era", negative: "Before Common Era", instant: "2026-10-04T14:00:00Z" },
+    ];
+    try {
+      // These zones have not been requested earlier in this suite, so each
+      // creates a formatter under the controlled labels, regardless of ICU's
+      // actual AD/BC versus CE/BCE wording on this test runtime.
+      Intl.DateTimeFormat = function (locale, settings) {
+        const formatter = new nativeDateTimeFormat(locale, settings);
+        const originalPositive = formatter.formatToParts(new Date(0)).find((part) => part.type === "era")?.value;
+        const labels = variants.find((variant) => variant.zone === settings.timeZone);
+        if (!labels) return formatter;
+        return { formatToParts(value) {
+          return formatter.formatToParts(value).map((part) => part.type === "era"
+            ? { ...part, value: part.value === originalPositive ? labels.positive : labels.negative } : part);
+        } };
+      };
+      for (const variant of variants) {
+        t.equal(pickup.pickupLocalInput(variant.instant, variant.zone), "2026-10-04T10:00");
+        t.equal(pickup.pickupLocalToInstant("2026-10-04T10:00", variant.zone), variant.instant);
+        let error;
+        try { pickup.pickupLocalInput("0001-01-01T00:00:00Z", variant.zone); } catch (caught) { error = caught; }
+        t.equal(error?.code, "invalid_pickup");
+      }
+    } finally { Intl.DateTimeFormat = nativeDateTimeFormat; }
+  });
+
   t.test("pickup times use the venue timezone rather than the host timezone", () => {
     t.equal(pickup.pickupLocalToInstant("2026-10-04T10:00", "America/Los_Angeles"), "2026-10-04T17:00:00Z");
     t.equal(pickup.pickupLocalToInstant("2026-01-04T10:00", "America/Los_Angeles"), "2026-01-04T18:00:00Z");
