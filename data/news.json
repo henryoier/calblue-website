@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-21T13:57:07-07:00",
+  "generatedAt": "2026-09-21T21:26:18-07:00",
   "today": "2026-09-21",
   "items": [
     {
@@ -27,6 +27,25 @@
       "imageAlt": "CalBlue squad lined up before the SWPL home match against Bay Area United",
       "href": "gallery-swpl-bay-area-united.html",
       "cta": "Open the album"
+    },
+    {
+      "id": "squad-2026-09-17-swpl",
+      "slug": "squad-2026-09-17-swpl",
+      "category": "Squad",
+      "date": "2026-09-17",
+      "title": "1 new face on the SWPL roster",
+      "summary": "Welcome Runfeng Xiong, now registered for the SWPL Pacific Premier League.",
+      "image": "https://cdn.sportzstudio.com/nisa/playeruploads/16434/securefiles/1789628981_hs.jpg",
+      "imageAlt": "Runfeng Xiong, newly registered with CalBlue FC",
+      "href": "competition-swpl.html#roster",
+      "cta": "Meet the squad",
+      "players": [
+        {
+          "name": "Runfeng Xiong",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16434/securefiles/1789628981_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/runfeng--xiong"
+        }
+      ]
     },
     {
       "id": "instagram-17861354964692032",

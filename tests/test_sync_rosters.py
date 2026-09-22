@@ -77,3 +77,15 @@ class RosterHistoryTests(unittest.TestCase):
         again, newly_again = update_history(history, rosters, '2026-09-17')
         self.assertEqual(newly_again, [], 'already-known players are not reported twice')
         self.assertEqual(again['players']['swpl:zheng chang']['firstSeen'], '2026-09-16', 'first-seen dates are stable')
+
+    def test_swpl_headshot_timestamp_dates_a_new_player(self):
+        from scripts.sync_rosters import registration_date, update_history
+        player = {'name': 'Runfeng Xiong', 'photo': 'https://cdn.sportzstudio.com/nisa/playeruploads/16400/securefiles/1789650000_hs.jpg'}
+        self.assertEqual(registration_date(player, '2026-09-21'), '2026-09-17', 'the headshot upload day is the registration day')
+        self.assertEqual(registration_date(player, '2026-09-10'), '2026-09-10', 'a stamp in the future is ignored')
+        self.assertEqual(registration_date({'name': 'X', 'photo': 'https://nccsf.org/en/img/player/photo/12/thumb-1221.jpg'}, '2026-09-21'), '2026-09-21', 'no stamp: the day the sync noticed them')
+        history, _ = update_history({}, self.ROSTERS, '2026-09-09')
+        rosters = {'swpl': {'seasonStartsOn': '2026-09-13', 'players': [{'name': 'Sheng Qin'}, player]}, 'nccsf': self.ROSTERS['nccsf']}
+        history, newly = update_history(history, rosters, '2026-09-21')
+        self.assertEqual(newly[0]['firstSeen'], '2026-09-17')
+
