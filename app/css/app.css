@@ -379,3 +379,32 @@ body {
 .app-verification-primary { color: #fff; background: var(--navy, #071b3f); }
 .app-verification button:disabled { cursor: not-allowed; background: #e2e8f0; color: #475569; border-color: #94a3b8; }
 .app-verification fieldset:disabled input, .app-verification fieldset:disabled textarea { background: #f1f5f9; }
+
+/* Pickup management: mobile-first forms and explicit publication decisions. */
+.app-pickup { display: grid; gap: 1rem; min-width: 0; }
+.app-pickup [hidden] { display: none; }
+.app-pickup h1, .app-pickup h2, .app-pickup h3 { margin-top: 0; }
+.app-pickup fieldset { border: 0; min-width: 0; padding: 0; margin: 0; }
+.app-pickup legend { font-weight: 700; padding-bottom: 1rem; }
+.app-pickup label { display: block; font-weight: 700; margin-bottom: 0.4rem; }
+.app-pickup input, .app-pickup select, .app-pickup textarea {
+  display: block; width: 100%; min-width: 0; max-width: 100%; min-height: 44px;
+  padding: 0.65rem 0.75rem; border: 1px solid #64748b; border-radius: 0.3rem;
+  background: #fff; color: var(--ink, #0b1730); font: inherit; font-size: 1rem;
+}
+.app-pickup textarea { resize: vertical; }
+.app-pickup [readonly], .app-pickup fieldset:disabled input,
+.app-pickup fieldset:disabled textarea, .app-pickup fieldset:disabled select { background: #f1f5f9; }
+.app-pickup-grid { display: grid; gap: 1rem; min-width: 0; margin-bottom: 1.25rem; }
+.app-pickup-grid > div { min-width: 0; }
+.app-pickup-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-block: 0.75rem; }
+.app-pickup-rows { list-style: none; margin: 0; padding: 0; }
+.app-pickup-row { min-width: 0; padding-block: 1.25rem; border-bottom: 1px solid #cbd5e1; }
+.app-pickup-row p { margin-block: 0.5rem; }
+.app-pickup p, .app-pickup h2, .app-pickup h3 { overflow-wrap: anywhere; }
+.app-pickup-primary { background: var(--navy, #071b3f); color: #fff; border-color: var(--navy, #071b3f); }
+.app-pickup button:disabled { cursor: not-allowed; background: #e2e8f0; color: #475569; border-color: #94a3b8; }
+.app-pickup-field-error { color: #991b1b; font-weight: 700; }
+.app-pickup [aria-invalid="true"] { border: 2px solid #991b1b; }
+.app-pickup-notes, .app-pickup-reason { white-space: pre-wrap; }
+@media (min-width: 640px) { .app-pickup-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

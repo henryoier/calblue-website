@@ -29,6 +29,9 @@ SOURCES = [
     "app/js/verification.js",
     "app/tests/verification.logic.js",
     "app/tests/verification.data.test.js",
+    "app/js/pickup.js",
+    "app/tests/pickup.logic.js",
+    "app/tests/pickup.data.test.js",
 ]
 
 HARNESS = """
@@ -49,6 +52,9 @@ identityDataTests(identity, { testAsync });
 const verification = { createVerificationService, validateVerificationSearch, validateVerificationDecision, VERIFICATION_LIMITS };
 verificationLogicTests(verification, { test, assert, equal });
 verificationDataTests(verification, { testAsync });
+const pickup = { createPickupService, validatePickupDetails, pickupLocalInput, pickupLocalToInstant, PICKUP_LIMITS };
+pickupLogicTests(pickup, { test, assert, equal });
+pickupDataTests(pickup, { testAsync });
 (async () => {
   const records = [];
   for (const item of tests) {
