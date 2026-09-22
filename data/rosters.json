@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-17T00:37:00.667635+00:00",
+  "updatedAt": "2026-09-22T04:26:18.752707+00:00",
   "competitions": {
     "swpl": {
       "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
@@ -172,6 +172,13 @@
           "position": "Goalkeeper",
           "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16392/securefiles/1789582833_hs.jpg",
           "profile": "https://pacific.swplsoccer.com/roster/zheng-chang"
+        },
+        {
+          "name": "Runfeng Xiong",
+          "number": "",
+          "position": "Forward",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16434/securefiles/1789628981_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/runfeng--xiong"
         }
       ]
     },
@@ -272,17 +279,6 @@
           "photos": [
             "https://nccsf.org/en/img/player/photo/25/2544_StNoMrzCk6.jpg",
             "https://nccsf.org/en/img/player/photo/25/thumb-2544.jpg"
-          ]
-        },
-        {
-          "name": "Justin Wang",
-          "number": "",
-          "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/26/2692_qO8Hs2E5Uc.jpg",
-          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=2692",
-          "photos": [
-            "https://nccsf.org/en/img/player/photo/26/2692_qO8Hs2E5Uc.jpg",
-            "https://nccsf.org/en/img/player/photo/26/thumb-2692.jpg"
           ]
         },
         {

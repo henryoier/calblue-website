@@ -23,6 +23,21 @@ def player_key(name):
     return name.normalize('NFKC').strip().lower() if hasattr(name, 'normalize') else ' '.join(name.strip().lower().split())
 
 
+def registration_date(player, today):
+    """Best available date a player joined a league roster.
+
+    SWPL stores each headshot under a Unix-timestamp filename set when the club uploaded it at
+    registration (…/1789582833_hs.jpg), which is a far better date than the day our sync first
+    noticed the player. Used when it is not in the future; otherwise `today`.
+    """
+    match = re.search(r'/(\d{10})_hs\.', player.get('photo') or '')
+    if match:
+        uploaded = datetime.fromtimestamp(int(match[1]), PACIFIC).date().isoformat()
+        if uploaded <= today:
+            return uploaded
+    return today
+
+
 def update_history(history, competitions, today):
     """Track when each player first appeared on each league roster.
 
@@ -41,7 +56,7 @@ def update_history(history, competitions, today):
             if entry is None:
                 entry = {
                     'name': player['name'], 'league': league,
-                    'firstSeen': roster.get('seasonStartsOn') if seeding else today,
+                    'firstSeen': roster.get('seasonStartsOn') if seeding else registration_date(player, today),
                     'seeded': seeding,
                 }
                 if not seeding:
