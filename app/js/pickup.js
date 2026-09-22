@@ -82,8 +82,11 @@ function pickupFormatter(timezone) {
   }
   if (pickupFormatters.has(timezone)) return pickupFormatters.get(timezone);
   try {
-    const formatter = new Intl.DateTimeFormat("en-CA-u-ca-iso8601-nu-latn", {
-      timeZone: timezone, era: "short", year: "numeric", month: "2-digit", day: "2-digit",
+    // ICU's ISO8601 calendar can omit era parts even when requested. Gregorian
+    // provides explicit eras while retaining the proleptic Gregorian dates our
+    // wire protocol validates; request it independently of locale extensions.
+    const formatter = new Intl.DateTimeFormat("en-CA-u-nu-latn", {
+      calendar: "gregory", timeZone: timezone, era: "short", year: "numeric", month: "2-digit", day: "2-digit",
       hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23",
     });
     // ICU versions/locales differ in era wording (AD, CE, etc.). Compare the

@@ -24,6 +24,42 @@ export function pickupLogicTests(pickup, t) {
     t.equal(pickup.PICKUP_LIMITS.reason, 2000);
   });
 
+  t.test("pickup runtime Gregorian formatter provides distinguishable positive and negative eras", () => {
+    const formatter = new Intl.DateTimeFormat("en-CA-u-nu-latn", { calendar: "gregory", timeZone: "UTC",
+      era: "short", year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" });
+    const positive = formatter.formatToParts(new Date(0));
+    const negative = formatter.formatToParts(new Date("0000-01-01T00:00:00Z"));
+    const positiveEra = positive.find((part) => part.type === "era")?.value;
+    const negativeEra = negative.find((part) => part.type === "era")?.value;
+    const diagnostics = JSON.stringify({ calendar: formatter.resolvedOptions().calendar, positive, negative });
+    t.equal(formatter.resolvedOptions().calendar, "gregory", diagnostics);
+    t.assert(typeof positiveEra === "string" && typeof negativeEra === "string" && positiveEra !== negativeEra, diagnostics);
+  });
+
+  t.test("pickup explicitly selects Gregorian when ISO8601 formatters omit eras", () => {
+    const nativeDateTimeFormat = Intl.DateTimeFormat;
+    let selectedCalendar;
+    try {
+      Intl.DateTimeFormat = function (locale, settings) {
+        if (settings.timeZone !== "America/Denver") return new nativeDateTimeFormat(locale, settings);
+        selectedCalendar = settings.calendar;
+        const formatter = new nativeDateTimeFormat("en-CA-u-nu-latn", { ...settings, calendar: "gregory" });
+        return { formatToParts(value) {
+          const parts = formatter.formatToParts(value);
+          // Reproduce ICU's ISO8601 calendar omitting era despite era:'short'.
+          return settings.calendar === "gregory" ? parts : parts.filter((part) => part.type !== "era");
+        } };
+      };
+      t.equal(pickup.pickupLocalInput("2026-10-04T16:00:00Z", "America/Denver"), "2026-10-04T10:00");
+      t.equal(pickup.pickupLocalToInstant("2026-10-04T10:00", "America/Denver"), "2026-10-04T16:00:00Z");
+      t.equal(selectedCalendar, "gregory");
+      let error;
+      try { pickup.pickupLocalInput("0001-01-01T00:00:00Z", "America/Denver"); } catch (caught) { error = caught; }
+      t.equal(error?.code, "invalid_pickup");
+    } finally { Intl.DateTimeFormat = nativeDateTimeFormat; }
+  });
+
   t.test("pickup compares era tokens from its formatter instead of assuming AD or BC labels", () => {
     const nativeDateTimeFormat = Intl.DateTimeFormat;
     const variants = [
