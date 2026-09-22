@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://nccsf.org/en/league/game?a=ag&lid=36",
   "sourcePage": "https://nccsf.org/en/league/game?a=games&lid=36",
-  "checkedAt": "2026-09-16T17:30:39-07:00",
+  "checkedAt": "2026-09-21T21:41:56-07:00",
   "season": {
     "name": "2026 NCCSF Fall League",
     "year": 2026,
@@ -38,7 +38,7 @@
       },
       "conference": "Open",
       "sourceUrl": "https://nccsf.org/en/league/game?a=games&lid=36",
-      "status": "scheduled"
+      "status": "played"
     },
     {
       "id": "nccsf-3401",

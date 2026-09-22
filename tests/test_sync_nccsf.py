@@ -69,6 +69,10 @@ class BuildSnapshotTest(unittest.TestCase):
         checked = datetime(2026, 9, 20, tzinfo=ZoneInfo("America/Los_Angeles"))
         snapshot = build_snapshot(SAMPLE, TEAMS, checked)
         self.assertEqual(snapshot["results"], [])
+        played = [f for f in snapshot["fixtures"] if f["status"] == "played"]
+        self.assertEqual([f["id"] for f in played], ["nccsf-3388"], "a played game without a published score stays listed as result pending")
+        self.assertNotIn("score", played[0])
+        self.assertEqual([f["id"] for f in snapshot["fixtures"] if f["status"] == "scheduled"], ["nccsf-3401"])
 
     def test_extracts_only_upcoming_calblue_fixtures(self) -> None:
         checked_at = datetime(2026, 9, 3, 12, tzinfo=ZoneInfo("America/Los_Angeles"))

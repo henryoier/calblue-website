@@ -101,7 +101,8 @@
     const isCup = fixture.competition.toLowerCase().includes('abronzino');
     const isNccsf = fixture.competition.toLowerCase().includes('nccsf');
     const completed = fixture.status === 'completed';
-    item.className = `season-fixture${isNext ? ' is-next' : ''}${isCup ? ' is-cup' : ''}${completed ? ' is-completed' : ''}`;
+    const played = fixture.status === 'played';   // date has passed, league has not published a score yet
+    item.className = `season-fixture${isNext ? ' is-next' : ''}${isCup ? ' is-cup' : ''}${completed ? ' is-completed' : ''}${played ? ' is-played' : ''}`;
     date.className = 'season-fixture-date';
     date.dateTime = fixture.startsAt || fixture.date;
     marker.textContent = isCup ? 'Abronzino Cup' : isNccsf ? 'NCCSF League' : 'SWPL League';
@@ -143,10 +144,10 @@
     link.rel = 'noopener';
     link.textContent = 'Official details ↗';
     details.append(venue, meta, link);
-    if (completed) {
+    if (completed || played) {
       const final = document.createElement('span');
-      final.className = 'season-fixture-final';
-      final.textContent = 'Final';
+      final.className = `season-fixture-final${played ? ' is-pending' : ''}`;
+      final.textContent = completed ? 'Final' : 'Result pending';
       details.prepend(final);
     }
     item.append(date, matchup, details);
@@ -175,17 +176,18 @@
       const upcoming = Array.isArray(data.fixtures)
         ? data.fixtures.filter((fixture) => (
           validFixture(fixture)
-          && fixture.date >= today
+          && (fixture.date >= today || fixture.status === 'played')
           && fixture.status !== 'completed'
           && !completedIds.has(fixture.id)
         ))
         : [];
+      const pending = upcoming.filter((fixture) => fixture.status === 'played').length;
       const fixtures = [...results, ...upcoming];
       fixtures.sort((left, right) => (
         (left.startsAt || left.date).localeCompare(right.startsAt || right.date)
       ));
       list.replaceChildren();
-      const nextFixture = fixtures.find((fixture) => fixture.status !== 'completed');
+      const nextFixture = fixtures.find((fixture) => fixture.status !== 'completed' && fixture.status !== 'played');
       fixtures.forEach((fixture) => list.append(createFixture(fixture, fixture === nextFixture)));
       if (!fixtures.length) {
         const empty = document.createElement('li');
@@ -193,7 +195,7 @@
         empty.textContent = 'No fixtures are currently published.';
         list.append(empty);
       }
-      count.textContent = `${upcoming.length} upcoming · ${results.length} completed`;
+      count.textContent = `${upcoming.length - pending} upcoming · ${results.length} completed${pending ? ` · ${pending} awaiting result` : ''}`;
       const previewCount = Number(data.diagnostics?.editorialOverrides || 0);
       status.textContent = previewCount
         ? `${previewCount} preview date${previewCount === 1 ? '' : 's'} · official updates take priority`

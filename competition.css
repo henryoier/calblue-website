@@ -70,4 +70,5 @@
 .season-scorers::before { content: '⚽ '; }
 .season-scorers.is-calblue { color: var(--navy); font-weight: 600; }
 .season-fixture-scorers small { color: var(--muted); font-size: 11px; font-style: italic; }
-
+.season-fixture.is-played { border-left: 5px solid var(--muted); }
+.season-fixture-details .season-fixture-final.is-pending { color: var(--muted); }

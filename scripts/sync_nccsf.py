@@ -215,8 +215,8 @@ def build_snapshot(
         score = clean_text(str(row.get("score") or ""))
         score_match = re.fullmatch(r"(\d+)\s*[:–-]\s*(\d+)", score)
         completed = bool(score_match) and date.fromisoformat(fixture_date) <= checked_at.date()
-        if date.fromisoformat(fixture_date) < checked_at.date() and not completed:
-            continue
+        # A game whose date has passed without a published score stays listed as played / result pending.
+        played = date.fromisoformat(fixture_date) < checked_at.date() and not completed
         venue_name, map_url = parse_fragment(row.get("field"))
         round_name, _ = parse_fragment(row.get("game"))
         gid = game_id(row.get("game"))
@@ -244,7 +244,7 @@ def build_snapshot(
                 },
                 "conference": clean_text(str(row.get("division") or "")),
                 "sourceUrl": f"https://nccsf.org/en/league/game?a=games&lid={league_id}",
-                "status": "completed" if completed else "scheduled",
+                "status": "completed" if completed else "played" if played else "scheduled",
                 **({"score": {"home": int(score_match[1]), "away": int(score_match[2])}} if completed else {}),
             }
         )

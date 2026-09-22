@@ -209,9 +209,9 @@ def parse_fixtures(parser: SWPLTeamParser, today: date) -> tuple[list[dict[str, 
         result = clean_text(str(cells[3]["text"]))
         score = re.fullmatch(r"(\d+)\s*[-–:]\s*(\d+)", result)
         completed = bool(score) and date.fromisoformat(game_date) <= today
-        status = "completed" if completed else "scheduled"
-        if date.fromisoformat(game_date) < today and not completed:
-            continue
+        # A game whose date has passed without a published score stays listed as played / result pending.
+        played = date.fromisoformat(game_date) < today and not completed
+        status = "completed" if completed else "played" if played else "scheduled"
 
         venue_links = cells[5].get("links", [])
         source = "|".join(
