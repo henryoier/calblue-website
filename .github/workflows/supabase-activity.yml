@@ -1,0 +1,29 @@
+name: Supabase daily activity
+
+on:
+  schedule:
+    # 09:23 Pacific in daylight saving time, 08:23 in standard time.
+    # Runs only after this workflow is merged into the default branch.
+    - cron: '23 16 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-daily-activity
+  cancel-in-progress: false
+
+jobs:
+  check:
+    # Forks must not send scheduled requests to the club's projects.
+    if: github.repository == 'henryoier/calblue-website'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Read-only database check for both Supabase projects
+        run: python3 -B scripts/check_supabase_activity.py
