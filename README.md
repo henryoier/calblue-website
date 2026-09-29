@@ -27,6 +27,15 @@ Validate the site before publishing:
 python3 scripts/check_site.py
 ```
 
+## Supabase daily activity
+
+The separate **Supabase daily activity** workflow makes a small anonymous,
+read-only database request to both the website and verification-test projects
+daily at 16:23 UTC after merge to `main`. It changes no data or billing and is
+best-effort activity, not guaranteed prevention of free-plan pausing. See the
+[daily activity guide](supabase/daily-activity.md) for safety boundaries, manual
+runs, failure notifications and how to disable it.
+
 ## Club news feed
 
 The homepage "Latest" section and `news.html` render `data/news.json`, which `scripts/build_news.py` assembles from sources already in the repository, newest first:
