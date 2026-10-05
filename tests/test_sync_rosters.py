@@ -15,8 +15,17 @@ class RosterTests(unittest.TestCase):
         html = '''CalBlue tid=621 <table id="playerList"><tr><td><img src="../img/a.jpg"></td><td>Qin</td><td>Sheng</td><td>Accepted</td><td>local</td><td>07/17</td></tr><tr><td></td><td>Former</td><td>Player</td><td>Left</td></tr></table>'''
         player, = parse_roster('nccsf', html)
         self.assertEqual(player['name'], 'Sheng Qin')
+        self.assertEqual(player['registeredOn'], '2026-07-17', 'the roster date column is kept as an ISO date')
         self.assertNotIn('status', player)
         self.assertNotIn('local', player.values())
+
+    def test_nccsf_date_column_resolves_to_the_season_year(self):
+        from scripts.sync_rosters import nccsf_registration_date
+        self.assertEqual(nccsf_registration_date('09/24', '2026-09-12'), '2026-09-24')
+        self.assertEqual(nccsf_registration_date('7/9', '2026-09-12'), '2026-07-09')
+        self.assertEqual(nccsf_registration_date('', '2026-09-12'), '', 'a missing cell is not a date')
+        self.assertEqual(nccsf_registration_date('N/A', '2026-09-12'), '')
+        self.assertEqual(nccsf_registration_date('02/30', '2026-09-12'), '', 'an impossible date is dropped')
 
     def test_missing_empty_and_duplicate_rosters_fail(self):
         for html in ['<html>Login</html>', 'CalBlue teamPageName <table id="rosterTable"></table>', 'CalBlue teamPageName <table id="rosterTable">' + '<tr><td><div class="gridPlayerName">Same</div></td></tr>' * 2 + '</table>']:
@@ -88,4 +97,15 @@ class RosterHistoryTests(unittest.TestCase):
         rosters = {'swpl': {'seasonStartsOn': '2026-09-13', 'players': [{'name': 'Sheng Qin'}, player]}, 'nccsf': self.ROSTERS['nccsf']}
         history, newly = update_history(history, rosters, '2026-09-21')
         self.assertEqual(newly[0]['firstSeen'], '2026-09-17')
+
+    def test_nccsf_roster_date_dates_a_new_player(self):
+        from scripts.sync_rosters import registration_date, update_history
+        player = {'name': 'Owen Niu', 'photo': 'https://nccsf.org/en/img/player/photo/225/thumb-22523.jpeg', 'registeredOn': '2026-09-24'}
+        self.assertEqual(registration_date(player, '2026-10-04'), '2026-09-24', 'the NCCSF acceptance day is the registration day, however late the sync runs')
+        self.assertEqual(registration_date(player, '2026-09-20'), '2026-09-20', 'a date in the future is ignored')
+        self.assertEqual(registration_date({'name': 'X', 'registeredOn': ''}, '2026-10-04'), '2026-10-04', 'an empty date falls back to the day the sync noticed them')
+        history, _ = update_history({}, self.ROSTERS, '2026-09-09')
+        rosters = {'swpl': self.ROSTERS['swpl'], 'nccsf': {'seasonStartsOn': '2026-09-12', 'players': [{'name': 'Sheng Qin'}, player]}}
+        history, newly = update_history(history, rosters, '2026-10-04')
+        self.assertEqual([(p['name'], p['firstSeen']) for p in newly], [('Owen Niu', '2026-09-24')])
 

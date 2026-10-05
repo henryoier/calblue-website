@@ -23,13 +23,33 @@ def player_key(name):
     return name.normalize('NFKC').strip().lower() if hasattr(name, 'normalize') else ' '.join(name.strip().lower().split())
 
 
+def nccsf_registration_date(cell, season_start):
+    """ISO date from the NCCSF roster's "Last Update Date" column (MM/DD, no year).
+
+    NCCSF stamps a player's row when the team adds them and the league accepts them, so for an
+    accepted player this is their registration day. The year comes from the season start; the
+    column never reaches back into a previous year because each season gets a new team id.
+    """
+    match = re.fullmatch(r'(\d{1,2})/(\d{1,2})', (cell or '').strip())
+    if not match:
+        return ''
+    try:
+        return datetime(int(season_start[:4]), int(match[1]), int(match[2])).date().isoformat()
+    except ValueError:
+        return ''
+
+
 def registration_date(player, today):
     """Best available date a player joined a league roster.
 
     SWPL stores each headshot under a Unix-timestamp filename set when the club uploaded it at
-    registration (…/1789582833_hs.jpg), which is a far better date than the day our sync first
-    noticed the player. Used when it is not in the future; otherwise `today`.
+    registration (…/1789582833_hs.jpg), and NCCSF prints the acceptance day on its roster table
+    (`registeredOn`). Both beat the day our sync first noticed the player, which depends on when a
+    deploy happened to run. Used when it is not in the future; otherwise `today`.
     """
+    registered = player.get('registeredOn') or ''
+    if registered and registered <= today:
+        return registered
     match = re.search(r'/(\d{10})_hs\.', player.get('photo') or '')
     if match:
         uploaded = datetime.fromtimestamp(int(match[1]), PACIFIC).date().isoformat()
@@ -137,6 +157,8 @@ class RosterParser(HTMLParser):
                     self.row = None
                     return
                 row['name'] = f'{cells[2]} {cells[1]}'.strip()
+                if len(cells) >= 6:
+                    row['registeredOn'] = nccsf_registration_date(cells[5], SEASON_STARTS['nccsf'])
             row = {key: ' '.join(value.split()) for key, value in row.items()}
             if row['name']:
                 self.players.append(row)
