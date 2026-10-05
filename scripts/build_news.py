@@ -15,7 +15,7 @@ Run: python3 scripts/build_news.py [--today YYYY-MM-DD] [--check]
 from __future__ import annotations
 
 import argparse
-from datetime import date, datetime
+from datetime import date, datetime, time, timedelta
 import json
 from pathlib import Path
 import re
@@ -228,30 +228,46 @@ def instagram_items(data: dict | None) -> list[dict]:
     return [item for item in items if re.match(r"\d{4}-\d{2}-\d{2}$", item["date"])]
 
 
-def squad_items(history: dict | None) -> list[dict]:
-    """One card per league per day on which new players first appeared on the official roster."""
-    groups: dict[tuple[str, str], list[dict]] = {}
+WEEKLY_PUBLISH_HOUR = 20  # Friday 8 PM Pacific: the week's new faces go out on Friday night
+
+
+def week_ending_friday(day: date) -> date:
+    """The Friday that closes the Saturday-to-Friday week containing `day`."""
+    return day + timedelta(days=(4 - day.weekday()) % 7)
+
+
+def squad_items(history: dict | None, now: datetime) -> list[dict]:
+    """One card per league per week summarising everyone who joined that official roster.
+
+    Weeks run Saturday to Friday and the card is dated and published on Friday night
+    (WEEKLY_PUBLISH_HOUR Pacific), so a week still in progress never shows a partial list.
+    """
+    groups: dict[tuple[date, str], list[dict]] = {}
     for entry in ((history or {}).get("players") or {}).values():
         if entry.get("seeded") or not entry.get("firstSeen"):
             continue
-        groups.setdefault((entry["league"], entry["firstSeen"]), []).append(entry)
+        friday = week_ending_friday(date.fromisoformat(entry["firstSeen"]))
+        groups.setdefault((friday, entry["league"]), []).append(entry)
     items = []
-    for (league, day), players in sorted(groups.items(), key=lambda item: (item[0][1], LEAGUE_ORDER.get(item[0][0], 9), item[0][0])):
-        players.sort(key=lambda p: p["name"])
+    for (friday, league), players in sorted(groups.items(), key=lambda item: (item[0][0], LEAGUE_ORDER.get(item[0][1], 9), item[0][1])):
+        if friday > now.date() or (friday == now.date() and now.hour < WEEKLY_PUBLISH_HOUR):
+            continue
+        players.sort(key=lambda p: (p["firstSeen"], p["name"]))
         names = [p["name"] for p in players]
         label = LEAGUE_LABEL.get(league, league.upper())
-        slug = "squad-" + slugify(f"{day}-{league}")
-        listed = ", ".join(names[:-1]) + (" and " if len(names) > 1 else "") + names[-1] if names else ""
+        day = friday.isoformat()
+        slug = "squad-" + slugify(f"week-{day}-{league}")
+        listed = ", ".join(names[:-1]) + (" and " if len(names) > 1 else "") + names[-1]
         items.append(
             {
                 "id": slug,
                 "slug": slug,
                 "category": "Squad",
                 "date": day,
-                "title": f"{len(names)} new {'face' if len(names) == 1 else 'faces'} on the {label.split()[0]} roster",
+                "title": f"{len(names)} new {'face' if len(names) == 1 else 'faces'} on the {label.split()[0]} roster this week",
                 "summary": f"Welcome {listed}, now registered for the {label}.",
                 "image": next((p["photo"] for p in players if p.get("photo")), ""),
-                "imageAlt": f"{names[0]}, newly registered with CalBlue FC" if names else "CalBlue FC",
+                "imageAlt": f"{names[0]}, newly registered with CalBlue FC",
                 "href": LEAGUE_PAGE.get(league, "players.html"),
                 "cta": "Meet the squad",
                 "players": [{"name": p["name"], "photo": p.get("photo") or CLUB_CREST, "profile": p.get("profile") or ""} for p in players],
@@ -283,14 +299,16 @@ def post_items(data: dict | None) -> list[dict]:
     return items
 
 
-def build(root: Path, today: date) -> dict:
+def build(root: Path, today: date, now: datetime | None = None) -> dict:
+    # With an explicit date and no clock, treat the day as finished so date-gated cards for it are published.
+    now = now or datetime.combine(today, time(23, 59), PACIFIC)
     feeds = {"swpl": load_json(root / "data" / "swpl.json"), "nccsf": load_json(root / "data" / "nccsf.json")}
     albums = parse_gallery((root / "gallery.html").read_text(encoding="utf-8")) if (root / "gallery.html").exists() else []
     items = (
         post_items(load_json(root / "data" / "news-posts.json"))
         + preview_item(load_json(root / "data" / "matchday-posters.json"), feeds, today)
         + result_items(feeds, albums)
-        + squad_items(load_json(root / "data" / "roster-history.json"))
+        + squad_items(load_json(root / "data" / "roster-history.json"), now)
         + gallery_items(albums)
         + instagram_items(load_json(root / "data" / "instagram.json"))
     )
@@ -306,6 +324,7 @@ def build(root: Path, today: date) -> dict:
         "schemaVersion": 1,
         "generatedAt": datetime.now(PACIFIC).isoformat(timespec="seconds"),
         "today": today.isoformat(),
+        "asOf": now.isoformat(timespec="seconds"),  # the clock the date-gated cards were judged against
         "items": unique,
     }
 
@@ -317,8 +336,9 @@ def main() -> int:
     parser.add_argument("--root", default=str(ROOT))
     args = parser.parse_args()
     root = Path(args.root)
-    today = date.fromisoformat(args.today) if args.today else datetime.now(PACIFIC).date()
-    feed = build(root, today)
+    now = None if args.today else datetime.now(PACIFIC)
+    today = date.fromisoformat(args.today) if args.today else now.date()
+    feed = build(root, today, now)
     target = root / "data" / "news.json"
     if args.check:
         current = load_json(target) or {}
