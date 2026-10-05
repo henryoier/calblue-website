@@ -1,20 +1,32 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-21T21:26:18-07:00",
-  "today": "2026-09-21",
+  "generatedAt": "2026-10-04T22:46:25-07:00",
+  "today": "2026-10-04",
   "items": [
     {
-      "id": "matchday-2026-10-03-albion-sc-silicon-valley",
-      "slug": "matchday-2026-10-03-albion-sc-silicon-valley",
+      "id": "matchday-2026-10-10-in-motion-fc",
+      "slug": "matchday-2026-10-10-in-motion-fc",
       "category": "Match day",
-      "date": "2026-10-03",
-      "title": "Match day: Albion SC Silicon Valley vs CalBlue FC",
-      "summary": "Saturday, October 3 · 8:00 pm PT · Red Morton Park - Bechet Field",
-      "image": "assets/matchday/2026-fall/2026-10-03-albion-sc-silicon-valley-styled.webp",
-      "imageAlt": "Match-day poster: CalBlue FC vs Albion SC Silicon Valley",
+      "date": "2026-10-10",
+      "title": "Match day: CalBlue FC vs In Motion FC",
+      "summary": "Saturday, October 10 · 7:30 pm PT · Fair Oaks Park Field 3",
+      "image": "assets/matchday/2026-fall/2026-10-10-in-motion-fc-styled.webp",
+      "imageAlt": "Match-day poster: CalBlue FC vs In Motion FC",
       "href": "index.html#matchday",
       "cta": "See the poster",
       "poster": true
+    },
+    {
+      "id": "gallery-2026-10-03-albion-sc-silicon-valley",
+      "slug": "gallery-2026-10-03-albion-sc-silicon-valley",
+      "category": "Gallery",
+      "date": "2026-10-03",
+      "title": "Photos: CalBlue vs Albion SC Silicon Valley",
+      "summary": "301 photos · 2026 SWPL Pacific Premier League · Away match",
+      "image": "https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/swpl-albion-sc-silicon-valley/thumb/054.jpg",
+      "imageAlt": "CalBlue squad lined up before the SWPL away match at Albion SC Silicon Valley",
+      "href": "gallery-swpl-albion-sc-silicon-valley.html",
+      "cta": "Open the album"
     },
     {
       "id": "gallery-2026-09-19-bay-area-united",
