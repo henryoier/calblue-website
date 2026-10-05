@@ -1,6 +1,6 @@
 """The club news builder merges results, galleries, posters, posts and Instagram into one dated feed."""
 
-from datetime import date
+from datetime import date, datetime
 import importlib.util
 import json
 from pathlib import Path
@@ -149,16 +149,30 @@ class BuildNewsTests(unittest.TestCase):
         self.assertEqual(len(slugs), len(set(slugs)))
         self.assertEqual(feed["items"][0]["category"], "Match day", "the upcoming preview leads the feed")
 
-    def test_new_roster_players_become_squad_cards_per_league_and_day(self):
-        feed = self.build()
-        squad = self.by(feed, "Squad")
-        self.assertEqual([s["title"] for s in squad], ["2 new faces on the SWPL roster", "1 new face on the NCCSF roster"], "SWPL leads when cards share a day")
+    def test_new_roster_players_become_weekly_squad_cards_per_league(self):
+        # Fixture joins are Wed 2026-09-16; their Saturday-to-Friday week closes on Friday 2026-09-18.
+        squad = self.by(self.build(today="2026-09-18"), "Squad")
+        self.assertEqual([(s["date"], s["title"]) for s in squad],
+                         [("2026-09-18", "2 new faces on the SWPL roster this week"), ("2026-09-18", "1 new face on the NCCSF roster this week")],
+                         "one card per league, dated the Friday that closes the week; SWPL leads")
         swpl = squad[0]
+        self.assertEqual(swpl["slug"], "squad-week-2026-09-18-swpl")
         self.assertEqual(swpl["summary"], "Welcome Kevin Yu and Zheng Chang, now registered for the SWPL Pacific Premier League.")
         self.assertEqual(swpl["image"], "https://x/zc.jpg", "a new player's photo fronts the card when one exists")
         self.assertEqual([(p["name"], p["photo"]) for p in swpl["players"]], [("Kevin Yu", "assets/calblue-logo-web.jpg"), ("Zheng Chang", "https://x/zc.jpg")], "every new player is listed with a portrait, club crest when none is published")
         self.assertEqual(swpl["href"], "competition-swpl.html#roster")
         self.assertNotIn("Sheng Qin", json.dumps(squad), "the seeded season squad is never announced as new")
+
+    def test_weekly_squad_cards_wait_for_friday_night(self):
+        from scripts.build_news import PACIFIC, build, week_ending_friday
+        self.assertEqual(week_ending_friday(date(2026, 9, 12)), date(2026, 9, 18), "a Saturday joiner is announced the following Friday")
+        self.assertEqual(week_ending_friday(date(2026, 9, 18)), date(2026, 9, 18), "a Friday joiner makes that night's card")
+        self.assertEqual(self.by(self.build(today="2026-09-17"), "Squad"), [], "a week still in progress is not announced")
+        afternoon = build(self.root, date(2026, 9, 18), datetime(2026, 9, 18, 19, 59, tzinfo=PACIFIC))
+        self.assertEqual(self.by(afternoon, "Squad"), [], "not before 8 PM Pacific on Friday")
+        night = build(self.root, date(2026, 9, 18), datetime(2026, 9, 18, 20, 0, tzinfo=PACIFIC))
+        self.assertEqual(len(self.by(night, "Squad")), 2, "published on Friday night")
+        self.assertEqual(len(self.by(self.build(today="2026-10-30"), "Squad")), 2, "and it stays published afterwards")
 
     def test_missing_sources_do_not_break_the_build(self):
         for name in ("data/instagram.json", "data/news-posts.json", "data/matchday-posters.json", "data/nccsf.json", "data/roster-history.json"):
@@ -169,7 +183,8 @@ class BuildNewsTests(unittest.TestCase):
     def test_repository_feed_is_current(self):
         """data/news.json in the repository must match a fresh build of the committed sources."""
         committed = json.loads((ROOT / "data" / "news.json").read_text(encoding="utf-8"))
-        fresh = NEWS.build(ROOT, date.fromisoformat(committed["today"]))
+        as_of = datetime.fromisoformat(committed["asOf"])
+        fresh = NEWS.build(ROOT, as_of.date(), as_of)
         self.assertEqual(committed["items"], fresh["items"], "run python3 scripts/build_news.py")
 
 
