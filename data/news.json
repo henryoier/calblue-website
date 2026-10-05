@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-04T22:46:25-07:00",
+  "generatedAt": "2026-10-04T23:51:49-07:00",
   "today": "2026-10-04",
   "items": [
     {
@@ -27,6 +27,82 @@
       "imageAlt": "CalBlue squad lined up before the SWPL away match at Albion SC Silicon Valley",
       "href": "gallery-swpl-albion-sc-silicon-valley.html",
       "cta": "Open the album"
+    },
+    {
+      "id": "squad-2026-10-01-nccsf",
+      "slug": "squad-2026-10-01-nccsf",
+      "category": "Squad",
+      "date": "2026-10-01",
+      "title": "1 new face on the NCCSF roster",
+      "summary": "Welcome Mervin Khoo, now registered for the NCCSF Fall League.",
+      "image": "https://nccsf.org/en/img/player/photo/225/thumb-22530.jpeg",
+      "imageAlt": "Mervin Khoo, newly registered with CalBlue FC",
+      "href": "competition-nccsf.html#roster",
+      "cta": "Meet the squad",
+      "players": [
+        {
+          "name": "Mervin Khoo",
+          "photo": "https://nccsf.org/en/img/player/photo/225/thumb-22530.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22530"
+        }
+      ]
+    },
+    {
+      "id": "squad-2026-09-27-swpl",
+      "slug": "squad-2026-09-27-swpl",
+      "category": "Squad",
+      "date": "2026-09-27",
+      "title": "1 new face on the SWPL roster",
+      "summary": "Welcome Owen Niu, now registered for the SWPL Pacific Premier League.",
+      "image": "https://cdn.sportzstudio.com/nisa/playeruploads/16678/securefiles/1790536998_hs.jpg",
+      "imageAlt": "Owen Niu, newly registered with CalBlue FC",
+      "href": "competition-swpl.html#roster",
+      "cta": "Meet the squad",
+      "players": [
+        {
+          "name": "Owen Niu",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16678/securefiles/1790536998_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/owen-niu"
+        }
+      ]
+    },
+    {
+      "id": "squad-2026-09-25-nccsf",
+      "slug": "squad-2026-09-25-nccsf",
+      "category": "Squad",
+      "date": "2026-09-25",
+      "title": "1 new face on the NCCSF roster",
+      "summary": "Welcome Runfeng Xiong, now registered for the NCCSF Fall League.",
+      "image": "https://nccsf.org/en/img/player/photo/225/thumb-22526.jpeg",
+      "imageAlt": "Runfeng Xiong, newly registered with CalBlue FC",
+      "href": "competition-nccsf.html#roster",
+      "cta": "Meet the squad",
+      "players": [
+        {
+          "name": "Runfeng Xiong",
+          "photo": "https://nccsf.org/en/img/player/photo/225/thumb-22526.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22526"
+        }
+      ]
+    },
+    {
+      "id": "squad-2026-09-24-nccsf",
+      "slug": "squad-2026-09-24-nccsf",
+      "category": "Squad",
+      "date": "2026-09-24",
+      "title": "1 new face on the NCCSF roster",
+      "summary": "Welcome Owen Niu, now registered for the NCCSF Fall League.",
+      "image": "https://nccsf.org/en/img/player/photo/225/thumb-22523.jpeg",
+      "imageAlt": "Owen Niu, newly registered with CalBlue FC",
+      "href": "competition-nccsf.html#roster",
+      "cta": "Meet the squad",
+      "players": [
+        {
+          "name": "Owen Niu",
+          "photo": "https://nccsf.org/en/img/player/photo/225/thumb-22523.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22523"
+        }
+      ]
     },
     {
       "id": "gallery-2026-09-19-bay-area-united",
@@ -93,30 +169,6 @@
           "name": "Zheng Chang",
           "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16392/securefiles/1789582833_hs.jpg",
           "profile": "https://pacific.swplsoccer.com/roster/zheng-chang"
-        }
-      ]
-    },
-    {
-      "id": "squad-2026-09-16-nccsf",
-      "slug": "squad-2026-09-16-nccsf",
-      "category": "Squad",
-      "date": "2026-09-16",
-      "title": "2 new faces on the NCCSF roster",
-      "summary": "Welcome Jincheng Zhao and Lu Fang, now registered for the NCCSF Fall League.",
-      "image": "https://nccsf.org/en/img/player/photo/222/thumb-22210.jpeg",
-      "imageAlt": "Jincheng Zhao, newly registered with CalBlue FC",
-      "href": "competition-nccsf.html#roster",
-      "cta": "Meet the squad",
-      "players": [
-        {
-          "name": "Jincheng Zhao",
-          "photo": "https://nccsf.org/en/img/player/photo/222/thumb-22210.jpeg",
-          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22210"
-        },
-        {
-          "name": "Lu Fang",
-          "photo": "https://nccsf.org/en/img/player/photo/12/thumb-1221.jpg",
-          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1221"
         }
       ]
     },
@@ -213,6 +265,25 @@
       "cta": "Full results and table"
     },
     {
+      "id": "squad-2026-09-12-nccsf",
+      "slug": "squad-2026-09-12-nccsf",
+      "category": "Squad",
+      "date": "2026-09-12",
+      "title": "1 new face on the NCCSF roster",
+      "summary": "Welcome Jincheng Zhao, now registered for the NCCSF Fall League.",
+      "image": "https://nccsf.org/en/img/player/photo/222/thumb-22210.jpeg",
+      "imageAlt": "Jincheng Zhao, newly registered with CalBlue FC",
+      "href": "competition-nccsf.html#roster",
+      "cta": "Meet the squad",
+      "players": [
+        {
+          "name": "Jincheng Zhao",
+          "photo": "https://nccsf.org/en/img/player/photo/222/thumb-22210.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22210"
+        }
+      ]
+    },
+    {
       "id": "instagram-18071859719541266",
       "slug": "instagram-18071859719541266",
       "category": "Instagram",
@@ -224,6 +295,25 @@
       "href": "https://www.instagram.com/p/DdIqGOSPHQu/",
       "external": true,
       "cta": "View on Instagram"
+    },
+    {
+      "id": "squad-2026-09-09-nccsf",
+      "slug": "squad-2026-09-09-nccsf",
+      "category": "Squad",
+      "date": "2026-09-09",
+      "title": "1 new face on the NCCSF roster",
+      "summary": "Welcome Lu Fang, now registered for the NCCSF Fall League.",
+      "image": "https://nccsf.org/en/img/player/photo/12/thumb-1221.jpg",
+      "imageAlt": "Lu Fang, newly registered with CalBlue FC",
+      "href": "competition-nccsf.html#roster",
+      "cta": "Meet the squad",
+      "players": [
+        {
+          "name": "Lu Fang",
+          "photo": "https://nccsf.org/en/img/player/photo/12/thumb-1221.jpg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1221"
+        }
+      ]
     },
     {
       "id": "gallery-2026-09-06-los-angeles-kirin",
