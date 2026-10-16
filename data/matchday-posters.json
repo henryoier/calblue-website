@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "note": "Match-day posters keyed by fixture date + opponent slug. Each fixture has two no-photo designs; the homepage picks one at random per visit. Regenerate from the poster pipeline (see docs) after any schedule change.",
-  "generatedAt": "2026-09-16T01:25:43-07:00",
-  "scheduleCheckedAt": "2026-09-14T14:58:47-07:00",
+  "generatedAt": "2026-10-16T13:05:00-07:00",
+  "scheduleCheckedAt": "2026-10-16T09:34:31-07:00",
   "fixtures": {
     "2026-09-19-bay-area-united": {
       "fixtureId": "ad00f3c6c9ff97c3",
@@ -72,20 +72,20 @@
       ]
     },
     "2026-10-17-club-deportivo-oakland": {
-      "fixtureId": "48cf6ddb5fb14eea",
+      "fixtureId": "b96ee71855965981",
       "date": "2026-10-17",
       "opponent": "Club Deportivo Oakland",
       "home": false,
       "competition": "SWPL Pacific Premier League",
       "posters": [
         {
-          "src": "assets/matchday/2026-fall/2026-10-17-club-deportivo-oakland-styled.webp",
+          "src": "assets/matchday/2026-fall/2026-10-17-club-deportivo-oakland-styled-v2.webp",
           "style": "styled",
           "width": 1296,
           "height": 1616
         },
         {
-          "src": "assets/matchday/2026-fall/2026-10-17-club-deportivo-oakland-classic.webp",
+          "src": "assets/matchday/2026-fall/2026-10-17-club-deportivo-oakland-classic-v2.webp",
           "style": "classic",
           "width": 1296,
           "height": 1616
