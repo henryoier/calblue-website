@@ -4,3 +4,11 @@
 .venv-media/
 __pycache__/
 *.py[cod]
+*.cbvault
+*.cbreg
+*.sqlite3
+calblue-reminders-*.csv
+calblue-roster-*.csv
+calblue-dues-*.csv
+calblue-form-*.csv
+*.cbpay

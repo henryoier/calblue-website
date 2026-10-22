@@ -1,5 +1,8 @@
 // App-shell composition. Dependencies can be injected for browser-only tests;
 // production always uses the configured SDK and the single session store.
+import { SUPABASE_URL, GOOGLE_AUTH_ENABLED } from "../config.js";
+import { createBillingService } from "./billing.js";
+import { billingView } from "../views/billing.js";
 import { getClient, isConfigured } from "./supabase.js";
 import { createAuthFlow, safeReturnTo } from "./auth.js";
 import { createIdentityService } from "./identity.js";
@@ -15,8 +18,8 @@ import { verificationView } from "../views/verification.js";
 import { placeholderView } from "../views/placeholder.js";
 
 export function createApp({ root = document, session = defaultSession, loadClient = getClient,
-  configured = isConfigured, authFlow = createAuthFlow(), createIdentity = createIdentityService,
-  createVerification = createVerificationService } = {}) {
+  configured = isConfigured, authFlow = createAuthFlow({ providerOrigin: SUPABASE_URL }), createIdentity = createIdentityService,
+  createVerification = createVerificationService, createBilling = createBillingService, googleEnabled = GOOGLE_AUTH_ENABLED } = {}) {
   // Creating the flow captures and removes callback credentials BEFORE getClient.
   // auth-js 2.65.0 can auto-exchange PKCE even with detectSessionInUrl: false.
   const headerEl = root.querySelector("#app-header");
@@ -92,6 +95,17 @@ export function createApp({ root = document, session = defaultSession, loadClien
     return verificationView(mainEl, { service, context: adminContext });
   }
 
+  function renderBilling(admin) {
+    return (_params, _query, context) => {
+      const accountId = session.getSession()?.user?.id, billingClient = client;
+      const privateContext = { ...context, isCurrent: () => context.isCurrent()
+        && client === billingClient && session.isAuthenticated()
+        && session.getSession()?.user?.id === accountId && (!admin || session.getRoles().includes("admin")) };
+      const service = createBilling({ client: billingClient, accountId, admin, isCurrent: privateContext.isCurrent });
+      return billingView(mainEl, { service, accountId, admin, context: privateContext });
+    };
+  }
+
   const routes = [
     { pattern: "/", title: "Home", view: () => homeView(mainEl, {
       profile: session.getProfile(), roles: session.getRoles(),
@@ -101,6 +115,12 @@ export function createApp({ root = document, session = defaultSession, loadClien
       authenticated: session.isAuthenticated(), signedOut: didSignOut && query.signedOut === "1",
       returnTo: safeReturnTo(query.returnTo), callbackError, context,
       available: Boolean(client) && !busy,
+      googleEnabled,
+      requestGoogle: async () => {
+        if (!googleEnabled) throw new Error("Google sign-in is not enabled.");
+        const result = await authFlow.requestGoogle(client, safeReturnTo(query.returnTo));
+        if (context.isCurrent()) window.location.assign(result.url);
+      },
       requestLink: async (email) => {
         const result = await authFlow.requestLink(client, email, safeReturnTo(query.returnTo));
         callbackError = "";
@@ -127,9 +147,8 @@ export function createApp({ root = document, session = defaultSession, loadClien
     { pattern: "/admin/verify", title: "Verify players", auth: true, roles: ["admin"], view: renderVerification },
     // These operational routes follow released RLS, not aspirational role names.
     // Treasurer/developer roles alone do not grant club-wide finances or audit.
-    { pattern: "/admin/payments", title: "Payments", auth: true, roles: ["admin"], view: placeholder({
-      eyebrow: "Finance", title: "Payments", description: "Payment recording and reconciliation will live here.", issue: 44,
-    }) },
+    { pattern: "/billing", title: "My bills", auth: true, view: renderBilling(false) },
+    { pattern: "/admin/payments", title: "Club accounts", auth: true, roles: ["admin"], view: renderBilling(true) },
     { pattern: "/admin/audit", title: "Audit log", auth: true, roles: ["admin"], view: placeholder({
       eyebrow: "Administration", title: "Audit log", description: "Review of sensitive member-platform changes will live here.", issue: 51,
     }) },
