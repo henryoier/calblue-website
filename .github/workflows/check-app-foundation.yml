@@ -30,5 +30,13 @@ jobs:
         run: python3 scripts/run_js_tests.py
       - name: Test Auth and session lifecycle doubles (existing Node, no packages)
         run: python3 scripts/run_async_js_tests.py
+      - name: Use Node 22 for browser-native cryptography tests
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test local club office encryption and accounting (Node 22+)
+        run: node --test tests/club-office/*.test.mjs
+      - name: Test account scoping and Google PKCE flow
+        run: node --test tests/member-app/*.test.mjs
       - name: Validate the public site
         run: python3 scripts/check_site.py

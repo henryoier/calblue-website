@@ -6,8 +6,9 @@ export const NAV_ITEMS = [
   { href: "#/", path: "/", label: "Home" },
   { href: "#/games", path: "/games", label: "Games" },
   { href: "#/identity", path: "/identity", label: "My identity", auth: true },
+  { href: "#/billing", path: "/billing", label: "My bills", auth: true },
   { href: "#/admin/verify", path: "/admin/verify", label: "Verify players", roles: ["admin"] },
-  { href: "#/admin/payments", path: "/admin/payments", label: "Payments", roles: ["admin"] },
+  { href: "#/admin/payments", path: "/admin/payments", label: "Club accounts", roles: ["admin"] },
   { href: "#/admin/audit", path: "/admin/audit", label: "Audit log", roles: ["admin"] },
   { href: "#/admin/clubs", path: "/admin/clubs", label: "Clubs & teams", roles: ["admin"] },
 ];

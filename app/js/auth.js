@@ -8,7 +8,7 @@ const PROBE_KEY = "calblue.magic-link.storage-probe";
 const RETURN_TTL = 60 * 60 * 1000;
 const RESEND_DELAY = 60 * 1000;
 const SAFE_ROUTES = new Set([
-  "/", "/games", "/identity", "/admin/verify", "/admin/payments", "/admin/audit", "/admin/clubs",
+  "/", "/games", "/identity", "/billing", "/admin/verify", "/admin/payments", "/admin/audit", "/admin/clubs",
 ]);
 const MESSAGES = {
   invalid_email: "Enter a valid email address.",
@@ -100,6 +100,7 @@ export function createAuthFlow({
   storage,
   now = () => Date.now(),
   locks = globalThis.navigator?.locks,
+  providerOrigin = "",
 } = {}) {
   const page = { origin: location?.origin, pathname: location?.pathname,
     search: location?.search, hash: location?.hash };
@@ -213,6 +214,28 @@ export function createAuthFlow({
     return requestTask;
   }
 
+  function requestGoogle(client, returnTo = "#/") {
+    if (requestTask || callbackRunning) return Promise.reject(failure("auth_busy"));
+    if (!redirectTo) return Promise.reject(failure("unsupported_origin"));
+    if (!client?.auth?.signInWithOAuth || !/^https:\/\/[^/]+$/.test(providerOrigin)) return Promise.reject(failure("request_failed"));
+    const epoch = generation;
+    requestTask = Promise.resolve().then(() => exclusive(async () => {
+      assertSafeToLoad(); probeStorage();
+      if (epoch !== generation) throw failure("auth_busy");
+      writePending(returnTo);
+      const { data, error } = await client.auth.signInWithOAuth({ provider: "google", options: {
+        redirectTo, skipBrowserRedirect: true, scopes: "openid email profile", queryParams: { prompt: "select_account" },
+      } });
+      if (error || epoch !== generation) throw failure("request_failed");
+      let url;
+      try { url = new URL(data?.url); } catch { throw failure("request_failed"); }
+      if (url.origin !== providerOrigin || url.pathname !== "/auth/v1/authorize" || url.username || url.password
+          || url.searchParams.get("provider") !== "google") throw failure("request_failed");
+      return { url: url.href };
+    })).catch(() => { throw failure("request_failed"); }).finally(() => { requestTask = null; });
+    return requestTask;
+  }
+
   function completeCallback(client) {
     assertSafeToLoad();
     if (callbackTask) return callbackTask;
@@ -258,5 +281,5 @@ export function createAuthFlow({
     removePending();
   }
 
-  return { assertSafeToLoad, requestLink, completeCallback, clearPending };
+  return { assertSafeToLoad, requestLink, requestGoogle, completeCallback, clearPending };
 }

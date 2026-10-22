@@ -5,7 +5,7 @@ from issue #30: hash routing, session-aware navigation, saved sessions, profile 
 and an explicit **Refresh my access** action. **My identity** (issue #31) adds personal player details,
 guardian-managed identities and public-roster opt-in. **Player verification** (issue #32) adds an
 admin-only queue, name search and individual/bulk decisions. The public website stays unchanged in the
-repository root. Registration, check-in and billing still show feature placeholders.
+repository root. Registration and check-in still show feature placeholders. Private member statements and administrator account/charge/receipt screens are implemented; Google PKCE code is present but its provider is not yet enabled. See [accounts and billing](accounts-and-billing.md) for setup, encryption and deployment limits.
 All frontend files are public; Supabase Auth and row-level security protect backend data.
 
 See the [app-shell review and test guide](app-shell.md) for exactly what works, what is deferred,
