@@ -10,10 +10,20 @@ Apply migrations in order, once each:
 4. [0004_player_verification.sql](migrations/0004_player_verification.sql): issue #32. Read the
    [player verification migration and test guide](0004-player-verification.md). This adds decision
    metadata and checked admin RPCs; it does not apply itself or grant anyone an admin role.
+5. [0005_pickup_games.sql](migrations/0005_pickup_games.sql): issue #33. Read the
+   [pickup migration and test guide](0005-pickup-games.md). Team-scoped checked pickup RPCs;
+   no accounts, role grants, teams, venues or seed data are created.
 
-The first three migrations have owner-reported scratch verification. Migration 0004 needs its own
-separate execution checks. If 0001–0003 are already installed, apply **0004 only**, once; do not
-rerun earlier migrations. Issue #28 / PR #82 provides an optional [disposable development seed](seed.md).
+Migrations 0001–0004 have owner-reported scratch verification; PR #107 recorded the results and
+remaining manual coverage. Migration 0005 still needs its own owner-run execution checks. On a
+database with 0001–0004 already installed, apply **0005 only**, once, after its preflight; do not
+rerun earlier migrations. Existing scratch logins/admin roles also mean it is no longer an empty
+database suitable for empty-only smoke scripts. The older installation sections below describe
+their historical stages, not instructions to restart them. The **new 0005** guide separately permits
+a narrowly guarded single-admin bootstrap-only disposable scratch state without resetting its
+existing login, profile or audit history. It does not permit testing against real member data.
+
+Issue #28 / PR #82 provides an optional [disposable development seed](seed.md).
 It **commits demo data**, requires explicit
 opt-in and an empty, idle scratch project, and must never run on production. If all three
 migrations already passed, run only the seed/verification steps in that guide; do not reapply migrations.
@@ -62,8 +72,8 @@ python3 scripts/check_sql.py
 python3 -m unittest discover -s tests -v
 ```
 
-Default generation/checking now requires **0001, 0002, 0003 and 0004**. Section 11 appends the
-forward-only verification changes without rewriting released sections. Future files require explicit repeatable
+Default generation/checking now requires **0001 through 0005**. Sections 11 and 12 append
+forward-only verification and pickup changes without rewriting released sections. Future files require explicit repeatable
 `--target` selections; they are not silently created as part of this issue. `--check` never writes
 files or creates directories and fails if a required file is missing or different.
 

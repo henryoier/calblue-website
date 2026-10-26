@@ -4,7 +4,9 @@ The member app includes the **app shell** from issue #29 / PR #83 and **email ma
 from issue #30: hash routing, session-aware navigation, saved sessions, profile loading, sign-out
 and an explicit **Refresh my access** action. **My identity** (issue #31) adds personal player details,
 guardian-managed identities and public-roster opt-in. **Player verification** (issue #32) adds an
-admin-only queue, name search and individual/bulk decisions. The public website stays unchanged in the
+admin-only queue, name search and individual/bulk decisions. **Pickup management** (issue #33) adds
+team-scoped draft creation/editing and explicit publication, registration closure and cancellation.
+The public website stays unchanged in the
 repository root. Registration, check-in and billing still show feature placeholders.
 All frontend files are public; Supabase Auth and row-level security protect backend data.
 
@@ -17,6 +19,8 @@ See the [My identity review and test guide](identity.md) for creation/editing, p
 date-of-birth restrictions and owner-run persistence/RLS checks.
 See the [player verification guide](verification.md) for the admin workflow, new forward-only
 migration 0004, private member decision notes and separate owner-run database/browser checks.
+See the [pickup game guide](pickup.md) for organizer scope, local-time handling, migration 0005
+and a focused test checklist. Member game browsing and registration remain issues #34 and #35.
 
 ## The one rule
 
@@ -67,12 +71,13 @@ app/
     auth.js         Magic-link requests, safe return destinations and PKCE callbacks
     identity.js     Scoped player reads/writes and identity form validation
     verification.js Admin verification RPCs, decision validation and concurrency tokens
+    pickup.js       Pickup RPCs, venue-local time conversion and checked writes
     dom.js          Escaping template helper
     router.js       Hash routing, access checks, abort/cleanup and focus
     session.js      Session/JWT state and profile lifecycle
     supabase.js     Pinned, memoized SDK/client loader
     layout.js       Shared chrome, navigation and states
-  views/            Home, sign-in, identity forms, verification queue, placeholders and 404
+  views/            Home, sign-in, identity, verification, pickup forms, placeholders and 404
   tests/            Logic, async-session and browser integration checks
 ```
 
@@ -85,6 +90,11 @@ UI roles are decoded from the current access token, not mutable `user_metadata`,
 roles or a newer `session.user.app_metadata` snapshot. Decoding is not signature verification;
 Supabase and RLS remain authoritative. Exact role names match migration 0003. The operational
 admin routes are admin-only; developer/treasurer/scoped roles do not confer global admin access.
+The signed-in **Manage pickup** entry uses `/manage/pickup`, not an admin-only route: organizers
+hold explicit team-scoped database grants. Its RPCs independently refuse unauthorized accounts;
+seeing the entry is not permission to read drafts or manage games. No role/grant is created by
+opening the page. **Refresh my access** also rechecks pickup options; changed access/settings
+clear the editor, while unchanged access preserves its unsaved fields.
 
 Views receive `(params, query, { signal, isCurrent })` and may return a cleanup function. Fetch
 with the signal and check `isCurrent()` before delayed DOM writes. Navigation, access changes

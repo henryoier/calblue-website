@@ -48,6 +48,22 @@ class AppGraphTests(unittest.TestCase):
             self.assertIn("app/index.html: missing app-shell file", errors)
             self.assertIn("app/js/app.js: missing app-shell file", errors)
 
+    def test_pickup_service_and_view_must_exist_and_be_reachable(self):
+        with tempfile.TemporaryDirectory() as directory:
+            app = Path(directory) / "app"
+            modules = ("js/pickup.js", "views/pickup.js")
+            errors = check_app_shell(directory)
+            for name in modules:
+                self.assertIn(f"app/{name}: missing app-shell file", errors)
+                module = app / name
+                module.parent.mkdir(parents=True, exist_ok=True)
+                module.write_text("export const fixture = true;", encoding="utf-8")
+
+            errors = check_app_shell(directory)
+            for name in modules:
+                self.assertNotIn(f"app/{name}: missing app-shell file", errors)
+                self.assertIn(f"app/{name}: unreachable from app/index.html", errors)
+
     def test_html_assets_and_skip_anchor_are_checked(self):
         with tempfile.TemporaryDirectory() as directory:
             app = Path(directory) / "app"

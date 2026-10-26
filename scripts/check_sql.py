@@ -23,7 +23,8 @@ CORE = "0001_core.sql"
 MONEY = "0002_money.sql"
 POLICIES = "0003_rls.sql"
 VERIFICATION = "0004_player_verification.sql"
-LANDED_TARGETS = (CORE, MONEY, POLICIES, VERIFICATION)
+PICKUP = "0005_pickup_games.sql"
+LANDED_TARGETS = (CORE, MONEY, POLICIES, VERIFICATION, PICKUP)
 CORE_TABLES = {
     "profiles", "players", "venues", "clubs", "teams", "competitions",
     "games", "role_grants", "competition_registrations", "game_registrations",
@@ -732,12 +733,125 @@ def verification_checks(scan, problems):
             problems.append(f"{VERIFICATION}: decision RPC needs {label}")
 
 
+def pickup_checks(scan, problems):
+    """Bounded issue33 DDL/ACL checks, not runtime scope or transition proof."""
+    parts = list(statements(scan))
+    plain = [statement.strip().lower() for _, _, statement in parts]
+    if not plain or plain[0] != "begin" or plain[-1] != "commit":
+        problems.append(f"{PICKUP}: pickup installation needs one BEGIN/COMMIT transaction")
+    if any(matches(r"^(begin|commit|rollback|start\s+transaction)\b", text) for text in plain[1:-1]):
+        problems.append(f"{PICKUP}: transaction boundaries cannot appear inside installation")
+    expected = {
+        "can_manage_pickup_team(uuid)": "definer",
+        "validate_pickup_game_details(jsonb)": "definer",
+        "guard_pickup_game_write()": "invoker",
+        "pickup_game_options()": "definer",
+        "list_pickup_games(integer)": "definer",
+        "save_pickup_game(uuid,timestamptz,jsonb)": "definer",
+        "transition_pickup_game(uuid,timestamptz,text,text)": "definer",
+    }
+    private = {"validate_pickup_game_details(jsonb)", "guard_pickup_game_write()"}
+    callable_helpers = set(expected) - private
+    functions, revoked, granted = set(), {}, set()
+    policy_count, trigger_count = 0, 0
+    policy_pattern = (
+        r"^\s*create\s+policy\s+games_pickup_staff_read\s+on\s+public\.games\s+"
+        r"for\s+select\s+to\s+authenticated\s+using\s*\(\s*game_type\s*=\s*(?-i:'pickup')\s+"
+        r"and\s+public\.can_manage_pickup_team\s*\(\s*team_id\s*\)\s*\)\s*$"
+    )
+    trigger_pattern = (
+        r"^\s*create\s+trigger\s+games_u_pickup_guard\s+before\s+"
+        r"((?:insert|update|delete)(?:\s+or\s+(?:insert|update|delete))*)\s+on\s+public\.games\s+"
+        r"for\s+each\s+row\s+execute\s+function\s+public\.guard_pickup_game_write\s*\(\s*\)\s*$"
+    )
+    for start, end, statement in parts:
+        function = matches(FUNCTION, statement)
+        if function:
+            signature = function_signature(function[1], function[2], declaration=True)
+            bodies = [(pos, body) for pos, _, body in scan.bodies if start <= pos < end]
+            if len(bodies) != 1 or signature not in expected or signature in functions:
+                problems.append(f"{PICKUP}: declare each of the seven checked pickup functions exactly once")
+                continue
+            functions.add(signature)
+            position, source = bodies[0]
+            declaration = scan.clean[start:position]
+            modes = re.findall(r"\bsecurity\s+(definer|invoker)\b", declaration, re.I)
+            if [mode.lower() for mode in modes] != [expected[signature]]:
+                problems.append(f"{PICKUP}: {signature} must keep SECURITY {expected[signature].upper()}")
+            paths = list(re.finditer(r"\bset\s+search_path\s*(?:=|to)", declaration, re.I))
+            fixed_path = len(paths) == 1 and bool(matches(
+                r"^\s*''\s*(?=as\b|language\b|security\b|stable\b|volatile\b|immutable\b|$)",
+                scan.comments_removed[start + paths[0].end():position],
+            ))
+            if not fixed_path:
+                problems.append(f"{PICKUP}: {signature} needs fixed empty search_path")
+            body = scan_sql(source)
+            for pos, issue in body.problems:
+                problems.append(f"{PICKUP}: {signature} body line {line_of(source, pos)}: {issue}")
+            check_parens(f"{PICKUP}: {signature} body", body.clean, problems)
+            if signature in callable_helpers and matches(r"\bcurrent_user\b", body.clean):
+                problems.append(f"{PICKUP}: callable helpers must not authorize their SECURITY DEFINER owner")
+            continue
+        if matches(r"^\s*(grant|revoke)\b", statement):
+            is_revoke = bool(matches(r"^\s*revoke\b", statement))
+            parsed = parse_grant(statement, revoke=is_revoke)
+            if not parsed:
+                problems.append(f"{PICKUP}: unsupported privilege change")
+                continue
+            kind, roles, targets, privileges = parsed
+            allowed = (kind == "function" and set(targets) <= set(expected)
+                       and set(roles) <= API_ROLES and privileges == [("all", ())]) if is_revoke else (
+                kind == "function" and set(targets) <= callable_helpers
+                and roles == ["authenticated"] and privileges == [("execute", ())])
+            if not allowed:
+                problems.append(f"{PICKUP}: privileges may expose only the authenticated scope helper and four pickup RPCs")
+            elif is_revoke:
+                for target in targets:
+                    revoked.setdefault(target, set()).update(roles)
+                    if "authenticated" in roles:
+                        granted.discard(target)
+            else:
+                for target in targets:
+                    if revoked.get(target, set()) != API_ROLES:
+                        problems.append(f"{PICKUP}: {target} must revoke PUBLIC/anon/authenticated before its grant")
+                granted.update(targets)
+            continue
+        if matches(r"^\s*create\s+policy\b", statement):
+            if not matches(policy_pattern, scan.comments_removed[start:end]):
+                problems.append(f"{PICKUP}: only the authenticated pickup-team SELECT policy is allowed")
+            else:
+                policy_count += 1
+            continue
+        if matches(r"^\s*create\s+trigger\b", statement):
+            trigger = matches(trigger_pattern, statement)
+            events = re.split(r"\s+or\s+", trigger[1].lower()) if trigger else []
+            if len(events) != 3 or set(events) != {"insert", "update", "delete"}:
+                problems.append(f"{PICKUP}: pickup guard must run BEFORE INSERT/UPDATE/DELETE for each games row")
+            else:
+                trigger_count += 1
+            continue
+        if not matches(r"^\s*(?:begin|commit)\s*$", statement):
+            problems.append(f"{PICKUP}: statement is outside the additive pickup contract")
+    for signature in expected:
+        if signature not in functions:
+            problems.append(f"{PICKUP}: missing pickup helper {signature}")
+        if revoked.get(signature, set()) != API_ROLES:
+            problems.append(f"{PICKUP}: {signature} must revoke PUBLIC/anon/authenticated")
+    if granted != callable_helpers:
+        problems.append(f"{PICKUP}: authenticated execution grants are incomplete")
+    if policy_count != 1:
+        problems.append(f"{PICKUP}: exactly one scoped pickup SELECT policy is required")
+    if trigger_count != 1:
+        problems.append(f"{PICKUP}: exactly one pickup row guard is required")
+
+
 def check_migrations(migrations, required_targets=LANDED_TARGETS):
     """Return findings; focused fixtures may explicitly require only core."""
     problems = []
     for target in required_targets:
         if target not in migrations:
-            stage = "core" if target == CORE else "money" if target == MONEY else "RLS" if target == POLICIES else target
+            stage = ("core" if target == CORE else "money" if target == MONEY
+                     else "RLS" if target == POLICIES else "pickup" if target == PICKUP else target)
             problems.append(f"{target}: required {stage} migration is missing")
     seen, all_rls = set(), set()
     for name, sql in sorted(migrations.items()):
@@ -778,6 +892,8 @@ def check_migrations(migrations, required_targets=LANDED_TARGETS):
             policy_checks(scan, all_rls, problems)
         if name == VERIFICATION:
             verification_checks(scan, problems)
+        if name == PICKUP:
+            pickup_checks(scan, problems)
     if POLICIES in migrations:
         for table in sorted(seen - all_rls):
             problems.append(f"{POLICIES}: public.{table} never has row-level security enabled")

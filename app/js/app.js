@@ -4,6 +4,7 @@ import { getClient, isConfigured } from "./supabase.js";
 import { createAuthFlow, safeReturnTo } from "./auth.js";
 import { createIdentityService } from "./identity.js";
 import { createVerificationService } from "./verification.js";
+import { createPickupService } from "./pickup.js";
 import * as defaultSession from "./session.js";
 import { createRouter, navigate, buildHash } from "./router.js";
 import { renderLayout, renderLoading, renderError, renderAccessDenied, renderConnectionStatus } from "./layout.js";
@@ -12,11 +13,12 @@ import { notFoundView } from "../views/not-found.js";
 import { signInView } from "../views/sign-in.js";
 import { identityView } from "../views/identity.js";
 import { verificationView } from "../views/verification.js";
+import { pickupView } from "../views/pickup.js";
 import { placeholderView } from "../views/placeholder.js";
 
 export function createApp({ root = document, session = defaultSession, loadClient = getClient,
   configured = isConfigured, authFlow = createAuthFlow(), createIdentity = createIdentityService,
-  createVerification = createVerificationService } = {}) {
+  createVerification = createVerificationService, createPickup = createPickupService } = {}) {
   // Creating the flow captures and removes callback credentials BEFORE getClient.
   // auth-js 2.65.0 can auto-exchange PKCE even with detectSessionInUrl: false.
   const headerEl = root.querySelector("#app-header");
@@ -49,6 +51,7 @@ export function createApp({ root = document, session = defaultSession, loadClien
   let navigationGeneration = 0;
   let activeIdentity = null;
   let activeVerification = null;
+  let activePickup = null;
   const recordNavigation = () => { navigationGeneration += 1; };
   window.addEventListener("hashchange", recordNavigation);
 
@@ -92,6 +95,23 @@ export function createApp({ root = document, session = defaultSession, loadClien
     return verificationView(mainEl, { service, context: adminContext });
   }
 
+  function pickupIsCurrent() {
+    return Boolean(activePickup && currentPath === "/manage/pickup" && activePickup.context.isCurrent());
+  }
+
+  function renderPickup(_params, _query, context) {
+    const accountId = session.getSession()?.user?.id;
+    const pickupClient = client;
+    const roleKey = JSON.stringify(session.getRoles());
+    const pickupContext = { ...context, isCurrent: () => context.isCurrent()
+      && client === pickupClient && session.isAuthenticated()
+      && session.getSession()?.user?.id === accountId && JSON.stringify(session.getRoles()) === roleKey };
+    const service = createPickup({ client: pickupClient, isCurrent: pickupContext.isCurrent });
+    const cleanup = pickupView(mainEl, { service, context: pickupContext });
+    activePickup = { context: pickupContext, refreshAccess: cleanup.refreshAccess };
+    return cleanup;
+  }
+
   const routes = [
     { pattern: "/", title: "Home", view: () => homeView(mainEl, {
       profile: session.getProfile(), roles: session.getRoles(),
@@ -124,6 +144,9 @@ export function createApp({ root = document, session = defaultSession, loadClien
       eyebrow: "Schedule", title: "Games", description: "Published fixtures and pickup sessions will live here.", issue: 34,
     }) },
     { pattern: "/identity", title: "My identity", auth: true, view: renderIdentity },
+    // Scoped organizers are not global JWT admins; the pickup RPCs authorize
+    // their exact team grants. The signed-in entry is not an access grant.
+    { pattern: "/manage/pickup", title: "Manage pickup games", auth: true, view: renderPickup },
     { pattern: "/admin/verify", title: "Verify players", auth: true, roles: ["admin"], view: renderVerification },
     // These operational routes follow released RLS, not aspirational role names.
     // Treasurer/developer roles alone do not grant club-wide finances or audit.
@@ -160,6 +183,7 @@ export function createApp({ root = document, session = defaultSession, loadClien
       currentPath = path;
       if (path !== "/identity") activeIdentity = null;
       if (path !== "/admin/verify") activeVerification = null;
+      if (path !== "/manage/pickup") activePickup = null;
       updateChrome();
     },
     onLoading: () => renderLoading(mainEl),
@@ -185,7 +209,7 @@ export function createApp({ root = document, session = defaultSession, loadClien
     // its personal queries stay explicitly scoped and RLS is authoritative.
     // Account changes/sign-out still invalidate the private view immediately.
     // Verification drafts survive refresh only while the admin claim remains.
-    if (!identityIsCurrent() && !verificationIsCurrent()
+    if (!identityIsCurrent() && !verificationIsCurrent() && !pickupIsCurrent()
         && !(signingOut && currentPath === "/sign-out" && !session.isAuthenticated())) {
       void router.render();
     }
@@ -219,7 +243,8 @@ export function createApp({ root = document, session = defaultSession, loadClien
       if (isCurrent()) {
         refreshing = false;
         updateChrome();
-        if (!identityIsCurrent() && !verificationIsCurrent()) await router.render();
+        if (pickupIsCurrent()) await activePickup.refreshAccess?.();
+        else if (!identityIsCurrent() && !verificationIsCurrent()) await router.render();
       }
     }
   }
@@ -276,6 +301,7 @@ export function createApp({ root = document, session = defaultSession, loadClien
     destroyed = true;
     activeIdentity = null;
     activeVerification = null;
+    activePickup = null;
     unsubscribe();
     router.destroy();
     window.removeEventListener("hashchange", recordNavigation);

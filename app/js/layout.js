@@ -6,6 +6,9 @@ export const NAV_ITEMS = [
   { href: "#/", path: "/", label: "Home" },
   { href: "#/games", path: "/games", label: "Games" },
   { href: "#/identity", path: "/identity", label: "My identity", auth: true },
+  // Team organizer grants live in the database, not the global roles array.
+  // The screen independently refuses accounts without a matching grant/admin.
+  { href: "#/manage/pickup", path: "/manage/pickup", label: "Manage pickup", auth: true },
   { href: "#/admin/verify", path: "/admin/verify", label: "Verify players", roles: ["admin"] },
   { href: "#/admin/payments", path: "/admin/payments", label: "Payments", roles: ["admin"] },
   { href: "#/admin/audit", path: "/admin/audit", label: "Audit log", roles: ["admin"] },
