@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T21:02:06-08:00",
+  "generatedAt": "2026-11-09T21:09:46-08:00",
   "today": "2026-11-09",
-  "asOf": "2026-11-09T21:02:06-08:00",
+  "asOf": "2026-11-09T21:09:46-08:00",
   "items": [
     {
       "id": "matchday-2026-11-14-legends-sc",
@@ -25,8 +25,8 @@
       "date": "2026-11-08",
       "title": "CalBlue 3-2 South San Francisco AC",
       "summary": "Win · Away · SWPL Pacific Premier League · El Camino High School Stadium",
-      "image": "https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/swpl-south-san-francisco-ac/thumb/007.jpg",
-      "imageAlt": "CalBlue squad gathering for the team photo before the SWPL away match at South San Francisco AC",
+      "image": "",
+      "imageAlt": "CalBlue FC against South San Francisco AC",
       "scoreline": {
         "home": {
           "name": "South San Francisco AC",
@@ -52,8 +52,8 @@
       "date": "2026-11-08",
       "title": "CalBlue 4-2 Hunters",
       "summary": "Win · Home · 2026 NCCSF Fall League · Newark Right",
-      "image": "https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/nccsf-hunters/thumb/039.jpg",
-      "imageAlt": "CalBlue's number 10 shoots between two Hunters defenders under the lights at Newark",
+      "image": "",
+      "imageAlt": "CalBlue FC against Hunters",
       "scoreline": {
         "home": {
           "name": "CalBlue",
@@ -546,8 +546,8 @@
       "date": "2026-09-13",
       "title": "CalBlue 3-2 SF Glens",
       "summary": "Win · Home · SWPL Pacific Premier League · Central Park Soccer Field",
-      "image": "https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/swpl-sf-glens/thumb/026.jpg",
-      "imageAlt": "CalBlue team before the SWPL season opener against SF Glens",
+      "image": "",
+      "imageAlt": "CalBlue FC against SF Glens",
       "scoreline": {
         "home": {
           "name": "CalBlue FC",
