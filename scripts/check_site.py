@@ -19,6 +19,7 @@ ALBUMS = {
     "swpl-sf-glens": 99,
     "swpl-bay-area-united": 341,
     "swpl-albion-sc-silicon-valley": 301,
+    "swpl-south-san-francisco-ac": 301,
     "tiger": 135,
     "nbh": 58,
     "sfu": 24,
