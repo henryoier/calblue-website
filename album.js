@@ -8,6 +8,7 @@ if (albumPage) {
     'swpl-bay-area-united': { opponent: 'Bay Area United', date: 'September 19, 2026', count: 341, competition: '2026 SWPL Pacific Premier League' },
     'swpl-albion-sc-silicon-valley': { opponent: 'Albion SC Silicon Valley', date: 'October 3, 2026', count: 301, competition: '2026 SWPL Pacific Premier League' },
     'swpl-south-san-francisco-ac': { opponent: 'South San Francisco AC', date: 'November 8, 2026', count: 301, competition: '2026 SWPL Pacific Premier League' },
+    'nccsf-hunters': { opponent: 'Hunters', date: 'November 8, 2026', count: 69, competition: '2026 NCCSF Fall League' },
     tiger: { opponent: 'Tiger', date: 'May 24, 2026', count: 135, competition: '2026 NCCSF' },
     nbh: { opponent: 'NBH', date: 'May 23, 2026', count: 58, competition: '2026 NCCSF' },
     sfu: { opponent: 'SFU', date: 'May 16, 2026', count: 24, competition: '2026 NCCSF' },

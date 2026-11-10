@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T20:54:12-08:00",
+  "generatedAt": "2026-11-09T21:02:06-08:00",
   "today": "2026-11-09",
-  "asOf": "2026-11-09T20:54:12-08:00",
+  "asOf": "2026-11-09T21:02:06-08:00",
   "items": [
     {
       "id": "matchday-2026-11-14-legends-sc",
@@ -52,8 +52,8 @@
       "date": "2026-11-08",
       "title": "CalBlue 4-2 Hunters",
       "summary": "Win · Home · 2026 NCCSF Fall League · Newark Right",
-      "image": "",
-      "imageAlt": "CalBlue FC against Hunters",
+      "image": "https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/nccsf-hunters/thumb/039.jpg",
+      "imageAlt": "CalBlue's number 10 shoots between two Hunters defenders under the lights at Newark",
       "scoreline": {
         "home": {
           "name": "CalBlue",
@@ -68,8 +68,8 @@
           "away": 2
         }
       },
-      "href": "competition-nccsf.html",
-      "cta": "Full results and table"
+      "href": "gallery-nccsf-hunters.html",
+      "cta": "See the photos"
     },
     {
       "id": "gallery-2026-11-08-south-san-francisco-ac",
@@ -81,6 +81,18 @@
       "image": "https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/swpl-south-san-francisco-ac/thumb/007.jpg",
       "imageAlt": "CalBlue squad gathering for the team photo before the SWPL away match at South San Francisco AC",
       "href": "gallery-swpl-south-san-francisco-ac.html",
+      "cta": "Open the album"
+    },
+    {
+      "id": "gallery-2026-11-08-hunters",
+      "slug": "gallery-2026-11-08-hunters",
+      "category": "Gallery",
+      "date": "2026-11-08",
+      "title": "Photos: CalBlue vs Hunters",
+      "summary": "69 photos · 2026 NCCSF Fall League · Home match",
+      "image": "https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/nccsf-hunters/thumb/039.jpg",
+      "imageAlt": "CalBlue's number 10 shoots between two Hunters defenders under the lights at Newark",
+      "href": "gallery-nccsf-hunters.html",
       "cta": "Open the album"
     },
     {
