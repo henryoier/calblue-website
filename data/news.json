@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T17:42:12-08:00",
+  "generatedAt": "2026-11-09T20:54:12-08:00",
   "today": "2026-11-09",
-  "asOf": "2026-11-09T23:59:00-08:00",
+  "asOf": "2026-11-09T20:54:12-08:00",
   "items": [
     {
       "id": "matchday-2026-11-14-legends-sc",
@@ -25,8 +25,8 @@
       "date": "2026-11-08",
       "title": "CalBlue 3-2 South San Francisco AC",
       "summary": "Win · Away · SWPL Pacific Premier League · El Camino High School Stadium",
-      "image": "",
-      "imageAlt": "CalBlue FC against South San Francisco AC",
+      "image": "https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/swpl-south-san-francisco-ac/thumb/007.jpg",
+      "imageAlt": "CalBlue squad gathering for the team photo before the SWPL away match at South San Francisco AC",
       "scoreline": {
         "home": {
           "name": "South San Francisco AC",
@@ -41,8 +41,8 @@
           "away": 3
         }
       },
-      "href": "competition-swpl.html",
-      "cta": "Full results and table"
+      "href": "gallery-swpl-south-san-francisco-ac.html",
+      "cta": "See the photos"
     },
     {
       "id": "result-2026-11-08-hunters",
@@ -70,6 +70,18 @@
       },
       "href": "competition-nccsf.html",
       "cta": "Full results and table"
+    },
+    {
+      "id": "gallery-2026-11-08-south-san-francisco-ac",
+      "slug": "gallery-2026-11-08-south-san-francisco-ac",
+      "category": "Gallery",
+      "date": "2026-11-08",
+      "title": "Photos: CalBlue vs South San Francisco AC",
+      "summary": "301 photos · 2026 SWPL Pacific Premier League · Away match",
+      "image": "https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/swpl-south-san-francisco-ac/thumb/007.jpg",
+      "imageAlt": "CalBlue squad gathering for the team photo before the SWPL away match at South San Francisco AC",
+      "href": "gallery-swpl-south-san-francisco-ac.html",
+      "cta": "Open the album"
     },
     {
       "id": "result-2026-11-01-jsc-jasa",
