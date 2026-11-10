@@ -147,8 +147,10 @@ def result_items(feeds: dict[str, dict | None], albums: list[dict]) -> list[dict
                     "summary": " · ".join(
                         [outcome, "Home" if calblue_home else "Away", competition, str(result.get("venue", {}).get("name") or "")]
                     ).rstrip(" ·"),
-                    "image": album["image"] if album else "",
-                    "imageAlt": album["alt"] if album else f"CalBlue FC against {opponent}",
+                    # Results always render as the logo + score tile (news.js builds it from `scoreline`);
+                    # the album, when there is one, is reached through the card link instead of borrowing its cover.
+                    "image": "",
+                    "imageAlt": f"CalBlue FC against {opponent}",
                     "scoreline": {
                         "home": {"name": home, "logo": CLUB_CREST if calblue_home else (result["home"].get("logo") or "")},
                         "away": {"name": away, "logo": CLUB_CREST if not calblue_home else (result["away"].get("logo") or "")},
