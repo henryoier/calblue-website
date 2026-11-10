@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "note": "Match-day posters keyed by fixture date + opponent slug. Each fixture has two no-photo designs; the homepage picks one at random per visit. Regenerate from the poster pipeline (see docs) after any schedule change.",
+  "note": "Match-day posters keyed by fixture date + opponent slug. Each active poster matches a current or completed official fixture; new fixtures may await artwork. Superseded artwork is retained in archivedFixtures and never selected for the homepage.",
   "generatedAt": "2026-10-16T13:05:00-07:00",
   "scheduleCheckedAt": "2026-10-16T09:34:31-07:00",
   "fixtures": {
@@ -65,27 +65,6 @@
         },
         {
           "src": "assets/matchday/2026-fall/2026-10-10-in-motion-fc-classic.webp",
-          "style": "classic",
-          "width": 1296,
-          "height": 1616
-        }
-      ]
-    },
-    "2026-10-17-club-deportivo-oakland": {
-      "fixtureId": "b96ee71855965981",
-      "date": "2026-10-17",
-      "opponent": "Club Deportivo Oakland",
-      "home": false,
-      "competition": "SWPL Pacific Premier League",
-      "posters": [
-        {
-          "src": "assets/matchday/2026-fall/2026-10-17-club-deportivo-oakland-styled-v2.webp",
-          "style": "styled",
-          "width": 1296,
-          "height": 1616
-        },
-        {
-          "src": "assets/matchday/2026-fall/2026-10-17-club-deportivo-oakland-classic-v2.webp",
           "style": "classic",
           "width": 1296,
           "height": 1616
@@ -217,6 +196,30 @@
           "height": 1616
         }
       ]
+    }
+  },
+  "archivedFixtures": {
+    "2026-10-17-club-deportivo-oakland": {
+      "fixtureId": "b96ee71855965981",
+      "date": "2026-10-17",
+      "opponent": "Club Deportivo Oakland",
+      "home": false,
+      "competition": "SWPL Pacific Premier League",
+      "posters": [
+        {
+          "src": "assets/matchday/2026-fall/2026-10-17-club-deportivo-oakland-styled-v2.webp",
+          "style": "styled",
+          "width": 1296,
+          "height": 1616
+        },
+        {
+          "src": "assets/matchday/2026-fall/2026-10-17-club-deportivo-oakland-classic-v2.webp",
+          "style": "classic",
+          "width": 1296,
+          "height": 1616
+        }
+      ],
+      "archivedReason": "The official fixture was rescheduled to December 13. This artwork still prints October 17 and must not be used for the new fixture."
     }
   }
 }

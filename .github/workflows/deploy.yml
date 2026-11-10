@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 
@@ -46,6 +47,7 @@ jobs:
           node tests/test_homepage_schedule.js
           node tests/test_matchday_poster.js
           node tests/test_news_feed.js
+          node tests/test_pages_artifact_wait.js
       - name: Sync official SWPL schedule
         run: |
           curl --fail --silent --show-error --location \
@@ -89,14 +91,34 @@ jobs:
             || echo "::warning::Instagram sync failed; keeping the committed data/instagram.json"
       - name: Build club news feed
         run: python3 scripts/build_news.py
+      - name: Build current homepage match center
+        run: python3 scripts/build_homepage_schedule.py
       - name: Validate site
         run: python3 scripts/check_site.py
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload static site
+        id: pages_artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: .
+      - name: Wait for uploaded Pages artifact to become visible
+        timeout-minutes: 3
+        uses: actions/github-script@v8
+        env:
+          PAGES_ARTIFACT_ID: ${{ steps.pages_artifact.outputs.artifact_id }}
+        with:
+          script: |
+            const waitForPagesArtifact = require('./.github/scripts/wait-for-pages-artifact.cjs');
+            const listInternalArtifacts = waitForPagesArtifact.createInternalArtifactLister();
+            await waitForPagesArtifact({
+              github, core, context,
+              expectedArtifactId: process.env.PAGES_ARTIFACT_ID,
+              listInternalArtifacts,
+            });
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify the public homepage match details
+        timeout-minutes: 3
+        run: python3 scripts/verify_public_homepage.py

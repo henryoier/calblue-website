@@ -24,7 +24,8 @@ class MatchdayPosterManifestTests(unittest.TestCase):
         self.assertTrue(self.manifest["fixtures"], "manifest lists no fixtures")
 
     def test_every_entry_has_two_existing_posters(self):
-        for key, entry in self.manifest["fixtures"].items():
+        entries = {**self.manifest.get("archivedFixtures", {}), **self.manifest["fixtures"]}
+        for key, entry in entries.items():
             posters = entry["posters"]
             self.assertEqual(len(posters), 2, f"{key}: expected two designs to rotate between")
             self.assertEqual({p["style"] for p in posters}, {"styled", "classic"}, key)
@@ -41,15 +42,24 @@ class MatchdayPosterManifestTests(unittest.TestCase):
         return f"{fixture['date']}-{slug(opponent['name'])}"
 
     def test_keys_match_schedule_fixtures(self):
-        """Every poster belongs to a published game, upcoming or already played; every upcoming game has posters."""
+        """Active artwork must match a published game; new fixtures can await artwork."""
         upcoming = {self.key_for(f): f for f in self.swpl["fixtures"]}
         played = {self.key_for(f): f for f in self.swpl.get("results", [])}
         known = {**played, **upcoming}
         for key, entry in self.manifest["fixtures"].items():
             self.assertIn(key, known, f"{key}: no such game in data/swpl.json (schedule changed? regenerate and re-key posters)")
             self.assertEqual(entry["date"], known[key]["date"], key)
-        missing = sorted(set(upcoming) - set(self.manifest["fixtures"]))
-        self.assertEqual(missing, [], f"upcoming SWPL fixtures without posters: {missing}")
+
+    def test_rescheduled_artwork_is_archived_without_claiming_the_new_fixture(self):
+        archived = self.manifest.get("archivedFixtures", {})
+        self.assertFalse(set(archived) & set(self.manifest["fixtures"]),
+                         "Archived posters must not be selected as active fixture artwork")
+        self.assertIn("2026-10-17-club-deportivo-oakland", archived)
+        replacement = self.manifest["fixtures"].get("2026-12-13-club-deportivo-oakland")
+        if replacement:
+            old_images = {p["src"] for p in archived["2026-10-17-club-deportivo-oakland"]["posters"]}
+            self.assertTrue(old_images.isdisjoint(p["src"] for p in replacement["posters"]),
+                            "December 13 artwork must not reuse the poster that prints October 17")
 
 
 if __name__ == "__main__":
