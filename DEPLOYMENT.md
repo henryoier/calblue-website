@@ -60,6 +60,42 @@ Domain registration usually costs roughly $10–$35 USD per year depending on th
 
 Each proposed change should use a branch and pull request. GitHub Actions produces the public release after the change is reviewed and merged.
 
+## Schedule refresh and Pages artifact handoff
+
+Scheduled deployments refresh the official SWPL and NCCSF JSON, rebuild the news
+feed, and run `scripts/build_homepage_schedule.py` before validating and uploading
+the site. This writes the initial match center and poster from the current
+snapshots into `index.html`. The browser still refreshes and expands those
+sections, while HTML readers receive the current fixture immediately.
+
+For a local preview, refresh the public snapshots and run:
+
+```bash
+python3 scripts/build_news.py
+python3 scripts/build_homepage_schedule.py
+python3 scripts/check_site.py
+python3 -m http.server 8093 --bind 127.0.0.1
+```
+
+The next-match card plus four following dates are ordered across both leagues.
+Completed/cancelled fixtures and elapsed Pacific dates are excluded. A newly
+published or rescheduled fixture can appear before artwork is available. Artwork
+with an obsolete printed date is retained under `archivedFixtures` in the poster
+manifest and is not selected for the homepage.
+
+The November 7, 2026 run uploaded its Pages artifact successfully, then the
+deploy action's artifact listing returned zero artifacts. The deployment now
+checks visibility of that exact upload before attempting publication, with a
+bounded wait and a clear failure if the artifact remains unavailable. It never
+substitutes an older run's artifact or repeats publication automatically.
+
+After publication, `scripts/verify_public_homepage.py` checks the public HTTPS
+page against the generated match card and poster, allowing a bounded wait for
+edge propagation. A mismatched public page makes the workflow fail with a clear
+verification error. After merging a deployment fix, also review the browser
+display; an uploaded artifact alone does not establish that visitors see the
+current match.
+
 ## Content workflow
 
 For the first release, edit copy and links in `index.html`, replace images in `assets/`, and submit a pull request. This keeps all history reviewable and makes rollback easy.

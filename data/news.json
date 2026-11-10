@@ -1,21 +1,291 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-04T23:51:49-07:00",
-  "today": "2026-10-04",
-  "asOf": "2026-10-04T23:51:49-07:00",
+  "generatedAt": "2026-11-09T17:42:12-08:00",
+  "today": "2026-11-09",
+  "asOf": "2026-11-09T23:59:00-08:00",
   "items": [
     {
-      "id": "matchday-2026-10-10-in-motion-fc",
-      "slug": "matchday-2026-10-10-in-motion-fc",
+      "id": "matchday-2026-11-14-legends-sc",
+      "slug": "matchday-2026-11-14-legends-sc",
       "category": "Match day",
-      "date": "2026-10-10",
-      "title": "Match day: CalBlue FC vs In Motion FC",
-      "summary": "Saturday, October 10 · 7:30 pm PT · Fair Oaks Park Field 3",
-      "image": "assets/matchday/2026-fall/2026-10-10-in-motion-fc-styled.webp",
-      "imageAlt": "Match-day poster: CalBlue FC vs In Motion FC",
+      "date": "2026-11-14",
+      "title": "Match day: CalBlue FC vs Legends SC",
+      "summary": "Saturday, November 14 · 7:30 pm PT · Fair Oaks Park Field 3",
+      "image": "assets/matchday/2026-fall/2026-11-14-legends-sc-styled.webp",
+      "imageAlt": "Match-day poster: CalBlue FC vs Legends SC",
       "href": "index.html#matchday",
       "cta": "See the poster",
       "poster": true
+    },
+    {
+      "id": "result-2026-11-08-south-san-francisco-ac",
+      "slug": "result-2026-11-08-south-san-francisco-ac",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-11-08",
+      "title": "CalBlue 3-2 South San Francisco AC",
+      "summary": "Win · Away · SWPL Pacific Premier League · El Camino High School Stadium",
+      "image": "",
+      "imageAlt": "CalBlue FC against South San Francisco AC",
+      "scoreline": {
+        "home": {
+          "name": "South San Francisco AC",
+          "logo": "https://nisa.sportzstudio.com/team_images/1663784092_thumb_a.png"
+        },
+        "away": {
+          "name": "CalBlue FC",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "score": {
+          "home": 2,
+          "away": 3
+        }
+      },
+      "href": "competition-swpl.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "result-2026-11-08-hunters",
+      "slug": "result-2026-11-08-hunters",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-11-08",
+      "title": "CalBlue 4-2 Hunters",
+      "summary": "Win · Home · 2026 NCCSF Fall League · Newark Right",
+      "image": "",
+      "imageAlt": "CalBlue FC against Hunters",
+      "scoreline": {
+        "home": {
+          "name": "CalBlue",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "away": {
+          "name": "Hunters",
+          "logo": "https://nccsf.org/en/img/team/logo/626.png"
+        },
+        "score": {
+          "home": 4,
+          "away": 2
+        }
+      },
+      "href": "competition-nccsf.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "result-2026-11-01-jsc-jasa",
+      "slug": "result-2026-11-01-jsc-jasa",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-11-01",
+      "title": "CalBlue 3-2 JSC JASA",
+      "summary": "Win · Away · SWPL Pacific Premier League · Red Morton Park - 49er Field",
+      "image": "",
+      "imageAlt": "CalBlue FC against JSC JASA",
+      "scoreline": {
+        "home": {
+          "name": "JSC JASA",
+          "logo": "https://nisa.sportzstudio.com/team_images/1758051912_thumb_a.png"
+        },
+        "away": {
+          "name": "CalBlue FC",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "score": {
+          "home": 2,
+          "away": 3
+        }
+      },
+      "href": "competition-swpl.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "result-2026-10-31-ebu-rangers",
+      "slug": "result-2026-10-31-ebu-rangers",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-10-31",
+      "title": "CalBlue 3-0 EBU Rangers",
+      "summary": "Win · Away · 2026 NCCSF Fall League · Newark Right",
+      "image": "",
+      "imageAlt": "CalBlue FC against EBU Rangers",
+      "scoreline": {
+        "home": {
+          "name": "EBU Rangers",
+          "logo": "https://nccsf.org/en/img/team/logo/622.jpeg"
+        },
+        "away": {
+          "name": "CalBlue",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "score": {
+          "home": 0,
+          "away": 3
+        }
+      },
+      "href": "competition-nccsf.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "result-2026-10-25-jsc-jasa",
+      "slug": "result-2026-10-25-jsc-jasa",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-10-25",
+      "title": "CalBlue 2-1 JSC JASA",
+      "summary": "Win · Away · Abronzino Cup · Red Morton Park - Bechet Field",
+      "image": "",
+      "imageAlt": "CalBlue FC against JSC JASA",
+      "scoreline": {
+        "home": {
+          "name": "JSC JASA",
+          "logo": "https://nisa.sportzstudio.com/team_images/1758051912_thumb_a.png"
+        },
+        "away": {
+          "name": "CalBlue FC",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "score": {
+          "home": 1,
+          "away": 2
+        }
+      },
+      "href": "competition-swpl.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "result-2026-10-24-jtu",
+      "slug": "result-2026-10-24-jtu",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-10-24",
+      "title": "CalBlue 1-0 JTU",
+      "summary": "Win · Home · 2026 NCCSF Fall League · Nordvik Park",
+      "image": "",
+      "imageAlt": "CalBlue FC against JTU",
+      "scoreline": {
+        "home": {
+          "name": "CalBlue",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "away": {
+          "name": "JTU",
+          "logo": "https://nccsf.org/en/img/team/logo/633.png"
+        },
+        "score": {
+          "home": 1,
+          "away": 0
+        }
+      },
+      "href": "competition-nccsf.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "result-2026-10-18-pp-united",
+      "slug": "result-2026-10-18-pp-united",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-10-18",
+      "title": "CalBlue 4-0 PP United",
+      "summary": "Win · Home · 2026 NCCSF Fall League · Newark Left",
+      "image": "",
+      "imageAlt": "CalBlue FC against PP United",
+      "scoreline": {
+        "home": {
+          "name": "CalBlue",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "away": {
+          "name": "PP United",
+          "logo": "https://nccsf.org/en/img/team/logo/632.png"
+        },
+        "score": {
+          "home": 4,
+          "away": 0
+        }
+      },
+      "href": "competition-nccsf.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "result-2026-10-11-overpower",
+      "slug": "result-2026-10-11-overpower",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-10-11",
+      "title": "CalBlue 9-1 OverPower",
+      "summary": "Win · Away · 2026 NCCSF Fall League · Nordvik Park",
+      "image": "",
+      "imageAlt": "CalBlue FC against OverPower",
+      "scoreline": {
+        "home": {
+          "name": "OverPower",
+          "logo": "https://nccsf.org/en/img/team/logo/628.png"
+        },
+        "away": {
+          "name": "CalBlue",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "score": {
+          "home": 1,
+          "away": 9
+        }
+      },
+      "href": "competition-nccsf.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "result-2026-10-10-in-motion-fc",
+      "slug": "result-2026-10-10-in-motion-fc",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-10-10",
+      "title": "CalBlue 3-1 In Motion FC",
+      "summary": "Win · Home · SWPL Pacific Premier League · Fair Oaks Park Field 3",
+      "image": "",
+      "imageAlt": "CalBlue FC against In Motion FC",
+      "scoreline": {
+        "home": {
+          "name": "CalBlue FC",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "away": {
+          "name": "In Motion FC",
+          "logo": "https://nisa.sportzstudio.com/team_images/1725643596_thumb_a.png"
+        },
+        "score": {
+          "home": 3,
+          "away": 1
+        }
+      },
+      "href": "competition-swpl.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "result-2026-10-04-gsf-locomotive",
+      "slug": "result-2026-10-04-gsf-locomotive",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-10-04",
+      "title": "CalBlue 4-0 GSF-Locomotive",
+      "summary": "Win · Home · 2026 NCCSF Fall League · Nordvik Park",
+      "image": "",
+      "imageAlt": "CalBlue FC against GSF-Locomotive",
+      "scoreline": {
+        "home": {
+          "name": "CalBlue",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "away": {
+          "name": "GSF-Locomotive",
+          "logo": "https://nccsf.org/en/img/team/logo/624.jpeg"
+        },
+        "score": {
+          "home": 4,
+          "away": 0
+        }
+      },
+      "href": "competition-nccsf.html",
+      "cta": "Full results and table"
     },
     {
       "id": "gallery-2026-10-03-albion-sc-silicon-valley",
@@ -68,6 +338,33 @@
       ]
     },
     {
+      "id": "result-2026-09-26-hehefc",
+      "slug": "result-2026-09-26-hehefc",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-09-26",
+      "title": "CalBlue 4-0 HeHeFC",
+      "summary": "Win · Home · 2026 NCCSF Fall League · Newark Right",
+      "image": "",
+      "imageAlt": "CalBlue FC against HeHeFC",
+      "scoreline": {
+        "home": {
+          "name": "CalBlue",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "away": {
+          "name": "HeHeFC",
+          "logo": "https://nccsf.org/en/img/team/logo/625.png"
+        },
+        "score": {
+          "home": 4,
+          "away": 0
+        }
+      },
+      "href": "competition-nccsf.html",
+      "cta": "Full results and table"
+    },
+    {
       "id": "squad-week-2026-09-25-nccsf",
       "slug": "squad-week-2026-09-25-nccsf",
       "category": "Squad",
@@ -90,6 +387,33 @@
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22526"
         }
       ]
+    },
+    {
+      "id": "result-2026-09-20-thu-west",
+      "slug": "result-2026-09-20-thu-west",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-09-20",
+      "title": "CalBlue 2-1 THU West",
+      "summary": "Win · Away · 2026 NCCSF Fall League · Nordvik Park",
+      "image": "",
+      "imageAlt": "CalBlue FC against THU West",
+      "scoreline": {
+        "home": {
+          "name": "THU West",
+          "logo": "https://nccsf.org/en/img/team/logo/630.jpeg"
+        },
+        "away": {
+          "name": "CalBlue",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "score": {
+          "home": 1,
+          "away": 2
+        }
+      },
+      "href": "competition-nccsf.html",
+      "cta": "Full results and table"
     },
     {
       "id": "gallery-2026-09-19-bay-area-united",

@@ -305,6 +305,7 @@
       Array.isArray(data.fixtures)
         ? data.fixtures.filter((fixture) => (
           /^\d{4}-\d{2}-\d{2}$/.test(fixture.date)
+          && !['completed', 'cancelled'].includes(fixture.status)
           && fixture.home?.name
           && fixture.away?.name
           && fixture.venue?.name
