@@ -1,0 +1,51 @@
+name: Refresh Instagram token
+
+# The deploy reads @calbluefc posts with the long-lived token in the IG_ACCESS_TOKEN secret. Such a
+# token lasts 60 days, and Instagram extends it by another 60 when it is refreshed while still valid.
+# This run does that twice a week. It fails when Instagram refuses the token (password changed, app
+# access removed, token expired): that is the signal to generate a new token and replace the secret.
+
+on:
+  schedule:
+    # Sundays and Wednesdays, 08:23 Pacific standard time (09:23 in daylight saving time).
+    # Runs only after this workflow is merged into the default branch.
+    - cron: '23 16 * * 0,3'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: instagram-token-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    # Forks have no club token to refresh.
+    if: github.repository == 'henryoier/calblue-website'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Extend the long-lived token
+        id: refresh
+        env:
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+        run: python3 -B scripts/refresh_instagram_token.py --new-token-file "$RUNNER_TEMP/instagram-token"
+      - name: Store a token that Instagram replaced
+        # Only when the refresh answered with a different token string. Writing a repository secret
+        # needs a token with that permission; the workflow's own GITHUB_TOKEN cannot do it.
+        if: steps.refresh.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.SECRETS_WRITE_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            rm -f "$RUNNER_TEMP/instagram-token"
+            echo "::error::Instagram replaced the token and there is no SECRETS_WRITE_TOKEN secret to store the new one with. Generate a token in the Meta App Dashboard and paste it into the IG_ACCESS_TOKEN secret, or add SECRETS_WRITE_TOKEN (a token allowed to write this repository's Actions secrets)."
+            exit 1
+          fi
+          gh secret set IG_ACCESS_TOKEN --repo "$GITHUB_REPOSITORY" < "$RUNNER_TEMP/instagram-token"
+          rm -f "$RUNNER_TEMP/instagram-token"
