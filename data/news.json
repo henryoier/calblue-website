@@ -1,21 +1,33 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-09T21:09:46-08:00",
-  "today": "2026-11-09",
-  "asOf": "2026-11-09T21:09:46-08:00",
+  "generatedAt": "2026-11-16T17:58:02-08:00",
+  "today": "2026-11-16",
+  "asOf": "2026-11-16T17:58:02-08:00",
   "items": [
     {
-      "id": "matchday-2026-11-14-legends-sc",
-      "slug": "matchday-2026-11-14-legends-sc",
+      "id": "matchday-2026-11-22-south-san-francisco-ac",
+      "slug": "matchday-2026-11-22-south-san-francisco-ac",
       "category": "Match day",
-      "date": "2026-11-14",
-      "title": "Match day: CalBlue FC vs Legends SC",
-      "summary": "Saturday, November 14 · 7:30 pm PT · Fair Oaks Park Field 3",
-      "image": "assets/matchday/2026-fall/2026-11-14-legends-sc-styled.webp",
-      "imageAlt": "Match-day poster: CalBlue FC vs Legends SC",
+      "date": "2026-11-22",
+      "title": "Match day: CalBlue FC vs South San Francisco AC",
+      "summary": "Sunday, November 22 · 7:30 pm PT · Fair Oaks Park Field 3",
+      "image": "assets/matchday/2026-fall/2026-11-22-south-san-francisco-ac-styled.webp",
+      "imageAlt": "Match-day poster: CalBlue FC vs South San Francisco AC",
       "href": "index.html#matchday",
       "cta": "See the poster",
       "poster": true
+    },
+    {
+      "id": "gallery-2026-11-14-legends-sc",
+      "slug": "gallery-2026-11-14-legends-sc",
+      "category": "Gallery",
+      "date": "2026-11-14",
+      "title": "Photos: CalBlue vs Legends SC",
+      "summary": "159 photos · 2026 SWPL Pacific Premier League · Home match",
+      "image": "https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/swpl-legends-sc/thumb/027.jpg",
+      "imageAlt": "CalBlue squad lined up before the SWPL home match against Legends SC",
+      "href": "gallery-swpl-legends-sc.html",
+      "cta": "Open the album"
     },
     {
       "id": "result-2026-11-08-south-san-francisco-ac",
