@@ -47,6 +47,8 @@ export function signInView(mainEl, {
   callbackError = "",
   available = true,
   requestLink,
+  requestGoogle,
+  googleEnabled = false,
   context = {},
 } = {}) {
   let disposed = false;
@@ -69,7 +71,7 @@ export function signInView(mainEl, {
       ${authenticated
         ? html`<p>You are already signed in.</p><a class="app-link-primary" href="${continueHref(returnTo)}">Continue to the members app</a>`
         : html`
-          <p>Enter your email address to receive a secure sign-in link. No password is needed.</p>
+          <p>Use your email address or Google account. Your club permissions are assigned separately by an administrator.</p><button type="button" class="app-button app-google-sign-in">Continue with Google</button><p class="app-muted">${googleEnabled ? "Or request an email sign-in link below. No password is needed." : "Google sign-in is awaiting club setup. Email sign-in is available below."}</p>
           ${!canRequest ? html`<p class="app-error" role="status">Sign-in is temporarily unavailable on this page. Reload the page to try again, or contact a CalBlue administrator.</p>` : null}
           <form class="app-sign-in-form" aria-labelledby="app-sign-in-title" aria-busy="false">
             <label for="app-sign-in-email">Email address</label>
@@ -98,6 +100,9 @@ export function signInView(mainEl, {
 
   const section = mainEl.querySelector(".app-sign-in");
   const form = section.querySelector("form");
+  const googleButton = section.querySelector(".app-google-sign-in");
+  const canGoogle = available === true && googleEnabled === true && typeof requestGoogle === "function";
+  googleButton.disabled = !canGoogle;
   const emailInput = form.querySelector("input");
   const submitButton = form.querySelector(".app-sign-in-submit");
   const retryButton = form.querySelector(".app-sign-in-retry");
@@ -111,6 +116,7 @@ export function signInView(mainEl, {
 
   function setBusy(value) {
     busy = value;
+    googleButton.disabled = !canGoogle || value || sent;
     form.setAttribute("aria-busy", String(value));
     emailInput.readOnly = value || sent;
     submitButton.disabled = !canRequest || value || sent;
@@ -158,9 +164,23 @@ export function signInView(mainEl, {
     emailInput.focus();
   }
 
+  async function googleSignIn() {
+    if (!isCurrent() || !canGoogle || busy || sent) return;
+    setBusy(true); status.textContent = "Opening Google sign-in…"; errorMessage.hidden = true;
+    try {
+      await requestGoogle();
+    } catch (_) {
+      if (!isCurrent()) return;
+      status.textContent = ""; errorMessage.textContent = "Google sign-in could not start. Use an email link or contact the club administrator.";
+      errorMessage.hidden = false; setBusy(false);
+    }
+  }
+
   function cleanup() {
     if (disposed) return;
     disposed = true;
+    googleButton.removeEventListener("click", googleSignIn);
+    googleButton.disabled = true;
     form.removeEventListener("submit", submit);
     retryButton.removeEventListener("click", retry);
     context?.signal?.removeEventListener("abort", cleanup);
@@ -171,6 +191,7 @@ export function signInView(mainEl, {
     retryButton.disabled = true;
   }
 
+  googleButton.addEventListener("click", googleSignIn);
   form.addEventListener("submit", submit);
   retryButton.addEventListener("click", retry);
   context?.signal?.addEventListener("abort", cleanup, { once: true });
