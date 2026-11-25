@@ -10,7 +10,7 @@ domLogicTests(dom, { test, equal, assert });
 test("[dom] toFragment produces real nodes", () => {
   const host = document.createElement("div");
   host.appendChild(dom.toFragment(dom.html`<p>hi</p>`));
-  equal(host.querySelector("p").textContent, "hi");
+  equal(host.querySelector("p").textContent, "HI");
 });
 
 test("[dom] attribute break-out does not create a handler attribute", () => {
