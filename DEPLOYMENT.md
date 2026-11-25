@@ -86,8 +86,14 @@ manifest and is not selected for the homepage.
 The November 7, 2026 run uploaded its Pages artifact successfully, then the
 deploy action's artifact listing returned zero artifacts. The deployment now
 checks visibility of that exact upload before attempting publication, with a
-bounded wait and a clear failure if the artifact remains unavailable. It never
-substitutes an older run's artifact or repeats publication automatically.
+bounded wait and a clear failure if the artifact remains unavailable.
+
+That check alone was not enough. On November 25, 2026 it saw the upload in both
+listings, and the deploy action, one second later, again found no artifact. If
+the deploy step fails, the workflow now waits 30 seconds and tries the
+publication once more, with the same upload from the same run. A second failure
+fails the run. It never substitutes an older run's artifact, never rebuilds
+between the two attempts and never tries more than twice.
 
 After publication, `scripts/verify_public_homepage.py` checks the public HTTPS
 page against the generated match card and poster, allowing a bounded wait for
