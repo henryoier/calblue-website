@@ -30,6 +30,10 @@ jobs:
         run: python3 scripts/run_js_tests.py
       - name: Test Auth and session lifecycle doubles (existing Node, no packages)
         run: python3 scripts/run_async_js_tests.py
+      - name: Test the DOM suites in headless Chrome (the runner's own browser, no packages)
+        # --no-sandbox: hosted runners forbid the unprivileged user namespaces Chrome's sandbox needs.
+        # --min-tests: 300 ran when this step was added; a page that silently loses suites must not pass.
+        run: python3 scripts/run_browser_tests.py --no-sandbox --min-tests 250
       - name: Test Pages artifact visibility recovery
         run: node tests/test_pages_artifact_wait.js
       - name: Use Node 22 for browser-native cryptography tests
