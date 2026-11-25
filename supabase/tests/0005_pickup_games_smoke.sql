@@ -83,10 +83,10 @@ BEGIN
     EXECUTE format('SELECT count(*) FROM public.%I',relation_name) INTO n;
     PERFORM pg_temp.pickup_assert(n=0,'empty scratch ' || relation_name);
   END LOOP;
-  PERFORM pg_temp.pickup_assert(NOT EXISTS(SELECT 1 FROM auth.users u CROSS JOIN generate_series(101,106) n
-    WHERE u.id=pg_temp.pickup_id(n) OR lower(u.email)='pickup-' || n || '@example.invalid')
-    AND NOT EXISTS(SELECT 1 FROM public.profiles p CROSS JOIN generate_series(101,106) n
-    WHERE p.id=pg_temp.pickup_id(n) OR lower(p.email::text)='pickup-' || n || '@example.invalid'),
+  PERFORM pg_temp.pickup_assert(NOT EXISTS(SELECT 1 FROM auth.users u CROSS JOIN generate_series(101,106) fixture_n
+    WHERE u.id=pg_temp.pickup_id(fixture_n) OR lower(u.email)='pickup-' || fixture_n || '@example.invalid')
+    AND NOT EXISTS(SELECT 1 FROM public.profiles p CROSS JOIN generate_series(101,106) fixture_n
+    WHERE p.id=pg_temp.pickup_id(fixture_n) OR lower(p.email::text)='pickup-' || fixture_n || '@example.invalid'),
     'synthetic account ID and email collision guard');
   INSERT INTO pg_temp.pickup_baseline
   SELECT retained_account,

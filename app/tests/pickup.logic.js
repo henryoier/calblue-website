@@ -108,7 +108,13 @@ export function pickupLogicTests(pickup, t) {
     t.equal(pickup.pickupLocalToInstant("2026-10-04T10:00", "CET"), "2026-10-04T08:00:00Z");
     t.equal(pickup.pickupLocalToInstant("2026-01-04T10:00", "CET"), "2026-01-04T09:00:00Z");
     t.equal(pickup.pickupLocalToInstant("2026-10-04T10:00", "GMT0"), "2026-10-04T10:00:00Z");
-    t.equal(pickup.pickupLocalToInstant("2026-10-04T10:00", "PST8PDT"), "2026-10-04T17:00:00Z");
+    // Engines disagree on some legacy names: JavaScriptCore on macOS 27 rejects PST8PDT, Node's ICU
+    // accepts it. Where the name is supported the conversion must be exact; where it is not, it must
+    // be refused as an unavailable timezone, never converted with a guessed offset.
+    let legacy;
+    try { legacy = pickup.pickupLocalToInstant("2026-10-04T10:00", "PST8PDT"); }
+    catch (error) { legacy = error?.code; }
+    t.assert(legacy === "2026-10-04T17:00:00Z" || legacy === "invalid_pickup");
   });
 
   t.test("pickup rejects DST gaps and ambiguous folds instead of shifting them", () => {
