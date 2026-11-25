@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "note": "Match-day posters keyed by fixture date + opponent slug. Each active poster matches a current or completed official fixture; new fixtures may await artwork. Superseded artwork is retained in archivedFixtures and never selected for the homepage.",
-  "generatedAt": "2026-11-24T17:17:00-08:00",
+  "generatedAt": "2026-11-24T17:39:00-08:00",
   "scheduleCheckedAt": "2026-11-24T17:12:59-08:00",
   "fixtures": {
     "2026-09-19-bay-area-united": {
@@ -184,13 +184,13 @@
       "competition": "SWPL Pacific Premier League",
       "posters": [
         {
-          "src": "assets/matchday/2026-fall/2026-12-06-afghan-premier-fc-styled.webp",
+          "src": "assets/matchday/2026-fall/2026-12-06-afghan-premier-fc-styled-v2.webp",
           "style": "styled",
           "width": 1296,
           "height": 1616
         },
         {
-          "src": "assets/matchday/2026-fall/2026-12-06-afghan-premier-fc-classic.webp",
+          "src": "assets/matchday/2026-fall/2026-12-06-afghan-premier-fc-classic-v2.webp",
           "style": "classic",
           "width": 1296,
           "height": 1616
@@ -240,7 +240,7 @@
           "height": 1616
         }
       ],
-      "archivedReason": "The official fixture was rescheduled to December 13. This artwork still prints October 17 and must not be used for the new fixture."
+      "archivedReason": "The official fixture was rescheduled to December 12. This artwork still prints October 17 and must not be used for the new fixture."
     }
   }
 }

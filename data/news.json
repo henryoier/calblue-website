@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-24T17:13:44-08:00",
+  "generatedAt": "2026-11-24T17:39:21-08:00",
   "today": "2026-11-24",
-  "asOf": "2026-11-24T17:13:44-08:00",
+  "asOf": "2026-11-24T17:39:20-08:00",
   "items": [
     {
       "id": "matchday-2026-12-06-afghan-premier-fc",
@@ -11,7 +11,7 @@
       "date": "2026-12-06",
       "title": "Match day: Afghan Premier FC vs CalBlue FC",
       "summary": "Sunday, December 6 · 6:30 pm PT · Fallon Sports Park Field #2",
-      "image": "assets/matchday/2026-fall/2026-12-06-afghan-premier-fc-styled.webp",
+      "image": "assets/matchday/2026-fall/2026-12-06-afghan-premier-fc-styled-v2.webp",
       "imageAlt": "Match-day poster: CalBlue FC vs Afghan Premier FC",
       "href": "index.html#matchday",
       "cta": "See the poster",

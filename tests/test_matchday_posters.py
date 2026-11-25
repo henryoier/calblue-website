@@ -55,11 +55,11 @@ class MatchdayPosterManifestTests(unittest.TestCase):
         self.assertFalse(set(archived) & set(self.manifest["fixtures"]),
                          "Archived posters must not be selected as active fixture artwork")
         self.assertIn("2026-10-17-club-deportivo-oakland", archived)
-        replacement = self.manifest["fixtures"].get("2026-12-13-club-deportivo-oakland")
+        replacement = self.manifest["fixtures"].get("2026-12-12-club-deportivo-oakland")
         if replacement:
             old_images = {p["src"] for p in archived["2026-10-17-club-deportivo-oakland"]["posters"]}
             self.assertTrue(old_images.isdisjoint(p["src"] for p in replacement["posters"]),
-                            "December 13 artwork must not reuse the poster that prints October 17")
+                            "December 12 artwork must not reuse the poster that prints October 17")
 
 
 if __name__ == "__main__":
