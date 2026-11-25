@@ -1,0 +1,76 @@
+name: TEMP deploy retry semantics (removed before merge)
+
+# Runs the same step conditions as the deploy workflow's publication steps, with plain shell in place
+# of the Pages actions, to see how GitHub evaluates them. Publishes nothing. Never fails: the last
+# step of each job prints VERDICT PASS or VERDICT MISMATCH.
+
+on:
+  pull_request:
+
+permissions: {}
+
+jobs:
+  first-attempt-fails:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Deploy
+        id: deployment
+        continue-on-error: true
+        run: |
+          echo "Simulating: No artifacts named github-pages were found for this workflow run."
+          exit 1
+      - name: Wait before a second deploy attempt
+        if: steps.deployment.outcome == 'failure'
+        run: |
+          echo "The first deploy attempt failed. Trying once more, with the same upload."
+          echo "waited" >> "$RUNNER_TEMP/trace"
+      - name: Deploy (second attempt)
+        id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
+        run: |
+          echo "second" >> "$RUNNER_TEMP/trace"
+          echo "page_url=https://example.test/second" >> "$GITHUB_OUTPUT"
+      - name: Verify the public homepage match details
+        env:
+          FIRST_OUTCOME: ${{ steps.deployment.outcome }}
+          FIRST_CONCLUSION: ${{ steps.deployment.conclusion }}
+          SECOND_OUTCOME: ${{ steps.deployment_retry.outcome }}
+          PAGE_URL: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
+        run: |
+          trace="$(tr '\n' ' ' < "$RUNNER_TEMP/trace" 2>/dev/null || true)"
+          echo "VALUES first_outcome=$FIRST_OUTCOME first_conclusion=$FIRST_CONCLUSION second_outcome=$SECOND_OUTCOME url=$PAGE_URL trace=[$trace]"
+          if [ "$FIRST_OUTCOME" = failure ] && [ "$FIRST_CONCLUSION" = success ] && [ "$SECOND_OUTCOME" = success ] \
+             && [ "$PAGE_URL" = "https://example.test/second" ] && [ "$trace" = "waited second " ]; then
+            echo "VERDICT PASS first-attempt-fails: the pause and the second attempt ran, and this later step still ran"
+          else
+            echo "VERDICT MISMATCH first-attempt-fails"
+          fi
+  first-attempt-succeeds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Deploy
+        id: deployment
+        continue-on-error: true
+        run: echo "page_url=https://example.test/first" >> "$GITHUB_OUTPUT"
+      - name: Wait before a second deploy attempt
+        if: steps.deployment.outcome == 'failure'
+        run: echo "waited" >> "$RUNNER_TEMP/trace"
+      - name: Deploy (second attempt)
+        id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
+        run: echo "second" >> "$RUNNER_TEMP/trace"
+      - name: Verify the public homepage match details
+        env:
+          FIRST_OUTCOME: ${{ steps.deployment.outcome }}
+          SECOND_OUTCOME: ${{ steps.deployment_retry.outcome }}
+          PAGE_URL: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
+        run: |
+          echo "VALUES first_outcome=$FIRST_OUTCOME second_outcome=$SECOND_OUTCOME url=$PAGE_URL trace_exists=$([ -e "$RUNNER_TEMP/trace" ] && echo yes || echo no)"
+          if [ "$FIRST_OUTCOME" = success ] && [ "$SECOND_OUTCOME" = skipped ] \
+             && [ "$PAGE_URL" = "https://example.test/first" ] && [ ! -e "$RUNNER_TEMP/trace" ]; then
+            echo "VERDICT PASS first-attempt-succeeds: neither the pause nor the second attempt ran"
+          else
+            echo "VERDICT MISMATCH first-attempt-succeeds"
+          fi
