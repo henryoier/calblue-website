@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-22T04:26:18.752707+00:00",
+  "updatedAt": "2026-10-05T06:13:48.411097+00:00",
   "competitions": {
     "swpl": {
       "sourceUrl": "https://pacific.swplsoccer.com/teams/calblue-fc",
@@ -179,6 +179,13 @@
           "position": "Forward",
           "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16434/securefiles/1789628981_hs.jpg",
           "profile": "https://pacific.swplsoccer.com/roster/runfeng--xiong"
+        },
+        {
+          "name": "Owen Niu",
+          "number": "",
+          "position": "Forward",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16678/securefiles/1790536998_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/owen-niu"
         }
       ]
     },
@@ -192,6 +199,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/11/1122_RHqXPbJEGI.jpg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1122",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/11/1122_RHqXPbJEGI.jpg",
             "https://nccsf.org/en/img/player/photo/11/thumb-1122.jpg"
@@ -203,6 +211,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/11/1137_DFksXPmwEo.jpg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1137",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/11/1137_DFksXPmwEo.jpg",
             "https://nccsf.org/en/img/player/photo/11/thumb-1137.jpg"
@@ -214,6 +223,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/11/1145_Gf3eMncAkx.jpg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1145",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/11/1145_Gf3eMncAkx.jpg",
             "https://nccsf.org/en/img/player/photo/11/thumb-1145.jpg"
@@ -224,7 +234,8 @@
           "number": "",
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/12/thumb-1221.jpg",
-          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1221"
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1221",
+          "registeredOn": "2026-09-09"
         },
         {
           "name": "Sheng Qin",
@@ -232,6 +243,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/18/1838_uvktNqDInA.jpg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1838",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/18/1838_uvktNqDInA.jpg",
             "https://nccsf.org/en/img/player/photo/18/thumb-1838.jpg"
@@ -243,6 +255,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/20/2063_QeZNtb1TqD.jpg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=2063",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/20/2063_QeZNtb1TqD.jpg",
             "https://nccsf.org/en/img/player/photo/20/thumb-2063.jpg"
@@ -254,6 +267,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/20/2072_yDI1H7RUNc.jpg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=2072",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/20/2072_yDI1H7RUNc.jpg",
             "https://nccsf.org/en/img/player/photo/20/thumb-2072.jpg"
@@ -265,6 +279,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/23/2397_c6zMhOImfL.jpg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=2397",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/23/2397_c6zMhOImfL.jpg",
             "https://nccsf.org/en/img/player/photo/23/thumb-2397.jpg"
@@ -276,6 +291,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/25/2544_StNoMrzCk6.jpg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=2544",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/25/2544_StNoMrzCk6.jpg",
             "https://nccsf.org/en/img/player/photo/25/thumb-2544.jpg"
@@ -287,6 +303,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/27/2763_zkS1Dj4HnO.jpg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=2763",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/27/2763_zkS1Dj4HnO.jpg",
             "https://nccsf.org/en/img/player/photo/27/thumb-2763.jpg"
@@ -298,6 +315,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/211/21105_zOd9fD6FgX.jpeg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21105",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/211/21105_zOd9fD6FgX.jpeg",
             "https://nccsf.org/en/img/player/photo/211/thumb-21105.jpeg"
@@ -309,6 +327,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/211/21125_oqkIGzgK3r.jpg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21125",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/211/21125_oqkIGzgK3r.jpg",
             "https://nccsf.org/en/img/player/photo/211/thumb-21125.jpg"
@@ -320,6 +339,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/211/21181_wMa3Sdpm7e.jpeg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21181",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/211/21181_wMa3Sdpm7e.jpeg",
             "https://nccsf.org/en/img/player/photo/211/thumb-21181.jpeg"
@@ -331,6 +351,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/213/21320_18DSPNcbJg.jpg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21320",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/213/21320_18DSPNcbJg.jpg",
             "https://nccsf.org/en/img/player/photo/213/thumb-21320.jpg"
@@ -342,6 +363,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/215/21576_1lgHfzZJIM.jpeg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21576",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/215/21576_1lgHfzZJIM.jpeg",
             "https://nccsf.org/en/img/player/photo/215/thumb-21576.jpeg"
@@ -353,6 +375,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/215/21583_HiJcBMYOWT.jpeg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21583",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/215/21583_HiJcBMYOWT.jpeg",
             "https://nccsf.org/en/img/player/photo/215/thumb-21583.jpeg"
@@ -364,6 +387,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/216/21641_lcysaqTB4x.jpeg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21641",
+          "registeredOn": "2026-09-04",
           "photos": [
             "https://nccsf.org/en/img/player/photo/216/21641_lcysaqTB4x.jpeg",
             "https://nccsf.org/en/img/player/photo/216/thumb-21641.jpeg"
@@ -375,6 +399,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/216/21694_Yp4tVlOH8U.jpeg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21694",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/216/21694_Yp4tVlOH8U.jpeg",
             "https://nccsf.org/en/img/player/photo/216/thumb-21694.jpeg"
@@ -386,6 +411,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/217/21714_mVWRfoOavG.jpg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21714",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/217/21714_mVWRfoOavG.jpg",
             "https://nccsf.org/en/img/player/photo/217/thumb-21714.jpg"
@@ -397,6 +423,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/217/21756_UzP7CrvlAZ.jpeg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21756",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/217/21756_UzP7CrvlAZ.jpeg",
             "https://nccsf.org/en/img/player/photo/217/thumb-21756.jpeg"
@@ -408,6 +435,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/217/21799_HY0ZX31IVk.jpeg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21799",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/217/21799_HY0ZX31IVk.jpeg",
             "https://nccsf.org/en/img/player/photo/217/thumb-21799.jpeg"
@@ -419,6 +447,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/218/21830_4KQNPMOFHf.jpeg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21830",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/218/21830_4KQNPMOFHf.jpeg",
             "https://nccsf.org/en/img/player/photo/218/thumb-21830.jpeg"
@@ -430,6 +459,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/219/21942_eKUB92fONy.jpeg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21942",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/219/21942_eKUB92fONy.jpeg",
             "https://nccsf.org/en/img/player/photo/219/thumb-21942.jpeg"
@@ -441,20 +471,10 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/219/21948_0Jc3gzq7Ht.jpeg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=21948",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/219/21948_0Jc3gzq7Ht.jpeg",
             "https://nccsf.org/en/img/player/photo/219/thumb-21948.jpeg"
-          ]
-        },
-        {
-          "name": "Yue Ning Lim",
-          "number": "",
-          "position": "",
-          "photo": "https://nccsf.org/en/img/player/photo/220/22025_VlIMor1hOg.jpg",
-          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22025",
-          "photos": [
-            "https://nccsf.org/en/img/player/photo/220/22025_VlIMor1hOg.jpg",
-            "https://nccsf.org/en/img/player/photo/220/thumb-22025.jpg"
           ]
         },
         {
@@ -463,6 +483,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/220/22086_EtqSzkGLfJ.jpeg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22086",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/220/22086_EtqSzkGLfJ.jpeg",
             "https://nccsf.org/en/img/player/photo/220/thumb-22086.jpeg"
@@ -474,6 +495,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/220/22087_57Rrjcgv4G.jpeg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22087",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/220/22087_57Rrjcgv4G.jpeg",
             "https://nccsf.org/en/img/player/photo/220/thumb-22087.jpeg"
@@ -485,6 +507,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/221/22194_OsV8FZDn05.jpeg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22194",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/221/22194_OsV8FZDn05.jpeg",
             "https://nccsf.org/en/img/player/photo/221/thumb-22194.jpeg"
@@ -495,7 +518,8 @@
           "number": "",
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/222/thumb-22210.jpeg",
-          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22210"
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22210",
+          "registeredOn": "2026-09-12"
         },
         {
           "name": "Yujie Miao",
@@ -503,6 +527,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/223/22361_84mOgYWkhD.png",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22361",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/223/22361_84mOgYWkhD.png",
             "https://nccsf.org/en/img/player/photo/223/thumb-22361.png"
@@ -514,6 +539,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/223/22382_DE9XfVzPJh.jpeg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22382",
+          "registeredOn": "2026-07-17",
           "photos": [
             "https://nccsf.org/en/img/player/photo/223/22382_DE9XfVzPJh.jpeg",
             "https://nccsf.org/en/img/player/photo/223/thumb-22382.jpeg"
@@ -525,6 +551,7 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/224/22494_kFEj7yL1R6.jpeg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22494",
+          "registeredOn": "2026-09-07",
           "photos": [
             "https://nccsf.org/en/img/player/photo/224/22494_kFEj7yL1R6.jpeg",
             "https://nccsf.org/en/img/player/photo/224/thumb-22494.jpeg"
@@ -536,10 +563,35 @@
           "position": "",
           "photo": "https://nccsf.org/en/img/player/photo/224/22495_Zjn9QXNDsg.jpeg",
           "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22495",
+          "registeredOn": "2026-09-07",
           "photos": [
             "https://nccsf.org/en/img/player/photo/224/22495_Zjn9QXNDsg.jpeg",
             "https://nccsf.org/en/img/player/photo/224/thumb-22495.jpeg"
           ]
+        },
+        {
+          "name": "Owen Niu",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/225/thumb-22523.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22523",
+          "registeredOn": "2026-09-24"
+        },
+        {
+          "name": "Runfeng Xiong",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/225/thumb-22526.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22526",
+          "registeredOn": "2026-09-25"
+        },
+        {
+          "name": "Mervin Khoo",
+          "number": "",
+          "position": "",
+          "photo": "https://nccsf.org/en/img/player/photo/225/thumb-22530.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22530",
+          "registeredOn": "2026-10-01"
         }
       ]
     }

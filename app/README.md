@@ -107,14 +107,17 @@ python3 scripts/check_no_build.py
 python3 scripts/check_secrets.py
 python3 scripts/run_js_tests.py
 python3 scripts/run_async_js_tests.py  # JavaScriptCore on macOS, existing Node in CI
+python3 scripts/run_browser_tests.py   # the DOM suites in an installed Chrome or Chromium, headless
 osascript -l JavaScript scripts/run_session_tests.jxa.js  # macOS, existing JavaScriptCore
 python3 -m unittest discover -s tests -v
 python3 scripts/check_site.py
 ```
 
 Run these from the repository root. The JavaScript logic runner uses an existing Node executable
-or macOS `osascript`; no package installation is needed. For the separate DOM tests, serve the
-repository and open `http://localhost:8080/app/tests/`. Passing logic tests alone does not verify
+or macOS `osascript`; no package installation is needed. For the separate DOM tests, run
+`scripts/run_browser_tests.py`, which serves the repository on a local port and reads the test page
+in an installed Chrome or Chromium without opening a window (CI runs it on every pull request); or
+serve the repository and open `http://localhost:8080/app/tests/`. Passing logic tests alone does not verify
 browser parsing or module loading. The separate macOS async diagnostic runs SDK/session doubles
 in JavaScriptCore, not a browser. The site check validates local module references and reachability,
 not JavaScript exports, execution, CDN availability or database authorization.

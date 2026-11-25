@@ -120,4 +120,28 @@
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://calbluefc.com/gallery-swpl-albion-sc-silicon-valley.html</loc>
+    <lastmod>2026-10-04</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://calbluefc.com/gallery-swpl-south-san-francisco-ac.html</loc>
+    <lastmod>2026-11-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://calbluefc.com/gallery-nccsf-hunters.html</loc>
+    <lastmod>2026-11-09</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://calbluefc.com/gallery-swpl-legends-sc.html</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>
