@@ -23,17 +23,19 @@ jobs:
       - name: Install the Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: latest
+          # Pinned so the Postgres and Auth images do not change under a pull request. This release
+          # starts supabase/postgres 17.12 and supabase/gotrue 2.198. Raise it on purpose, in its own PR.
+          version: 3.4.0
       - name: Start a throwaway local database (Postgres and Auth only)
         run: |
-          supabase --version
-          psql --version
           mkdir -p "$RUNNER_TEMP/scratch" && cd "$RUNNER_TEMP/scratch"
           supabase init </dev/null
-          supabase start --help | sed -n '/exclude/,+2p'
-          supabase start -x studio,imgproxy,realtime,storage-api,edge-runtime,logflare,vector,postgres-meta,supavisor,mailpit,postgrest,kong
-          supabase status || true
-          psql "$SCRATCH_DB" -X -A -t -c "select version()" -c "select 'auth tables: ' || string_agg(tablename, ', ' order by tablename) from pg_tables where schemaname = 'auth'" -c "select 'current_user ' || current_user || ', superuser ' || current_setting('is_superuser')"
+          # The start report prints the local stack's built-in default keys; keep them out of the log.
+          supabase start -x studio,imgproxy,realtime,storage-api,edge-runtime,logflare,vector,postgres-meta,supavisor,mailpit,postgrest,kong \
+            > start.log 2>&1 || { grep -v -E 'Publishable|Secret' start.log; exit 1; }
+          grep -E 'Pulling from' start.log || true
+          echo "Supabase CLI $(supabase --version), $(psql --version)"
+          psql "$SCRATCH_DB" -X -A -t -c "select version()" -c "select 'connected as ' || current_user || ', superuser ' || current_setting('is_superuser')"
       - name: Apply each migration to the empty database and run its checks
         run: python3 scripts/run_db_tests.py smoke --db-url "$SCRATCH_DB"
       - name: Start again from an empty database
