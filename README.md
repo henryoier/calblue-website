@@ -27,6 +27,15 @@ Validate the site before publishing:
 python3 scripts/check_site.py
 ```
 
+## Supabase daily activity
+
+The separate **Supabase daily activity** workflow makes a small anonymous,
+read-only database request to both the website and verification-test projects
+daily at 16:23 UTC after merge to `main`. It changes no data or billing and is
+best-effort activity, not guaranteed prevention of free-plan pausing. See the
+[daily activity guide](supabase/daily-activity.md) for safety boundaries, manual
+runs, failure notifications and how to disable it.
+
 ## Club news feed
 
 The homepage "Latest" section and `news.html` render `data/news.json`, which `scripts/build_news.py` assembles from sources already in the repository, newest first:
@@ -41,6 +50,8 @@ The homepage "Latest" section and `news.html` render `data/news.json`, which `sc
 The deploy workflow rebuilds the feed after the schedule syncs, so results appear within the six-hour cycle. After editing posts locally run `python3 scripts/build_news.py`; `tests/test_build_news.py` fails when the committed feed is stale.
 
 Instagram does not serve posts to anonymous readers, so `scripts/sync_instagram.py` needs credentials. The deploy workflow runs it on every deployment when the `IG_ACCESS_TOKEN` repository secret is set (an Instagram API token for the club's professional account, valid for 60 days), and falls back to the committed `data/instagram.json` when the secret is missing or the API call fails. A maintainer can also run it locally and commit the output. It accepts an Instagram API access token for the club account (`--token`), a saved API response (`--source-file`), or a list of public post URLs (`--post-urls`, one per line, using Instagram's public embed page for each post). It stores only caption, permalink, timestamp and one image per post under `assets/news/instagram/`.
+
+That token lasts 60 days. `.github/workflows/instagram-token-refresh.yml` runs `scripts/refresh_instagram_token.py` every Sunday and Wednesday (and on demand) to extend it by another 60 days while it is still valid, so it does not need replacing on a calendar. The run fails when Instagram refuses the token, for example after a password change, after the app's access is removed, or once the token has expired; a failed run means a maintainer has to generate a new token in the Meta App Dashboard and paste it into the `IG_ACCESS_TOKEN` secret. A token pasted less than 24 hours earlier cannot be refreshed yet, so one failed run right after replacing it is expected. If Instagram ever answers a refresh with a different token string, the workflow stores it when a `SECRETS_WRITE_TOKEN` secret exists (a token allowed to write this repository's Actions secrets) and otherwise fails with instructions.
 
 ## Match-day posters
 

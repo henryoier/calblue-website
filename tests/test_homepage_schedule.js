@@ -64,6 +64,8 @@ const fixture = (id, date, extra = {}) => ({
 const feeds = {
   'data/swpl.json': { fixtures: [
     fixture('home-cup', '2099-01-03'),
+    fixture('cancelled', '2098-12-30', { status: 'cancelled' }),
+    fixture('completed', '2098-12-31', { status: 'completed' }),
     fixture('past', '2020-01-01'),
     fixture('away-cup', '2099-01-02', { home: opponent, away: calblue }),
     fixture('next-cup', '2099-01-01', { home: opponent, away: calblue }),
@@ -84,7 +86,7 @@ const Promise = {
 };
 eval(read('swpl-schedule.js'));
 
-assert(schedule.querySelector('[data-match-date]').dateTime === '2099-01-01', 'Select the earliest upcoming fixture across unordered feeds and ignore elapsed dates');
+assert(schedule.querySelector('[data-match-date]').dateTime === '2099-01-01', 'Select the earliest upcoming fixture across unordered feeds and ignore elapsed, completed and cancelled dates');
 assert(schedule.querySelector('[data-next-match]').className.includes('is-cup'), 'Next named Cup fixture retains Cup styling');
 assert(schedule.querySelector('[data-team-home]').querySelector('[data-team-name]').textContent === opponent.name, 'Next Cup fixture shows the actual home opponent');
 assert(schedule.querySelector('[data-team-home]').querySelector('[data-team-crest]').src === opponent.logo, 'Next Cup fixture retains the official opponent crest');

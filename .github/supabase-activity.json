@@ -1,0 +1,14 @@
+{
+  "projects": [
+    {
+      "label": "website",
+      "ref": "rmksoklavpoartewjvus",
+      "publishable_key": "sb_publishable_E6Nev6Kb2-8WF5YC0ZNJkA_2reaQUvU"
+    },
+    {
+      "label": "verification-test",
+      "ref": "njsprzewuxmrfpgwktmf",
+      "publishable_key": "sb_publishable_4IS7fcUXIGyKPax9JrDjSw_Q92xbok8"
+    }
+  ]
+}

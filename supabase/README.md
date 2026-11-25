@@ -37,7 +37,7 @@ with 0002. **Do not rerun 0001.** Its core-only smoke scripts belong before 0002
 guards deliberately change the later runtime behavior, including the isolation error message.
 
 Issue #25 added the **core schema file and its checks**, not a live database deployment or a
-member-facing feature. Nothing in GitHub Actions applies SQL to Supabase. The public website
+member-facing feature. Nothing in GitHub Actions applies SQL to a hosted Supabase project. The public website
 and `/app/` placeholder remain unchanged.
 
 ## What migration 0001 installs
@@ -169,4 +169,23 @@ merged and issue #25 closed. This is user-reported verification, not a database 
 agent. The owner also confirmed all three money files before PR #80 merged and issue #26 closed.
 The owner also confirmed all three RLS files before PR #81 merged and issue #27 closed. The owner
 confirmed seed application, verification, rerun and matching fingerprints before PR #82 merged
-and issue #28 closed. CI remains offline with respect to Supabase; app-shell testing needs no SQL.
+and issue #28 closed. CI never contacts a hosted Supabase project; its database check, described
+below, uses a throwaway local database inside the runner. App-shell testing needs no SQL.
+
+## Automated database check
+
+`.github/workflows/check-database.yml` runs on every pull request. Inside its runner it starts a
+local Supabase database with the Supabase CLI and then runs `scripts/run_db_tests.py` twice:
+
+- `smoke` applies each migration to the empty database and, straight after it, runs that
+  migration's scripts from `tests/`. Each script must finish without an error, announce that it
+  rolls back and leave no account behind. A migration without a script fails the check.
+- `seed` starts from an empty database again, applies the migrations the seed was written for,
+  checks that `seed.sql` as committed is refused, runs it with the opt-in line enabled, verifies,
+  runs it again and requires the same fingerprint. It then applies the later migrations over that
+  data.
+
+The runner refuses any address that is not on its own machine. This is execution on a local stack
+with the Postgres build and Auth schema that Supabase publishes, not on the club's projects. It
+does not replace applying a migration to the scratch project and then to production, and it does
+not test browser Auth, the API gateway or two sessions racing each other.

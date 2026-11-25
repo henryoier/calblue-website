@@ -1,20 +1,482 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-21T21:26:18-07:00",
-  "today": "2026-09-21",
+  "generatedAt": "2026-11-24T17:39:21-08:00",
+  "today": "2026-11-24",
+  "asOf": "2026-11-24T17:39:20-08:00",
   "items": [
     {
-      "id": "matchday-2026-10-03-albion-sc-silicon-valley",
-      "slug": "matchday-2026-10-03-albion-sc-silicon-valley",
+      "id": "matchday-2026-12-06-afghan-premier-fc",
+      "slug": "matchday-2026-12-06-afghan-premier-fc",
       "category": "Match day",
-      "date": "2026-10-03",
-      "title": "Match day: Albion SC Silicon Valley vs CalBlue FC",
-      "summary": "Saturday, October 3 · 8:00 pm PT · Red Morton Park - Bechet Field",
-      "image": "assets/matchday/2026-fall/2026-10-03-albion-sc-silicon-valley-styled.webp",
-      "imageAlt": "Match-day poster: CalBlue FC vs Albion SC Silicon Valley",
+      "date": "2026-12-06",
+      "title": "Match day: Afghan Premier FC vs CalBlue FC",
+      "summary": "Sunday, December 6 · 6:30 pm PT · Fallon Sports Park Field #2",
+      "image": "assets/matchday/2026-fall/2026-12-06-afghan-premier-fc-styled-v2.webp",
+      "imageAlt": "Match-day poster: CalBlue FC vs Afghan Premier FC",
       "href": "index.html#matchday",
       "cta": "See the poster",
       "poster": true
+    },
+    {
+      "id": "result-2026-11-22-south-san-francisco-ac",
+      "slug": "result-2026-11-22-south-san-francisco-ac",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-11-22",
+      "title": "CalBlue 3-2 South San Francisco AC",
+      "summary": "Win · Home · Abronzino Cup · Fair Oaks Park Field 3",
+      "image": "",
+      "imageAlt": "CalBlue FC against South San Francisco AC",
+      "scoreline": {
+        "home": {
+          "name": "CalBlue FC",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "away": {
+          "name": "South San Francisco AC",
+          "logo": "https://nisa.sportzstudio.com/team_images/1663784092_thumb_a.png"
+        },
+        "score": {
+          "home": 3,
+          "away": 2
+        }
+      },
+      "href": "competition-swpl.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "gallery-2026-11-14-legends-sc",
+      "slug": "gallery-2026-11-14-legends-sc",
+      "category": "Gallery",
+      "date": "2026-11-14",
+      "title": "Photos: CalBlue vs Legends SC",
+      "summary": "159 photos · 2026 SWPL Pacific Premier League · Home match",
+      "image": "https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/swpl-legends-sc/thumb/027.jpg",
+      "imageAlt": "CalBlue squad lined up before the SWPL home match against Legends SC",
+      "href": "gallery-swpl-legends-sc.html",
+      "cta": "Open the album"
+    },
+    {
+      "id": "result-2026-11-08-south-san-francisco-ac",
+      "slug": "result-2026-11-08-south-san-francisco-ac",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-11-08",
+      "title": "CalBlue 3-2 South San Francisco AC",
+      "summary": "Win · Away · SWPL Pacific Premier League · El Camino High School Stadium",
+      "image": "",
+      "imageAlt": "CalBlue FC against South San Francisco AC",
+      "scoreline": {
+        "home": {
+          "name": "South San Francisco AC",
+          "logo": "https://nisa.sportzstudio.com/team_images/1663784092_thumb_a.png"
+        },
+        "away": {
+          "name": "CalBlue FC",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "score": {
+          "home": 2,
+          "away": 3
+        }
+      },
+      "href": "gallery-swpl-south-san-francisco-ac.html",
+      "cta": "See the photos"
+    },
+    {
+      "id": "result-2026-11-08-hunters",
+      "slug": "result-2026-11-08-hunters",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-11-08",
+      "title": "CalBlue 4-2 Hunters",
+      "summary": "Win · Home · 2026 NCCSF Fall League · Newark Right",
+      "image": "",
+      "imageAlt": "CalBlue FC against Hunters",
+      "scoreline": {
+        "home": {
+          "name": "CalBlue",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "away": {
+          "name": "Hunters",
+          "logo": "https://nccsf.org/en/img/team/logo/626.png"
+        },
+        "score": {
+          "home": 4,
+          "away": 2
+        }
+      },
+      "href": "gallery-nccsf-hunters.html",
+      "cta": "See the photos"
+    },
+    {
+      "id": "gallery-2026-11-08-south-san-francisco-ac",
+      "slug": "gallery-2026-11-08-south-san-francisco-ac",
+      "category": "Gallery",
+      "date": "2026-11-08",
+      "title": "Photos: CalBlue vs South San Francisco AC",
+      "summary": "301 photos · 2026 SWPL Pacific Premier League · Away match",
+      "image": "https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/swpl-south-san-francisco-ac/thumb/257.jpg",
+      "imageAlt": "CalBlue teammates on the pitch during the November 8 SWPL away match at South San Francisco AC",
+      "href": "gallery-swpl-south-san-francisco-ac.html",
+      "cta": "Open the album"
+    },
+    {
+      "id": "gallery-2026-11-08-hunters",
+      "slug": "gallery-2026-11-08-hunters",
+      "category": "Gallery",
+      "date": "2026-11-08",
+      "title": "Photos: CalBlue vs Hunters",
+      "summary": "69 photos · 2026 NCCSF Fall League · Home match",
+      "image": "https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/nccsf-hunters/thumb/039.jpg",
+      "imageAlt": "CalBlue's number 10 shoots between two Hunters defenders under the lights at Newark",
+      "href": "gallery-nccsf-hunters.html",
+      "cta": "Open the album"
+    },
+    {
+      "id": "result-2026-11-01-jsc-jasa",
+      "slug": "result-2026-11-01-jsc-jasa",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-11-01",
+      "title": "CalBlue 3-2 JSC JASA",
+      "summary": "Win · Away · SWPL Pacific Premier League · Red Morton Park - 49er Field",
+      "image": "",
+      "imageAlt": "CalBlue FC against JSC JASA",
+      "scoreline": {
+        "home": {
+          "name": "JSC JASA",
+          "logo": "https://nisa.sportzstudio.com/team_images/1758051912_thumb_a.png"
+        },
+        "away": {
+          "name": "CalBlue FC",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "score": {
+          "home": 2,
+          "away": 3
+        }
+      },
+      "href": "competition-swpl.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "result-2026-10-31-ebu-rangers",
+      "slug": "result-2026-10-31-ebu-rangers",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-10-31",
+      "title": "CalBlue 3-0 EBU Rangers",
+      "summary": "Win · Away · 2026 NCCSF Fall League · Newark Right",
+      "image": "",
+      "imageAlt": "CalBlue FC against EBU Rangers",
+      "scoreline": {
+        "home": {
+          "name": "EBU Rangers",
+          "logo": "https://nccsf.org/en/img/team/logo/622.jpeg"
+        },
+        "away": {
+          "name": "CalBlue",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "score": {
+          "home": 0,
+          "away": 3
+        }
+      },
+      "href": "competition-nccsf.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "result-2026-10-25-jsc-jasa",
+      "slug": "result-2026-10-25-jsc-jasa",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-10-25",
+      "title": "CalBlue 2-1 JSC JASA",
+      "summary": "Win · Away · Abronzino Cup · Red Morton Park - Bechet Field",
+      "image": "",
+      "imageAlt": "CalBlue FC against JSC JASA",
+      "scoreline": {
+        "home": {
+          "name": "JSC JASA",
+          "logo": "https://nisa.sportzstudio.com/team_images/1758051912_thumb_a.png"
+        },
+        "away": {
+          "name": "CalBlue FC",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "score": {
+          "home": 1,
+          "away": 2
+        }
+      },
+      "href": "competition-swpl.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "result-2026-10-24-jtu",
+      "slug": "result-2026-10-24-jtu",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-10-24",
+      "title": "CalBlue 1-0 JTU",
+      "summary": "Win · Home · 2026 NCCSF Fall League · Nordvik Park",
+      "image": "",
+      "imageAlt": "CalBlue FC against JTU",
+      "scoreline": {
+        "home": {
+          "name": "CalBlue",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "away": {
+          "name": "JTU",
+          "logo": "https://nccsf.org/en/img/team/logo/633.png"
+        },
+        "score": {
+          "home": 1,
+          "away": 0
+        }
+      },
+      "href": "competition-nccsf.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "result-2026-10-18-pp-united",
+      "slug": "result-2026-10-18-pp-united",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-10-18",
+      "title": "CalBlue 4-0 PP United",
+      "summary": "Win · Home · 2026 NCCSF Fall League · Newark Left",
+      "image": "",
+      "imageAlt": "CalBlue FC against PP United",
+      "scoreline": {
+        "home": {
+          "name": "CalBlue",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "away": {
+          "name": "PP United",
+          "logo": "https://nccsf.org/en/img/team/logo/632.png"
+        },
+        "score": {
+          "home": 4,
+          "away": 0
+        }
+      },
+      "href": "competition-nccsf.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "result-2026-10-11-overpower",
+      "slug": "result-2026-10-11-overpower",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-10-11",
+      "title": "CalBlue 9-1 OverPower",
+      "summary": "Win · Away · 2026 NCCSF Fall League · Nordvik Park",
+      "image": "",
+      "imageAlt": "CalBlue FC against OverPower",
+      "scoreline": {
+        "home": {
+          "name": "OverPower",
+          "logo": "https://nccsf.org/en/img/team/logo/628.png"
+        },
+        "away": {
+          "name": "CalBlue",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "score": {
+          "home": 1,
+          "away": 9
+        }
+      },
+      "href": "competition-nccsf.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "result-2026-10-10-in-motion-fc",
+      "slug": "result-2026-10-10-in-motion-fc",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-10-10",
+      "title": "CalBlue 3-1 In Motion FC",
+      "summary": "Win · Home · SWPL Pacific Premier League · Fair Oaks Park Field 3",
+      "image": "",
+      "imageAlt": "CalBlue FC against In Motion FC",
+      "scoreline": {
+        "home": {
+          "name": "CalBlue FC",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "away": {
+          "name": "In Motion FC",
+          "logo": "https://nisa.sportzstudio.com/team_images/1725643596_thumb_a.png"
+        },
+        "score": {
+          "home": 3,
+          "away": 1
+        }
+      },
+      "href": "competition-swpl.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "result-2026-10-04-gsf-locomotive",
+      "slug": "result-2026-10-04-gsf-locomotive",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-10-04",
+      "title": "CalBlue 4-0 GSF-Locomotive",
+      "summary": "Win · Home · 2026 NCCSF Fall League · Nordvik Park",
+      "image": "",
+      "imageAlt": "CalBlue FC against GSF-Locomotive",
+      "scoreline": {
+        "home": {
+          "name": "CalBlue",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "away": {
+          "name": "GSF-Locomotive",
+          "logo": "https://nccsf.org/en/img/team/logo/624.jpeg"
+        },
+        "score": {
+          "home": 4,
+          "away": 0
+        }
+      },
+      "href": "competition-nccsf.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "gallery-2026-10-03-albion-sc-silicon-valley",
+      "slug": "gallery-2026-10-03-albion-sc-silicon-valley",
+      "category": "Gallery",
+      "date": "2026-10-03",
+      "title": "Photos: CalBlue vs Albion SC Silicon Valley",
+      "summary": "301 photos · 2026 SWPL Pacific Premier League · Away match",
+      "image": "https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/swpl-albion-sc-silicon-valley/thumb/054.jpg",
+      "imageAlt": "CalBlue squad lined up before the SWPL away match at Albion SC Silicon Valley",
+      "href": "gallery-swpl-albion-sc-silicon-valley.html",
+      "cta": "Open the album"
+    },
+    {
+      "id": "squad-week-2026-10-02-swpl",
+      "slug": "squad-week-2026-10-02-swpl",
+      "category": "Squad",
+      "date": "2026-10-02",
+      "title": "1 new face on the SWPL roster this week",
+      "summary": "Welcome Owen Niu, now registered for the SWPL Pacific Premier League.",
+      "image": "https://cdn.sportzstudio.com/nisa/playeruploads/16678/securefiles/1790536998_hs.jpg",
+      "imageAlt": "Owen Niu, newly registered with CalBlue FC",
+      "href": "competition-swpl.html#roster",
+      "cta": "Meet the squad",
+      "players": [
+        {
+          "name": "Owen Niu",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16678/securefiles/1790536998_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/owen-niu"
+        }
+      ]
+    },
+    {
+      "id": "squad-week-2026-10-02-nccsf",
+      "slug": "squad-week-2026-10-02-nccsf",
+      "category": "Squad",
+      "date": "2026-10-02",
+      "title": "1 new face on the NCCSF roster this week",
+      "summary": "Welcome Mervin Khoo, now registered for the NCCSF Fall League.",
+      "image": "https://nccsf.org/en/img/player/photo/225/thumb-22530.jpeg",
+      "imageAlt": "Mervin Khoo, newly registered with CalBlue FC",
+      "href": "competition-nccsf.html#roster",
+      "cta": "Meet the squad",
+      "players": [
+        {
+          "name": "Mervin Khoo",
+          "photo": "https://nccsf.org/en/img/player/photo/225/thumb-22530.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22530"
+        }
+      ]
+    },
+    {
+      "id": "result-2026-09-26-hehefc",
+      "slug": "result-2026-09-26-hehefc",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-09-26",
+      "title": "CalBlue 4-0 HeHeFC",
+      "summary": "Win · Home · 2026 NCCSF Fall League · Newark Right",
+      "image": "",
+      "imageAlt": "CalBlue FC against HeHeFC",
+      "scoreline": {
+        "home": {
+          "name": "CalBlue",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "away": {
+          "name": "HeHeFC",
+          "logo": "https://nccsf.org/en/img/team/logo/625.png"
+        },
+        "score": {
+          "home": 4,
+          "away": 0
+        }
+      },
+      "href": "competition-nccsf.html",
+      "cta": "Full results and table"
+    },
+    {
+      "id": "squad-week-2026-09-25-nccsf",
+      "slug": "squad-week-2026-09-25-nccsf",
+      "category": "Squad",
+      "date": "2026-09-25",
+      "title": "2 new faces on the NCCSF roster this week",
+      "summary": "Welcome Owen Niu and Runfeng Xiong, now registered for the NCCSF Fall League.",
+      "image": "https://nccsf.org/en/img/player/photo/225/thumb-22523.jpeg",
+      "imageAlt": "Owen Niu, newly registered with CalBlue FC",
+      "href": "competition-nccsf.html#roster",
+      "cta": "Meet the squad",
+      "players": [
+        {
+          "name": "Owen Niu",
+          "photo": "https://nccsf.org/en/img/player/photo/225/thumb-22523.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22523"
+        },
+        {
+          "name": "Runfeng Xiong",
+          "photo": "https://nccsf.org/en/img/player/photo/225/thumb-22526.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22526"
+        }
+      ]
+    },
+    {
+      "id": "result-2026-09-20-thu-west",
+      "slug": "result-2026-09-20-thu-west",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-09-20",
+      "title": "CalBlue 2-1 THU West",
+      "summary": "Win · Away · 2026 NCCSF Fall League · Nordvik Park",
+      "image": "",
+      "imageAlt": "CalBlue FC against THU West",
+      "scoreline": {
+        "home": {
+          "name": "THU West",
+          "logo": "https://nccsf.org/en/img/team/logo/630.jpeg"
+        },
+        "away": {
+          "name": "CalBlue",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "score": {
+          "home": 1,
+          "away": 2
+        }
+      },
+      "href": "competition-nccsf.html",
+      "cta": "Full results and table"
     },
     {
       "id": "gallery-2026-09-19-bay-area-united",
@@ -29,21 +491,50 @@
       "cta": "Open the album"
     },
     {
-      "id": "squad-2026-09-17-swpl",
-      "slug": "squad-2026-09-17-swpl",
+      "id": "squad-week-2026-09-18-swpl",
+      "slug": "squad-week-2026-09-18-swpl",
       "category": "Squad",
-      "date": "2026-09-17",
-      "title": "1 new face on the SWPL roster",
-      "summary": "Welcome Runfeng Xiong, now registered for the SWPL Pacific Premier League.",
-      "image": "https://cdn.sportzstudio.com/nisa/playeruploads/16434/securefiles/1789628981_hs.jpg",
-      "imageAlt": "Runfeng Xiong, newly registered with CalBlue FC",
+      "date": "2026-09-18",
+      "title": "3 new faces on the SWPL roster this week",
+      "summary": "Welcome Mingxuan Zhao, Zheng Chang and Runfeng Xiong, now registered for the SWPL Pacific Premier League.",
+      "image": "https://cdn.sportzstudio.com/nisa/playeruploads/16290/securefiles/1789108698_hs.jpg",
+      "imageAlt": "Mingxuan Zhao, newly registered with CalBlue FC",
       "href": "competition-swpl.html#roster",
       "cta": "Meet the squad",
       "players": [
         {
+          "name": "Mingxuan Zhao",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16290/securefiles/1789108698_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/mingxuan--zhao"
+        },
+        {
+          "name": "Zheng Chang",
+          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16392/securefiles/1789582833_hs.jpg",
+          "profile": "https://pacific.swplsoccer.com/roster/zheng-chang"
+        },
+        {
           "name": "Runfeng Xiong",
           "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16434/securefiles/1789628981_hs.jpg",
           "profile": "https://pacific.swplsoccer.com/roster/runfeng--xiong"
+        }
+      ]
+    },
+    {
+      "id": "squad-week-2026-09-18-nccsf",
+      "slug": "squad-week-2026-09-18-nccsf",
+      "category": "Squad",
+      "date": "2026-09-18",
+      "title": "1 new face on the NCCSF roster this week",
+      "summary": "Welcome Jincheng Zhao, now registered for the NCCSF Fall League.",
+      "image": "https://nccsf.org/en/img/player/photo/222/thumb-22210.jpeg",
+      "imageAlt": "Jincheng Zhao, newly registered with CalBlue FC",
+      "href": "competition-nccsf.html#roster",
+      "cta": "Meet the squad",
+      "players": [
+        {
+          "name": "Jincheng Zhao",
+          "photo": "https://nccsf.org/en/img/player/photo/222/thumb-22210.jpeg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22210"
         }
       ]
     },
@@ -59,54 +550,6 @@
       "href": "https://www.instagram.com/p/DdYFCRVvBw0/",
       "external": true,
       "cta": "View on Instagram"
-    },
-    {
-      "id": "squad-2026-09-16-swpl",
-      "slug": "squad-2026-09-16-swpl",
-      "category": "Squad",
-      "date": "2026-09-16",
-      "title": "2 new faces on the SWPL roster",
-      "summary": "Welcome Mingxuan Zhao and Zheng Chang, now registered for the SWPL Pacific Premier League.",
-      "image": "https://cdn.sportzstudio.com/nisa/playeruploads/16290/securefiles/1789108698_hs.jpg",
-      "imageAlt": "Mingxuan Zhao, newly registered with CalBlue FC",
-      "href": "competition-swpl.html#roster",
-      "cta": "Meet the squad",
-      "players": [
-        {
-          "name": "Mingxuan Zhao",
-          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16290/securefiles/1789108698_hs.jpg",
-          "profile": "https://pacific.swplsoccer.com/roster/mingxuan--zhao"
-        },
-        {
-          "name": "Zheng Chang",
-          "photo": "https://cdn.sportzstudio.com/nisa/playeruploads/16392/securefiles/1789582833_hs.jpg",
-          "profile": "https://pacific.swplsoccer.com/roster/zheng-chang"
-        }
-      ]
-    },
-    {
-      "id": "squad-2026-09-16-nccsf",
-      "slug": "squad-2026-09-16-nccsf",
-      "category": "Squad",
-      "date": "2026-09-16",
-      "title": "2 new faces on the NCCSF roster",
-      "summary": "Welcome Jincheng Zhao and Lu Fang, now registered for the NCCSF Fall League.",
-      "image": "https://nccsf.org/en/img/player/photo/222/thumb-22210.jpeg",
-      "imageAlt": "Jincheng Zhao, newly registered with CalBlue FC",
-      "href": "competition-nccsf.html#roster",
-      "cta": "Meet the squad",
-      "players": [
-        {
-          "name": "Jincheng Zhao",
-          "photo": "https://nccsf.org/en/img/player/photo/222/thumb-22210.jpeg",
-          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=22210"
-        },
-        {
-          "name": "Lu Fang",
-          "photo": "https://nccsf.org/en/img/player/photo/12/thumb-1221.jpg",
-          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1221"
-        }
-      ]
     },
     {
       "id": "instagram-18110066171521550",
@@ -142,8 +585,8 @@
       "date": "2026-09-13",
       "title": "CalBlue 3-2 SF Glens",
       "summary": "Win · Home · SWPL Pacific Premier League · Central Park Soccer Field",
-      "image": "https://pub-b8191960f89b4ae5905ae36de27a508e.r2.dev/gallery/swpl-sf-glens/thumb/026.jpg",
-      "imageAlt": "CalBlue team before the SWPL season opener against SF Glens",
+      "image": "",
+      "imageAlt": "CalBlue FC against SF Glens",
       "scoreline": {
         "home": {
           "name": "CalBlue FC",
@@ -199,6 +642,25 @@
       },
       "href": "competition-nccsf.html",
       "cta": "Full results and table"
+    },
+    {
+      "id": "squad-week-2026-09-11-nccsf",
+      "slug": "squad-week-2026-09-11-nccsf",
+      "category": "Squad",
+      "date": "2026-09-11",
+      "title": "1 new face on the NCCSF roster this week",
+      "summary": "Welcome Lu Fang, now registered for the NCCSF Fall League.",
+      "image": "https://nccsf.org/en/img/player/photo/12/thumb-1221.jpg",
+      "imageAlt": "Lu Fang, newly registered with CalBlue FC",
+      "href": "competition-nccsf.html#roster",
+      "cta": "Meet the squad",
+      "players": [
+        {
+          "name": "Lu Fang",
+          "photo": "https://nccsf.org/en/img/player/photo/12/thumb-1221.jpg",
+          "profile": "https://nccsf.org/en/league/team?a=atpf&tid=621&pid=1221"
+        }
+      ]
     },
     {
       "id": "instagram-18071859719541266",
