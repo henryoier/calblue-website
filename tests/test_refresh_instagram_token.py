@@ -110,7 +110,8 @@ class MainTests(unittest.TestCase):
             self.assertEqual(target.read_text(), NEW)
             self.assertEqual(target.stat().st_mode & 0o777, 0o600)
         self.assertEqual(code, 0)
-        self.assertIn("Instagram issued a different token string", text)
+        self.assertEqual(text, "refresh_instagram_token: Instagram accepted the stored token and issued a different "
+                               "token string, valid for 60 days, until 2027-01-11.\n")
         self.assertNotIn(OLD, text)
         self.assertNotIn(NEW, text)
 
@@ -123,7 +124,9 @@ class MainTests(unittest.TestCase):
         self.assertEqual(code, 0)
         lines = text.splitlines()
         self.assertEqual(lines[0], f"::add-mask::{NEW}")
-        self.assertTrue(lines[1].startswith("::notice::Instagram token extended"))
+        self.assertEqual(lines[1], "::notice::Instagram accepted the stored token and issued a different token string, "
+                                   "valid for 60 days, until 2027-01-11.")
+        self.assertEqual(len(lines), 2)
         self.assertNotIn(NEW, "\n".join(lines[1:]))
         self.assertNotIn(OLD, text)
 
@@ -179,8 +182,11 @@ class WorkflowTests(unittest.TestCase):
         self.assertIn("if: steps.refresh.outputs.changed == 'true'", step)
         self.assertIn("GH_TOKEN: ${{ secrets.SECRETS_WRITE_TOKEN }}", step)
         self.assertIn('gh secret set IG_ACCESS_TOKEN --repo "$GITHUB_REPOSITORY" < "$RUNNER_TEMP/instagram-token"', step)
-        self.assertEqual(step.count('rm -f "$RUNNER_TEMP/instagram-token"'), 2)
-        self.assertIn("exit 1", step)
+        self.assertIn("trap 'rm -f \"$RUNNER_TEMP/instagram-token\"' EXIT", step)
+        # Having no write token is not a failure: the stored token stays in use.
+        # tests/test_instagram_token_refresh_workflow.py runs this step both ways.
+        self.assertNotIn("exit 1", step)
+        self.assertNotIn("::error::", step)
 
 
 if __name__ == "__main__":

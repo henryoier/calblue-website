@@ -11,6 +11,7 @@ The token comes from the environment, never from the command line, and is never 
 1 when Instagram refuses the refresh, so a dead token is a failed workflow rather than a warning inside
 a green deploy. If Instagram answers with a different token string, that string is written to
 --new-token-file for the workflow to store in the secret, and `changed=true` is set as a step output.
+The token it was called with stays valid in that case, so storing the new string is optional.
 """
 
 from __future__ import annotations
@@ -126,9 +127,12 @@ def main(argv=None, env=None, fetch=fetch_json, now=None, out=None) -> int:
             handle.write(f"changed={'true' if changed else 'false'}\n")
             handle.write(f"expires_at={expires_at:%Y-%m-%d}\n")
 
-    message = f"Instagram token extended: valid for {days:.0f} days, until {expires_at:%Y-%m-%d}."
     if changed:
-        message += " Instagram issued a different token string, which has to replace the IG_ACCESS_TOKEN secret."
+        # The stored string stays valid too: seen on 2026-11-25, when it kept working after such an answer.
+        message = ("Instagram accepted the stored token and issued a different token string, "
+                   f"valid for {days:.0f} days, until {expires_at:%Y-%m-%d}.")
+    else:
+        message = f"Instagram token extended: valid for {days:.0f} days, until {expires_at:%Y-%m-%d}."
     say("notice", message)
     if days < args.min_days:
         say("error", f"The refreshed token lasts only {days:.0f} days (expected about 60). {NEXT_STEP}")
