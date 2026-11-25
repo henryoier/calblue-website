@@ -30,6 +30,9 @@ jobs:
         run: python3 scripts/run_js_tests.py
       - name: Test Auth and session lifecycle doubles (existing Node, no packages)
         run: python3 scripts/run_async_js_tests.py
+      - name: Test the DOM suites in headless Chrome (the runner's own browser, no packages)
+        # --no-sandbox: hosted runners forbid the unprivileged user namespaces Chrome's sandbox needs.
+        run: python3 scripts/run_browser_tests.py --no-sandbox
       - name: Test Pages artifact visibility recovery
         run: node tests/test_pages_artifact_wait.js
       - name: Validate the public site
