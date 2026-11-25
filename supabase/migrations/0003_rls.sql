@@ -480,7 +480,7 @@ create trigger greg_auth_guard before insert or update on public.game_registrati
 
 -- Separate anonymous policies never invoke authenticated-only helper functions.
 create policy profiles_read on public.profiles for select to authenticated
-  using (true);
+  using (auth.uid() is not null and (id = auth.uid() or public.is_admin()));
 create policy profiles_update on public.profiles for update to authenticated
   using (auth.uid() is not null and (id = auth.uid() or public.is_admin()))
   with check (auth.uid() is not null and (id = auth.uid() or public.is_admin()));
