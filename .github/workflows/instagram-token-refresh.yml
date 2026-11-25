@@ -4,6 +4,8 @@ name: Refresh Instagram token
 # token lasts 60 days, and Instagram extends it by another 60 when it is refreshed while still valid.
 # This run does that twice a week. It fails when Instagram refuses the token (password changed, app
 # access removed, token expired): that is the signal to generate a new token and replace the secret.
+# Instagram may answer with a different token string. The stored one keeps working, so a run that
+# cannot store the new string still succeeds and says so in a notice.
 
 on:
   schedule:
@@ -37,15 +39,17 @@ jobs:
         run: python3 -B scripts/refresh_instagram_token.py --new-token-file "$RUNNER_TEMP/instagram-token"
       - name: Store a token that Instagram replaced
         # Only when the refresh answered with a different token string. Writing a repository secret
-        # needs a token with that permission; the workflow's own GITHUB_TOKEN cannot do it.
+        # needs a token with that permission; the workflow's own GITHUB_TOKEN cannot do it. Without
+        # one the stored token stays in use, which is not a failure: the refresh on 2026-11-25
+        # returned a different string and the stored token kept working afterwards.
         if: steps.refresh.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ secrets.SECRETS_WRITE_TOKEN }}
         run: |
+          trap 'rm -f "$RUNNER_TEMP/instagram-token"' EXIT
           if [ -z "$GH_TOKEN" ]; then
-            rm -f "$RUNNER_TEMP/instagram-token"
-            echo "::error::Instagram replaced the token and there is no SECRETS_WRITE_TOKEN secret to store the new one with. Generate a token in the Meta App Dashboard and paste it into the IG_ACCESS_TOKEN secret, or add SECRETS_WRITE_TOKEN (a token allowed to write this repository's Actions secrets)."
-            exit 1
+            echo "::notice::Instagram answered with a different token string. It was not stored, because this repository has no SECRETS_WRITE_TOKEN secret, and the stored token stays in use. This is expected and not a failure: the refresh above was made with the stored token, so Instagram still accepts it. If this job ever fails at the refresh step, generate a new token in the Meta App Dashboard and paste it into the IG_ACCESS_TOKEN secret."
+            exit 0
           fi
           gh secret set IG_ACCESS_TOKEN --repo "$GITHUB_REPOSITORY" < "$RUNNER_TEMP/instagram-token"
-          rm -f "$RUNNER_TEMP/instagram-token"
+          echo "::notice::The token string Instagram issued is now stored in the IG_ACCESS_TOKEN secret."
