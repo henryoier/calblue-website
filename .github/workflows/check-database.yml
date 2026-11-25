@@ -1,0 +1,47 @@
+name: Check database migrations
+
+# Applies every migration to a throwaway local Supabase database inside the runner and runs the SQL
+# checks in supabase/tests/. No hosted project is contacted and no secret is used.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SCRATCH_DB: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Install the Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          # Pinned so the Postgres and Auth images do not change under a pull request. This release
+          # starts supabase/postgres 17.12 and supabase/gotrue 2.198. Raise it on purpose, in its own PR.
+          version: 3.4.0
+      - name: Start a throwaway local database (Postgres and Auth only)
+        run: |
+          mkdir -p "$RUNNER_TEMP/scratch" && cd "$RUNNER_TEMP/scratch"
+          supabase init </dev/null
+          # The start report prints the local stack's built-in default keys; keep them out of the log.
+          supabase start -x studio,imgproxy,realtime,storage-api,edge-runtime,logflare,vector,postgres-meta,supavisor,mailpit,postgrest,kong \
+            > start.log 2>&1 || { grep -v -E 'Publishable|Secret' start.log; exit 1; }
+          grep -E 'Pulling from' start.log || true
+          echo "Supabase CLI $(supabase --version), $(psql --version)"
+          psql "$SCRATCH_DB" -X -A -t -c "select version()" -c "select 'connected as ' || current_user || ', superuser ' || current_setting('is_superuser')"
+      - name: Apply each migration to the empty database and run its checks
+        run: python3 scripts/run_db_tests.py smoke --db-url "$SCRATCH_DB"
+      - name: Start again from an empty database
+        run: cd "$RUNNER_TEMP/scratch" && supabase db reset
+      - name: Run the demo seed twice, then apply later migrations over its data
+        run: python3 scripts/run_db_tests.py seed --db-url "$SCRATCH_DB"
+      - name: Stop the local database
+        if: always()
+        run: cd "$RUNNER_TEMP/scratch" && supabase stop --no-backup || true
