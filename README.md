@@ -1,6 +1,18 @@
 # CalBlue public website
 
+**Member-management handoff (2026-10-21):** Start with [the current agent handoff](docs/handoffs/2026-10-21-member-management.md). It records completed code, remaining one-click payment/public-profile work, and the latest decision that Henry and his agent have administrator access. See [AGENTS.md](AGENTS.md) before continuing.
+
 A standalone, dependency-free public site for CalBlue Soccer Club. It is deliberately separate from company codebases and can be hosted from any static hosting provider.
+
+## Local player registration and club office
+
+The [local club office](club-office/README.md) adds an encrypted player database,
+club IDs by join year, encrypted registration files, dues, bank-export matching,
+email reminder preparation and reusable form exports. Start it with
+`python3 scripts/start_club_office.py`. It works without an online database and
+does not sync with the existing Supabase member app. Chase live access and SMTP
+delivery are not configured; real player data and backup files stay out of this
+public repository.
 
 ## Preview locally
 
@@ -172,3 +184,7 @@ Competition rosters are refreshed every six hours and before deployment with `py
 See [DEPLOYMENT.md](DEPLOYMENT.md) for ownership, access, DNS, publishing, maintenance, and future CMS/database guidance.
 
 Confirmed NCCSF full-size photo URLs are stored in `data/nccsf-player-photos.json`, keyed by the official player ID. Their filenames contain unique suffixes obtained from signed-in player pages; they cannot be generated from thumbnail filenames. Roster sync reapplies these URLs and keeps each public thumbnail as a fallback. Add only verified original photo URLs for the matching player.
+
+### Member accounts and private bills
+
+The existing member app now includes own-account statements, administrator account management and a Google PKCE login option (disabled until provider setup). See [the account guide](app/accounts-and-billing.md). This uses the existing Supabase RLS; it does not automatically upload the offline vault. Start the guarded preview with `python3 scripts/start_member_app.py`.

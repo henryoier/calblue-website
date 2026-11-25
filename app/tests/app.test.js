@@ -164,7 +164,8 @@ async function openVerificationDraft(view) {
 }
 
 function fixture(path, session = sessionDouble(), loadClient = async () => ({}), authFlow = authDouble(),
-  createIdentity = identityFactoryDouble(), createVerification = verificationFactoryDouble()) {
+  createIdentity = identityFactoryDouble(), createVerification = verificationFactoryDouble(),
+  createBilling = () => ({ accounts: async () => ({ rows: [], hasMore: false }) })) {
   const originalUrl = location.href;
   history.replaceState(null, "", "#" + path);
   const root = document.createElement("div");
@@ -177,7 +178,7 @@ function fixture(path, session = sessionDouble(), loadClient = async () => ({}),
     <footer id="app-footer" class="app-footer"></footer>
   `);
   document.body.append(root);
-  const app = createApp({ root, session, loadClient, configured: () => true, authFlow, createIdentity, createVerification });
+  const app = createApp({ root, session, loadClient, configured: () => true, authFlow, createIdentity, createVerification, createBilling });
   return { app, root, session, identity: createIdentity,
     main: root.querySelector("#app"),
     dispose() { app.destroy(); root.remove(); history.replaceState(null, "", originalUrl); },
@@ -335,7 +336,8 @@ testAsync("[app] role changes clear protected content and navigation", async (t)
   const view = fixture("/admin/payments", sessionDouble({ authenticated: true, roles: ["admin"] }));
   try {
     await view.app.start();
-    t.equal(view.main.querySelector("h1").textContent, "Payments");
+    await settle();
+    t.equal(view.main.querySelector("h1").textContent, "Club accounts");
     view.session.set({ authenticated: true, roles: ["treasurer", "developer"] });
     await settle();
     t.equal(view.main.querySelector("h1").textContent, "You do not have access");
@@ -806,4 +808,30 @@ testAsync("[app] a late save cannot restore the old account's editor or show suc
     t.equal(view.main.querySelector("[data-identity-status]")?.textContent.trim() || "", "");
     t.equal(old.requests.list.length, 1, "late completion must not initiate another old-account list request");
   } finally { gate.resolve(identityRecord()); view.dispose(); }
+});
+
+
+testAsync("[app] financial role revocation clears rendered account data", async (t) => {
+  const session = sessionDouble({ authenticated: true, roles: ["admin"] });
+  const factory = () => ({ accounts: async () => ({ rows: [{ id: ACCOUNT_B, email: "private-billing@example.com", display_name: "Private payer", balance: 75 }], hasMore: false }) });
+  const view = fixture("/admin/payments", session, undefined, undefined, undefined, undefined, factory);
+  try { await view.app.start(); await settle(); t.assert(view.main.textContent.includes("private-billing@example.com"));
+    session.set({roles:["player"]}); await settle(); t.equal(view.main.querySelector("h1").textContent,"You do not have access"); t.assert(!view.main.textContent.includes("private-billing@example.com"));
+  } finally { view.dispose(); }
+});
+testAsync("[app] stale billing response cannot render after sign out", async (t) => {
+  const gate = deferred(); const session = sessionDouble({ authenticated: true, roles: ["admin"] });
+  const view = fixture("/admin/payments", session, undefined, undefined, undefined, undefined, () => ({accounts:()=>gate.promise}));
+  try { await view.app.start(); session.set({authenticated:false,roles:[]}); await settle();
+    gate.resolve({rows:[{id:ACCOUNT_B,email:"private-billing@example.com",display_name:"Private",balance:75}],hasMore:false}); await settle();
+    t.assert(!view.main.textContent.includes("private-billing@example.com")); t.equal(view.main.querySelector("h1").textContent,"Sign in required");
+  } finally { view.dispose(); }
+});
+testAsync("[app] member statement has no administration controls", async (t) => {
+  const session = sessionDouble({ authenticated: true, roles: ["player"] });
+  const factory = (options) => { t.equal(options.admin,false);t.equal(options.accountId,ACCOUNT_A);return {
+    summary:async()=>({charges_total:100,payments_total:25,balance:75}), ledger:async()=>({rows:[{entry_date:"2026-10-01",description:"Own season dues",direction:"charge",entry_type:"season_dues",amount:100}],hasMore:false}) }; };
+  const view=fixture("/billing",session,undefined,undefined,undefined,undefined,factory);
+  try { await view.app.start();await settle();t.equal(view.main.querySelector("h1").textContent,"My bills");t.assert(view.main.textContent.includes("$75.00"));t.assert(view.main.textContent.includes("gocalblue1996"));t.equal(view.main.querySelectorAll("form").length,0); }
+  finally {view.dispose();}
 });

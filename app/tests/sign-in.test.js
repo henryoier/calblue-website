@@ -360,3 +360,10 @@ testAsync("[sign-in] a 360px form fits its container with touch-sized controls",
     t.assert(parseFloat(getComputedStyle(email).fontSize) >= 16, "mobile email input should not trigger text zoom");
   });
 });
+
+
+testAsync("[sign-in] Google is disabled until configured and shares the busy guard", async (t) => {
+  let calls=0;
+  await withSignIn({googleEnabled:false,requestGoogle:async()=>{calls++;}},async({main})=>{const button=main.querySelector(".app-google-sign-in");t.assert(button.disabled);button.click();t.equal(calls,0);});
+  await withSignIn({googleEnabled:true,requestGoogle:async()=>{calls++;throw new Error("private-provider-error");}},async({main})=>{const button=main.querySelector(".app-google-sign-in");button.click();await settle();t.equal(calls,1);t.assert(!main.textContent.includes("private-provider-error"));t.assert(main.textContent.includes("Google sign-in could not start"));});
+});

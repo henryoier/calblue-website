@@ -379,3 +379,19 @@ body {
 .app-verification-primary { color: #fff; background: var(--navy, #071b3f); }
 .app-verification button:disabled { cursor: not-allowed; background: #e2e8f0; color: #475569; border-color: #94a3b8; }
 .app-verification fieldset:disabled input, .app-verification fieldset:disabled textarea { background: #f1f5f9; }
+
+.app-billing { display:grid; gap:1rem; min-width:0; }
+.app-billing h1,.app-billing h2,.app-billing p { margin:0; }
+.app-billing-table { overflow-x:auto; }
+.app-billing table { width:100%; border-collapse:collapse; text-align:left; }
+.app-billing th,.app-billing td { padding:0.8rem; border-bottom:1px solid #cbd5e1; overflow-wrap:anywhere; }
+.app-billing-summary { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0.8rem;background:#edf3fa;padding:1.2rem;border-radius:0.5rem; }
+.app-billing-summary span,.app-billing-summary strong { display:block;overflow-wrap:anywhere; }
+.app-billing-summary strong { font-size:clamp(1.1rem,3vw,1.7rem); }
+.app-billing-panel { padding:1.2rem;border:1px solid #cbd5e1;border-radius:0.5rem;display:grid;gap:1rem; }
+.app-billing form { display:grid;gap:0.8rem; }
+.app-billing label { display:grid;gap:0.4rem;font-weight:600; }
+.app-billing input:not([type=checkbox]),.app-billing select { width:100%;min-width:0;padding:0.65rem;border:1px solid #64748b;border-radius:0.3rem;font:inherit; }
+.app-billing label.app-billing-check { display:flex;gap:0.6rem;font-weight:400;align-items:start; }
+.app-billing input[type=checkbox] { width:1.3rem;height:1.3rem;flex:none; }
+.app-billing-actions { display:flex;flex-wrap:wrap;gap:0.7rem; }
