@@ -26,7 +26,7 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
@@ -118,6 +118,18 @@ jobs:
             });
       - name: Deploy
         id: deployment
+        # A failure here is not final: the two steps below try once more. On 2026-11-25 the check
+        # above saw the upload and this action, one second later, listed no artifact.
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+      - name: Wait before a second deploy attempt
+        if: steps.deployment.outcome == 'failure'
+        run: |
+          echo "::warning::The first deploy attempt failed. Trying once more in 30 seconds, with the same upload."
+          sleep 30
+      - name: Deploy (second attempt)
+        id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@v4
       - name: Verify the public homepage match details
         timeout-minutes: 3
