@@ -77,6 +77,14 @@ function run(argv) {
     verificationLogicTests(verification, { test, assert, equal });
     verificationDataTests(verification, { testAsync });
   `);
+  evaluate(source("app/js/pickup.js"));
+  evaluate(source("app/tests/pickup.logic.js"));
+  evaluate(source("app/tests/pickup.data.test.js"));
+  evaluate(`
+    var pickup = { createPickupService, validatePickupDetails, pickupLocalInput, pickupLocalToInstant, PICKUP_LIMITS };
+    pickupLogicTests(pickup, { test, assert, equal });
+    pickupDataTests(pickup, { testAsync });
+  `);
 
   evaluate(`
     var done = false;

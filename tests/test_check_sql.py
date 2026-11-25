@@ -184,6 +184,159 @@ def policy_fixture():
     return "\n".join(sql)
 
 
+def pickup_fixture():
+    """Independent pickup DDL/ACL shape, not executable management behavior."""
+    helpers = (
+        ("can_manage_pickup_team", "p_team uuid", "uuid", "definer"),
+        ("validate_pickup_game_details", "p_details jsonb", "jsonb", "definer"),
+        ("guard_pickup_game_write", "", "", "invoker"),
+        ("pickup_game_options", "", "", "definer"),
+        ("list_pickup_games", "p_offset integer", "integer", "definer"),
+        ("save_pickup_game", "p_game uuid, p_expected timestamptz, p_details jsonb", "uuid,timestamptz,jsonb", "definer"),
+        ("transition_pickup_game", "p_game uuid, p_expected timestamptz, p_action text, p_reason text", "uuid,timestamptz,text,text", "definer"),
+    )
+    source = ["begin;"]
+    for name, arguments, types, mode in helpers:
+        source.append(f"""create function public.{name}({arguments}) returns void
+            language plpgsql security {mode} set search_path = '' as $$ begin return; end $$;
+            revoke all on function public.{name}({types}) from public, anon, authenticated;""")
+        if name not in {"validate_pickup_game_details", "guard_pickup_game_write"}:
+            source.append(f"grant execute on function public.{name}({types}) to authenticated;")
+    source.append("""create policy games_pickup_staff_read on public.games
+        for select to authenticated using (game_type = 'pickup' and public.can_manage_pickup_team(team_id));
+        create trigger games_u_pickup_guard before insert or update or delete on public.games
+        for each row execute function public.guard_pickup_game_write();
+        commit;""")
+    return "\n".join(source)
+
+
+class PickupMigrationCheckTest(unittest.TestCase):
+    def findings(self, source):
+        problems = []
+        check_sql.pickup_checks(check_sql.scan_sql(source), problems)
+        return problems
+
+    def assert_problem(self, source, fragment):
+        self.assertIn(fragment, "\n".join(self.findings(source)))
+
+    def test_independent_pickup_contract_passes(self):
+        self.assertEqual(self.findings(pickup_fixture()), [])
+
+    def test_new_migration_dispatch_does_not_accept_an_empty_contract(self):
+        problems = check_sql.check_migrations({check_sql.PICKUP: "begin; commit;"},
+                                             required_targets=(check_sql.PICKUP,))
+        self.assertIn("missing pickup helper", "\n".join(problems))
+
+    def test_pickup_installation_is_one_transaction(self):
+        for source in (pickup_fixture().replace("begin;", "", 1),
+                       pickup_fixture().removesuffix("commit;")):
+            self.assert_problem(source, "one BEGIN/COMMIT transaction")
+        self.assert_problem(pickup_fixture().replace("commit;", "commit; begin; commit;"),
+                            "transaction boundaries cannot appear inside")
+
+    def test_security_modes_and_fixed_search_paths_are_not_bypassable(self):
+        for original, replacement, finding in (
+            ("security invoker", "security definer", "SECURITY INVOKER"),
+            ("security definer", "security invoker", "SECURITY DEFINER"),
+            ("set search_path = ''", "set search_path = public", "fixed empty search_path"),
+            ("set search_path = ''", "set search_path = '', public", "fixed empty search_path"),
+            ("set search_path = ''", "/* set search_path = '' */", "fixed empty search_path"),
+            ("set search_path = ''", "set search_path = '' set search_path = public", "fixed empty search_path"),
+        ):
+            with self.subTest(replacement=replacement):
+                self.assert_problem(pickup_fixture().replace(original, replacement), finding)
+
+    def test_privilege_surface_excludes_anonymous_private_and_table_grants(self):
+        for statement in (
+            "grant execute on function public.save_pickup_game(uuid,timestamptz,jsonb) to anon;",
+            "grant execute on function public.validate_pickup_game_details(jsonb) to authenticated;",
+            "grant execute on function public.guard_pickup_game_write() to authenticated;",
+            "grant update on table public.games to authenticated;",
+        ):
+            with self.subTest(statement=statement):
+                self.assert_problem(pickup_fixture().replace("commit;", statement + "commit;"),
+                                    "only the authenticated scope helper and four pickup RPCs")
+        self.assert_problem(pickup_fixture().replace("commit;",
+            "grant execute on all functions in schema public to authenticated; commit;"),
+            "unsupported privilege change")
+
+    def test_revokes_and_final_narrow_grants_are_required(self):
+        revoke = "revoke all on function public.pickup_game_options() from public, anon, authenticated;"
+        grant = "grant execute on function public.pickup_game_options() to authenticated;"
+        self.assert_problem(pickup_fixture().replace(revoke, "-- " + revoke), "must revoke PUBLIC/anon/authenticated")
+        self.assert_problem(pickup_fixture().replace(grant, "-- " + grant), "execution grants are incomplete")
+        self.assert_problem(pickup_fixture().replace("commit;", revoke + "commit;"), "execution grants are incomplete")
+
+    def test_policy_remains_scoped_pickup_select_only(self):
+        for original, replacement in (
+            ("game_type = 'pickup'", "game_type = 'league'"),
+            (" and public.can_manage_pickup_team(team_id)", " or true"),
+            ("for select to authenticated", "for all to authenticated"),
+            ("for select to authenticated", "for select to anon, authenticated"),
+        ):
+            with self.subTest(replacement=replacement):
+                self.assert_problem(pickup_fixture().replace(original, replacement),
+                                    "only the authenticated pickup-team SELECT policy")
+
+    def test_guard_events_timing_order_and_row_scope_are_preserved(self):
+        for original, replacement in (
+            ("before insert or update or delete", "before insert or update"),
+            ("before insert or update or delete", "after insert or update or delete"),
+            ("games_u_pickup_guard", "games_pickup_guard"),
+            ("for each row", "for each statement"),
+        ):
+            with self.subTest(replacement=replacement):
+                self.assert_problem(pickup_fixture().replace(original, replacement),
+                                    "BEFORE INSERT/UPDATE/DELETE for each games row")
+
+    def test_broad_additive_changes_and_callable_owner_bypasses_are_rejected(self):
+        for statement in (
+            "alter table public.games disable row level security;",
+            "drop policy games_pickup_staff_read on public.games;",
+            "alter function public.save_pickup_game(uuid,timestamptz,jsonb) security invoker;",
+        ):
+            with self.subTest(statement=statement):
+                self.assert_problem(pickup_fixture().replace("commit;", statement + "commit;"),
+                                    "outside the additive pickup contract")
+        self.assert_problem(pickup_fixture().replace("begin return;", "begin perform current_user; return;", 1),
+                            "must not authorize their SECURITY DEFINER owner")
+
+
+class PickupMigrationPresenceTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.released_targets = (
+            check_sql.CORE, check_sql.MONEY, check_sql.POLICIES, check_sql.VERIFICATION,
+        )
+        cls.released = {
+            name: (check_sql.MIG_DIR / name).read_text(encoding="utf-8")
+            for name in cls.released_targets
+        }
+
+    def test_pickup_is_required_after_four_released_migrations(self):
+        self.assertEqual(check_sql.check_migrations(self.released), [
+            "0005_pickup_games.sql: required pickup migration is missing",
+        ])
+
+    def test_explicit_historic_target_set_does_not_require_pickup(self):
+        self.assertEqual(check_sql.check_migrations(
+            self.released, required_targets=self.released_targets,
+        ), [])
+
+    def test_cli_requires_pickup_without_creating_or_rewriting_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name, source in self.released.items():
+                (root / name).write_text(source, encoding="utf-8")
+            before = {name: (root / name).read_bytes() for name in self.released}
+            with mock.patch.object(check_sql, "MIG_DIR", root), \
+                    mock.patch("sys.argv", ["check_sql.py"]), redirect_stdout(io.StringIO()) as output:
+                self.assertEqual(check_sql.main(), 1)
+            self.assertIn("0005_pickup_games.sql: required pickup migration is missing", output.getvalue())
+            self.assertFalse((root / check_sql.PICKUP).exists())
+            self.assertEqual({name: (root / name).read_bytes() for name in self.released}, before)
+
+
 class LexerTest(unittest.TestCase):
     def test_noise_preserves_offsets_and_newlines(self):
         sql = "-- $$ (\n/* outer\n /* inner */ end */\nselect 'it''s $$)', E'escaped\\\' quote';"

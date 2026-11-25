@@ -11,16 +11,20 @@ from scripts import build_migrations as migrations
 RULER = "-- " + "=" * 69
 
 
-def fixture(section_numbers=range(12), preamble="create extension if not exists pgcrypto;"):
+def fixture(section_numbers=range(13), preamble="create extension if not exists pgcrypto;"):
     sections = [f"{RULER}\n-- {number}. Section {number}\n{RULER}\nSELECT {number};"
                 for number in section_numbers]
     return "-- Fixture source\n" + preamble + "\n\n" + "\n\n".join(sections) + "\n"
 
 
 class SectionParserTest(unittest.TestCase):
-    def test_default_build_emits_four_landed_migrations_and_excludes_future_sections(self):
+    def test_default_build_emits_five_landed_migrations_and_excludes_future_sections(self):
         generated = migrations.build(source_text=fixture())
-        self.assertEqual(list(generated), ["0001_core.sql", "0002_money.sql", "0003_rls.sql", "0004_player_verification.sql"])
+        self.assertEqual(list(generated), ["0001_core.sql", "0002_money.sql", "0003_rls.sql", "0004_player_verification.sql", "0005_pickup_games.sql"])
+        self.assertIn("SELECT 12;", generated["0005_pickup_games.sql"])
+        self.assertNotIn("SELECT 9;", generated["0005_pickup_games.sql"])
+        self.assertNotIn("SELECT 10;", generated["0005_pickup_games.sql"])
+        self.assertNotIn("SELECT 11;", generated["0005_pickup_games.sql"])
         self.assertIn("SELECT 11;", generated["0004_player_verification.sql"])
         self.assertNotIn("SELECT 9;", generated["0004_player_verification.sql"])
         self.assertNotIn("SELECT 10;", generated["0004_player_verification.sql"])
@@ -102,7 +106,7 @@ class SectionParserTest(unittest.TestCase):
 
     def test_decimal_subsections_are_not_top_level_banners(self):
         text = fixture().replace("SELECT 5;", "-- 5.1 A subsection\nSELECT 5;")
-        self.assertEqual(set(migrations.parse_sections(text)), set(range(12)) | {"_preamble"})
+        self.assertEqual(set(migrations.parse_sections(text)), set(range(13)) | {"_preamble"})
 
     def test_multiline_uppercase_extension_and_header_are_preserved(self):
         preamble = "-- extension note\nCREATE EXTENSION\n  IF NOT EXISTS citext;"
@@ -155,10 +159,10 @@ class GenerationCommandTest(unittest.TestCase):
         self.assertIn("required migration is missing", output)
         self.assertFalse(self.output.parent.exists())
 
-    def test_default_generation_writes_four_landed_migrations_and_is_reproducible(self):
+    def test_default_generation_writes_five_landed_migrations_and_is_reproducible(self):
         self.assertEqual(self.run_command([])[0], 0)
         self.assertEqual({path.name for path in self.output.iterdir()},
-                         {"0001_core.sql", "0002_money.sql", "0003_rls.sql", "0004_player_verification.sql"})
+                         {"0001_core.sql", "0002_money.sql", "0003_rls.sql", "0004_player_verification.sql", "0005_pickup_games.sql"})
         previous = {path.name: (path.read_bytes(), path.stat().st_mtime_ns)
                     for path in self.output.iterdir()}
         self.assertEqual(self.run_command([])[0], 0)

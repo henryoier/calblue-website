@@ -7,39 +7,39 @@ export function layoutLogicTests(layout, t) {
   });
 
   t.test("signed-in accounts without roles can manage their identity", () => {
-    t.equal(paths({ authenticated: true, roles: [] }), "/,/games,/identity");
+    t.equal(paths({ authenticated: true, roles: [] }), "/,/games,/identity,/manage/pickup");
   });
 
   t.test("player, coach, and referee roles do not expose administration", () => {
     for (const role of ["player", "coach", "referee"]) {
-      t.equal(paths({ authenticated: true, roles: [role] }), "/,/games,/identity");
+      t.equal(paths({ authenticated: true, roles: [role] }), "/,/games,/identity,/manage/pickup");
     }
   });
 
   t.test("treasurer has no club-wide payments access under released RLS", () => {
     t.equal(
       paths({ authenticated: true, roles: ["treasurer"] }),
-      "/,/games,/identity",
+      "/,/games,/identity,/manage/pickup",
     );
   });
 
   t.test("admin sees every operational destination", () => {
     t.equal(
       paths({ authenticated: true, roles: ["admin"] }),
-      "/,/games,/identity,/admin/verify,/admin/payments,/admin/audit,/admin/clubs",
+      "/,/games,/identity,/manage/pickup,/admin/verify,/admin/payments,/admin/audit,/admin/clubs",
     );
   });
 
   t.test("developer has no member-data or audit access under released RLS", () => {
     t.equal(
       paths({ authenticated: true, roles: ["developer"] }),
-      "/,/games,/identity",
+      "/,/games,/identity,/manage/pickup",
     );
   });
 
   t.test("malformed or non-exact roles cannot show administration", () => {
     for (const roles of [null, "admin", ["ADMIN"], [" admin "], ["admin", 1], ["organiser"]]) {
-      t.equal(paths({ authenticated: true, roles }), "/,/games,/identity");
+      t.equal(paths({ authenticated: true, roles }), "/,/games,/identity,/manage/pickup");
     }
   });
 
