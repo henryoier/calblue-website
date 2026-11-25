@@ -1,21 +1,48 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-16T17:58:02-08:00",
-  "today": "2026-11-16",
-  "asOf": "2026-11-16T17:58:02-08:00",
+  "generatedAt": "2026-11-24T17:13:44-08:00",
+  "today": "2026-11-24",
+  "asOf": "2026-11-24T17:13:44-08:00",
   "items": [
     {
-      "id": "matchday-2026-11-22-south-san-francisco-ac",
-      "slug": "matchday-2026-11-22-south-san-francisco-ac",
+      "id": "matchday-2026-12-06-afghan-premier-fc",
+      "slug": "matchday-2026-12-06-afghan-premier-fc",
       "category": "Match day",
-      "date": "2026-11-22",
-      "title": "Match day: CalBlue FC vs South San Francisco AC",
-      "summary": "Sunday, November 22 · 7:30 pm PT · Fair Oaks Park Field 3",
-      "image": "assets/matchday/2026-fall/2026-11-22-south-san-francisco-ac-styled.webp",
-      "imageAlt": "Match-day poster: CalBlue FC vs South San Francisco AC",
+      "date": "2026-12-06",
+      "title": "Match day: Afghan Premier FC vs CalBlue FC",
+      "summary": "Sunday, December 6 · 6:30 pm PT · Fallon Sports Park Field #2",
+      "image": "assets/matchday/2026-fall/2026-12-06-afghan-premier-fc-styled.webp",
+      "imageAlt": "Match-day poster: CalBlue FC vs Afghan Premier FC",
       "href": "index.html#matchday",
       "cta": "See the poster",
       "poster": true
+    },
+    {
+      "id": "result-2026-11-22-south-san-francisco-ac",
+      "slug": "result-2026-11-22-south-san-francisco-ac",
+      "category": "Result",
+      "outcome": "Win",
+      "date": "2026-11-22",
+      "title": "CalBlue 3-2 South San Francisco AC",
+      "summary": "Win · Home · Abronzino Cup · Fair Oaks Park Field 3",
+      "image": "",
+      "imageAlt": "CalBlue FC against South San Francisco AC",
+      "scoreline": {
+        "home": {
+          "name": "CalBlue FC",
+          "logo": "assets/calblue-logo-web.jpg"
+        },
+        "away": {
+          "name": "South San Francisco AC",
+          "logo": "https://nisa.sportzstudio.com/team_images/1663784092_thumb_a.png"
+        },
+        "score": {
+          "home": 3,
+          "away": 2
+        }
+      },
+      "href": "competition-swpl.html",
+      "cta": "Full results and table"
     },
     {
       "id": "gallery-2026-11-14-legends-sc",
